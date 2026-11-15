@@ -17,7 +17,11 @@ the rules are for what each app builds on top of them.
 - The organization name comes from configuration (`ORG_NAME`, `config.json`),
   never from the code.
 - No language picker in the header. The locale follows the browser; an app
-  that needs a switch puts it in the account menu.
+  that needs a switch puts `LanguageMenu` in the account menu, where the
+  languages stay folded under one 語言 item.
+- The account menu holds the app's own account items (profile, settings,
+  language) in the app's order, then `SignOutMenuItem` last.
+- Color mode is one icon button with three choices: 跟隨系統, 淺色, 深色.
 
 ## Color
 

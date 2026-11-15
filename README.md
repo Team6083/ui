@@ -13,7 +13,7 @@ same snippets and writing the same pages.
 | `createRuntimeConfig`, `ConfigErrorPage`, `loadRuntimeConfig`, `parseBaseConfig` | Loads `config.json` before anything else and shows the config error page when it fails (SPAs) | Frontend: 執行期設定與托管 |
 | `readApiError`, `ApiError`, `useApiErrorMessage` | Reads the standard error body; localized text for the standard codes | Common: HTTP API 慣例 |
 | `StatusPage` | The layout the pages above share, for an app's own not-found or error pages | |
-| `AppShell`, `AccountMenu`, `SignInButton`, `BuildInfo` | The frame every app shares, from OverHours: app name, pages with icons, color mode, account, phone drawer, footer, update banner | [DESIGN.md](DESIGN.md) |
+| `AppShell`, `AccountMenu`, `LanguageMenu`, `SignOutMenuItem`, `SignInButton`, `BuildInfo`, `ColorModeButton` | The frame every app shares, from OverHours: app name, pages with icons, color mode (system, light, dark), an account menu each app fills with its own items, phone drawer, footer, update banner | [DESIGN.md](DESIGN.md) |
 | `PageHeader`, `SectionHeader`, `EmptyState`, `MemberAvatar` | A page's one heading, a section's title with its count and actions, the empty-list message, a person's avatar | [DESIGN.md](DESIGN.md) |
 
 How apps should look, and what to use these for, is in [DESIGN.md](DESIGN.md).
@@ -108,8 +108,9 @@ hand it what the server knows (session, server actions):
 
 import NextLink from "next/link"
 import { usePathname } from "next/navigation"
-import { AccountMenu, AppShell, BuildInfo } from "@team6083/ui"
-import { LuLogOut, LuLogs } from "react-icons/lu"
+import { Menu } from "@chakra-ui/react"
+import { AccountMenu, AppShell, BuildInfo, SignOutMenuItem } from "@team6083/ui"
+import { LuLogs, LuUser } from "react-icons/lu"
 
 export function Frame({ user, signOut, children }: { user: { name: string; image?: string }; signOut: () => Promise<void>; children: React.ReactNode }) {
   const pathname = usePathname()
@@ -119,7 +120,15 @@ export function Frame({ user, signOut, children }: { user: { name: string; image
       orgName={process.env.NEXT_PUBLIC_ORG_NAME}
       nav={[{ href: "/logs", label: "紀錄", icon: <LuLogs />, active: pathname.startsWith("/logs") }]}
       renderLink={(href, children) => <NextLink href={href}>{children}</NextLink>}
-      account={<AccountMenu name={user.name} image={user.image} items={[{ value: "signout", label: "登出", icon: <LuLogOut />, onSelect: signOut }]} />}
+      account={
+        <AccountMenu name={user.name} image={user.image}>
+          {/* The app arranges its own items; the package offers LanguageMenu and SignOutMenuItem. */}
+          <Menu.Item value="profile" asChild>
+            <NextLink href="/profile"><LuUser />個人資料</NextLink>
+          </Menu.Item>
+          <SignOutMenuItem onSelect={() => void signOut()} />
+        </AccountMenu>
+      }
       buildInfo={<BuildInfo commit={process.env.NEXT_PUBLIC_COMMIT_SHA} builtAt={process.env.NEXT_PUBLIC_BUILD_DATE} />}
     >
       {children}

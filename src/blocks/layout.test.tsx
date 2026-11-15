@@ -1,9 +1,11 @@
-import { screen, within } from "@testing-library/react"
+import { Menu } from "@chakra-ui/react"
+import { screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { LuLogs } from "react-icons/lu"
 
 import { renderWithUi } from "../test-utils.js"
-import { AccountMenu, AppShell, BuildInfo } from "./app-shell.js"
+import { ColorModeButton } from "../chakra/color-mode.js"
+import { AccountMenu, AppShell, BuildInfo, LanguageMenu, SignOutMenuItem } from "./app-shell.js"
 import { avatarPaletteFor } from "./member-avatar.js"
 import { EmptyState, SectionHeader } from "./page-parts.js"
 
@@ -46,13 +48,53 @@ describe("AppShell", () => {
 })
 
 describe("AccountMenu", () => {
-  it("runs the selected item", async () => {
+  it("holds the app's own items, a language submenu and sign out", async () => {
     const signOut = vi.fn()
+    const changeLanguage = vi.fn()
+    const onSelect = vi.fn()
     const user = userEvent.setup()
-    renderWithUi(<AccountMenu name="黃薰磊" detail="me@example.test" items={[{ value: "signout", label: "登出", onSelect: signOut }]} />, { locale: "zh-TW" })
+    renderWithUi(
+      <AccountMenu name="黃薰磊" detail="me@example.test" onSelect={onSelect}>
+        <Menu.Item value="profile">個人資料</Menu.Item>
+        <LanguageMenu
+          languages={[
+            { value: "en", label: "English" },
+            { value: "zh-TW", label: "繁體中文" },
+          ]}
+          value="zh-TW"
+          onChange={changeLanguage}
+        />
+        <SignOutMenuItem onSelect={signOut} />
+      </AccountMenu>,
+      { locale: "zh-TW" },
+    )
+    await user.click(screen.getByRole("button", { name: "黃薰磊" }))
+    // The languages stay folded under one item.
+    expect(screen.queryByRole("menuitemradio", { name: "English" })).not.toBeInTheDocument()
+    await user.click(await screen.findByRole("menuitem", { name: /語言/ }))
+    await user.click(await screen.findByRole("menuitemradio", { name: "English" }))
+    expect(changeLanguage).toHaveBeenCalledWith("en")
+
+    await user.click(screen.getByRole("button", { name: "黃薰磊" }))
+    await user.click(await screen.findByRole("menuitem", { name: "個人資料" }))
+    expect(onSelect).toHaveBeenCalledWith("profile")
+
     await user.click(screen.getByRole("button", { name: "黃薰磊" }))
     await user.click(await screen.findByRole("menuitem", { name: "登出" }))
     expect(signOut).toHaveBeenCalledOnce()
+  })
+})
+
+describe("ColorModeButton", () => {
+  it("offers system, light and dark", async () => {
+    const user = userEvent.setup()
+    renderWithUi(<ColorModeButton />, { locale: "zh-TW" })
+    await user.click(await screen.findByRole("button", { name: "外觀" }))
+    const options = await screen.findAllByRole("menuitemradio")
+    expect(options.map((o) => o.textContent)).toEqual(["跟隨系統", "淺色", "深色"])
+    expect(screen.getByRole("menuitemradio", { name: "跟隨系統" })).toHaveAttribute("aria-checked", "true")
+    await user.click(screen.getByRole("menuitemradio", { name: "深色" }))
+    await waitFor(() => expect(document.documentElement).toHaveClass("dark"))
   })
 })
 
