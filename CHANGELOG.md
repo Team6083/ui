@@ -19,7 +19,8 @@ or behave without code changes on their side is a major version.
 - Layout from OverHours: `AppShell` (header, pages, color mode, account, phone
   drawer, footer, update banner), `AccountMenu` (the app's own items as
   children), `LanguageMenu`, `SignOutMenuItem`, `SignInButton`, `BuildInfo`,
-  `MemberAvatar`, `PageHeader`, `SectionHeader`, `EmptyState`.
+  `MemberAvatar`, `PageHeader` (with a `badge` beside the title), `SectionHeader`,
+  `EmptyState`.
 - `DESIGN.md`: the team's design rules, with OverHours as the reference.
 - Helpers: `readApiError`, `ApiError`, `loadRuntimeConfig`, `parseBaseConfig`,
   `commitsDiffer`.
