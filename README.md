@@ -6,13 +6,18 @@ same snippets and writing the same pages.
 
 | Export | What it is | Standard |
 | --- | --- | --- |
-| `system`, `UiProvider` | The team theme (a `brand` palette, fonts) on Chakra's defaults; Chakra + color mode + the package's locale | Frontend: UI 套件 |
+| `system`, `UiProvider` | The team theme (a `brand` palette) on Chakra's defaults; Chakra + color mode + the package's locale | Frontend: UI 套件 |
 | `Toaster`, `toaster`, `Tooltip`, `ToggleTip`, `InfoTip`, color mode | The Chakra snippets apps used to copy into `components/ui` | |
 | `NoAccessPage`, `isMissingRole` | The one page every app shows on `403 missing_role` | Auth: 使用權角色 |
 | `AppCommitProvider`, `AppOutdatedBanner`, `useAppOutdated`, `useCommitCheckedFetch` | Compares the build's commit with `X-App-Commit`, shows 「系統已更新，請重新載入」 and blocks writes | Frontend: 執行期設定與托管 |
 | `createRuntimeConfig`, `ConfigErrorPage`, `loadRuntimeConfig`, `parseBaseConfig` | Loads `config.json` before anything else and shows the config error page when it fails (SPAs) | Frontend: 執行期設定與托管 |
 | `readApiError`, `ApiError`, `useApiErrorMessage` | Reads the standard error body; localized text for the standard codes | Common: HTTP API 慣例 |
 | `StatusPage` | The layout the pages above share, for an app's own not-found or error pages | |
+| `AppShell`, `AccountMenu`, `SignInButton`, `BuildInfo` | The frame every app shares, from OverHours: app name, pages with icons, color mode, account, phone drawer, footer, update banner | [DESIGN.md](DESIGN.md) |
+| `PageHeader`, `SectionHeader`, `EmptyState`, `MemberAvatar` | A page's one heading, a section's title with its count and actions, the empty-list message, a person's avatar | [DESIGN.md](DESIGN.md) |
+
+How apps should look, and what to use these for, is in [DESIGN.md](DESIGN.md).
+OverHours is the reference.
 
 Strings come in `en` and `zh-TW`. The package does not depend on next-intl or
 react-i18next: pass the app's locale to `UiProvider`.
@@ -48,9 +53,6 @@ export function Providers({ locale, nonce, children }: { locale: string; nonce?:
   )
 }
 ```
-
-Load Geist with `next/font` under the variables `--font-geist-sans` and
-`--font-geist-mono`; the theme reads them and falls back to system fonts.
 
 Disable save buttons with `useAppOutdated()`. When the server returns
 `missing_role`, render `<NoAccessPage actions={<SignOutButton />} />`.
@@ -93,6 +95,40 @@ Build the API client on `useCommitCheckedFetch()`: it checks `X-App-Commit` on
 every response and, once the app is outdated, rejects writes with an `ApiError`
 whose code is `app_outdated`. Turn failed responses into errors with
 `readApiError(response)` and show them with `useApiErrorMessage()`.
+
+## Frame
+
+`AppShell` is a client component, and `renderLink` is a function, so a Next.js
+server layout cannot pass it directly. Put the frame in a small client file and
+hand it what the server knows (session, server actions):
+
+```tsx
+// app/_components/frame.tsx
+"use client"
+
+import NextLink from "next/link"
+import { usePathname } from "next/navigation"
+import { AccountMenu, AppShell, BuildInfo } from "@team6083/ui"
+import { LuLogOut, LuLogs } from "react-icons/lu"
+
+export function Frame({ user, signOut, children }: { user: { name: string; image?: string }; signOut: () => Promise<void>; children: React.ReactNode }) {
+  const pathname = usePathname()
+  return (
+    <AppShell
+      appName="OverHours"
+      orgName={process.env.NEXT_PUBLIC_ORG_NAME}
+      nav={[{ href: "/logs", label: "紀錄", icon: <LuLogs />, active: pathname.startsWith("/logs") }]}
+      renderLink={(href, children) => <NextLink href={href}>{children}</NextLink>}
+      account={<AccountMenu name={user.name} image={user.image} items={[{ value: "signout", label: "登出", icon: <LuLogOut />, onSelect: signOut }]} />}
+      buildInfo={<BuildInfo commit={process.env.NEXT_PUBLIC_COMMIT_SHA} builtAt={process.env.NEXT_PUBLIC_BUILD_DATE} />}
+    >
+      {children}
+    </AppShell>
+  )
+}
+```
+
+With react-router: `renderLink={(href, children) => <Link to={href}>{children}</Link>}`.
 
 ## Theme
 
