@@ -7,6 +7,8 @@ or behave without code changes on their side is a major version.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-15
+
 ### Added
 
 - `system`: the team theme on Chakra's defaults, with a `brand` palette (Chakra's
@@ -22,5 +24,8 @@ or behave without code changes on their side is a major version.
   `MemberAvatar`, `PageHeader` (with a `badge` beside the title), `SectionHeader`,
   `EmptyState`.
 - `DESIGN.md`: the team's design rules, with OverHours as the reference.
+- `AppCommitProvider` also takes `outdated` from apps that detect a new build
+  themselves; `loadRuntimeConfig` treats an HTML answer (the SPA fallback) as a
+  missing `config.json`.
 - Helpers: `readApiError`, `ApiError`, `loadRuntimeConfig`, `parseBaseConfig`,
   `commitsDiffer`.

@@ -144,6 +144,16 @@ describe("app commit check", () => {
     expect(fetchMock).toHaveBeenCalledWith("/api/healthz", { method: "HEAD", cache: "no-store" })
   })
 
+  it("shows what the app reports through `outdated`", () => {
+    renderWithUi(
+      <AppCommitProvider buildCommit="abc1234" outdated>
+        <Client />
+      </AppCommitProvider>,
+    )
+    expect(screen.getByTestId("app-outdated-banner")).toHaveTextContent("The system has been updated")
+    expect(screen.getByText("outdated: true")).toBeInTheDocument()
+  })
+
   it("does not poll without a build commit", async () => {
     const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal("fetch", fetchMock)

@@ -70,6 +70,10 @@ export async function loadRuntimeConfig<T>({ parse, basePath = "/", fetch: fetch
     throw new ConfigError([`could not fetch ${url}: ${error instanceof Error ? error.message : String(error)}`])
   }
   if (!response.ok) throw new ConfigError([`could not fetch ${url}: HTTP ${response.status}`])
+  // A static host's SPA fallback answers a missing config.json with index.html.
+  if (/text\/html/i.test(response.headers.get("Content-Type") ?? "")) {
+    throw new ConfigError([`${url} was answered with an HTML page; is config.json deployed?`])
+  }
 
   let raw: unknown
   try {
