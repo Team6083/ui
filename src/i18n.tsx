@@ -13,6 +13,7 @@ export interface UiMessages {
   outdated: { title: string; description: string; reload: string }
   apiError: Record<string, string> & { fallback: string }
   colorMode: { toggle: string }
+  shell: { menu: string; openMenu: string; signIn: string; signOut: string }
 }
 
 export const uiMessages: Record<UiLocale, UiMessages> = {
@@ -49,6 +50,7 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
       fallback: "Something went wrong. Try again.",
     },
     colorMode: { toggle: "Toggle color mode" },
+    shell: { menu: "Menu", openMenu: "Open menu", signIn: "Sign in", signOut: "Sign out" },
   },
   "zh-TW": {
     noAccess: {
@@ -83,6 +85,7 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
       fallback: "發生錯誤，請再試一次。",
     },
     colorMode: { toggle: "切換深色模式" },
+    shell: { menu: "選單", openMenu: "開啟選單", signIn: "登入", signOut: "登出" },
   },
 }
 
