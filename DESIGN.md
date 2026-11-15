@@ -64,6 +64,43 @@ the rules are for what each app builds on top of them.
 - Loading shows skeletons in the shape of the content on first load, then
   keeps the old content while refreshing, with "last updated" text.
 
+## Data pages
+
+Pages whose point is a set of records people pick from and act on (a batch's
+items, placing orders, a review queue). OverHours has none this large, so these
+rules are the reference here.
+
+- Lists of records are a `DataTable`: numbers right-aligned in tabular figures,
+  the record's name as the `primary` column, detail that can go when space runs
+  out as `secondary`. On a phone the same rows become cards; never let a phone
+  scroll a table sideways to reach a column.
+- A page whose table has more than about six columns uses
+  `AppShell width="wide"`. If it still does not fit, drop `secondary` columns
+  before shrinking text.
+- A row's actions go into its ⋯ menu (`rowActions`), destructive ones in red.
+  No buttons inside rows, and never a red button on every row.
+- Filters sit behind one 篩選 button with the count of what is set
+  (`FilterBar`), next to a search box. Never a row of always-open selects.
+- Acting on several records: checkboxes in the table and a `SelectionBar`
+  that appears once something is picked, holding the actions and the fields
+  they need (e.g. the vendor for a new order). No disabled "Create order from
+  0 items" buttons waiting above or below the table.
+- Never show a disabled main action as the page's call to action. Hide it
+  until it can be used, or say beside it what is missing.
+- A record's facts are a `FactList` in a card; amounts that add up are
+  `Totals` under the table, the total emphasized.
+- Show people and things by name, never by id. An id on screen is a bug.
+- Counts go in a badge (`SectionHeader count`, `Badge`), not in parentheses
+  inside a link.
+- Dates: `toLocaleDateString` with the time only when it matters, short form
+  (`11/23 03:34`); never seconds.
+
+## Reviewing a change
+
+Tests passing says nothing about how a page looks. A change to a page is done
+when its screenshots, desktop and phone, have been looked at against this file.
+Apps keep a Playwright spec that saves those screenshots for every page.
+
 ## Buttons
 
 - One solid button per card or dialog, for its main action. Everything else
