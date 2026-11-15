@@ -24,8 +24,47 @@ react-i18next: pass the app's locale to `UiProvider`.
 
 ## Install
 
+The package is private, on GitHub Packages. Every place that runs `npm ci`
+needs a token that can read it.
+
+1. In the app, next to `package.json`, add `.npmrc`:
+
+   ```ini
+   @team6083:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+   ```
+
+2. Give the app's repository read access to the package once: the package's
+   page on GitHub → Package settings → Manage Actions access → Add repository
+   (Read). Its workflows then install with the built-in `GITHUB_TOKEN`:
+
+   ```yaml
+   permissions:
+     contents: read
+     packages: read
+   # ...
+   - uses: actions/setup-node@v7
+     with:
+       registry-url: https://npm.pkg.github.com
+       scope: "@team6083"
+   - run: npm ci
+     env:
+       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+   ```
+
+3. On your machine, and on hosts that build the app (Cloudflare Pages or
+   Workers builds), set `NODE_AUTH_TOKEN` to a classic personal access token
+   with `read:packages`. With the GitHub CLI:
+   `gh auth refresh -h github.com -s read:packages`, then
+   `export NODE_AUTH_TOKEN=$(gh auth token)`.
+
+4. Dependabot needs the registry and a Dependabot secret holding such a token;
+   see the `registries` block in GitHub's Dependabot docs.
+
+Then:
+
 ```bash
-npm install @team6083/ui @chakra-ui/react next-themes
+npm install @team6083/ui @chakra-ui/react next-themes react-icons
 ```
 
 Then delete the app's own copies of `components/ui/provider.tsx`,
@@ -145,6 +184,12 @@ With react-router: `renderLink={(href, children) => <Link to={href}>{children}</
 emphasis (today, the current user, primary actions) instead of naming a hue.
 The team has no brand color yet, so it points at Chakra's blue. Every other
 token is Chakra's default until the team decides otherwise.
+
+## Release
+
+Bump `version` in `package.json`, move the `CHANGELOG.md` entries under the new
+version, merge, then push a matching tag (`git tag v0.2.0 && git push origin v0.2.0`).
+The release workflow checks, builds and publishes it.
 
 ## Development
 

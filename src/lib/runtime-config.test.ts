@@ -42,6 +42,7 @@ describe("loadRuntimeConfig", () => {
     ["a network error", new TypeError("offline"), "could not fetch /config.json: offline"],
     ["an HTTP error", new Response("", { status: 404 }), "could not fetch /config.json: HTTP 404"],
     ["invalid JSON", new Response("{"), "/config.json is not valid JSON"],
+    ["the SPA fallback's index.html", new Response("<!doctype html>", { headers: { "Content-Type": "text/html" } }), "/config.json was answered with an HTML page; is config.json deployed?"],
   ])("turns %s into a ConfigError", async (_, response, issue) => {
     await expect(loadRuntimeConfig({ parse: parseBaseConfig, fetch: fetchReturning(response) })).rejects.toMatchObject({
       name: "ConfigError",

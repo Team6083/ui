@@ -26,11 +26,17 @@ export interface AppCommitProviderProps {
    */
   pollUrl?: string
   pollIntervalMs?: number
+  /**
+   * For apps that already detect a newer build themselves (e.g. in their API
+   * client): true shows the banner and turns on useAppOutdated.
+   */
+  outdated?: boolean
 }
 
 /** Tracks whether the server runs a newer build than this page. */
-export function AppCommitProvider({ children, buildCommit, pollUrl, pollIntervalMs = 5 * 60_000 }: AppCommitProviderProps) {
-  const [outdated, setOutdated] = useState(false)
+export function AppCommitProvider({ children, buildCommit, pollUrl, pollIntervalMs = 5 * 60_000, outdated: reported = false }: AppCommitProviderProps) {
+  const [detected, setOutdated] = useState(false)
+  const outdated = detected || reported
 
   const observe = useCallback(
     (response: Response | Headers) => {
@@ -99,7 +105,7 @@ export function AppOutdatedBanner({ onReload = () => window.location.reload() }:
   if (!outdated) return null
 
   return (
-    <Alert.Root status="warning" position="sticky" top="0" zIndex="banner" rounded="none">
+    <Alert.Root status="warning" position="sticky" top="0" zIndex="banner" rounded="none" data-testid="app-outdated-banner">
       <Alert.Indicator />
       <Alert.Content>
         <Alert.Title>{m.title}</Alert.Title>
