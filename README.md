@@ -16,6 +16,8 @@ same snippets and writing the same pages.
 | `AppShell`, `AccountMenu`, `LanguageMenu`, `SignOutMenuItem`, `SignInButton`, `BuildInfo`, `ColorModeButton` | The frame every app shares, from OverHours: app name, pages with icons, color mode (system, light, dark), an account menu each app fills with its own items, phone drawer, footer, update banner | [DESIGN.md](DESIGN.md) |
 | `PageHeader`, `SectionHeader`, `EmptyState`, `MemberAvatar` | A page's one heading, a section's title with its count and actions, the empty-list message, a person's avatar | [DESIGN.md](DESIGN.md) |
 
+| `DataTable`, `FilterBar`, `SelectionBar`, `FactList`, `Totals` | Pages of records to pick from and act on: a table that becomes cards on a phone with row actions in a ⋯ menu, filters behind one button, a bar for acting on the picked rows, a record's facts, amounts that add up | [DESIGN.md](DESIGN.md): Data pages |
+
 How apps should look, and what to use these for, is in [DESIGN.md](DESIGN.md).
 OverHours is the reference.
 
@@ -185,11 +187,20 @@ emphasis (today, the current user, primary actions) instead of naming a hue.
 The team has no brand color yet, so it points at Chakra's blue. Every other
 token is Chakra's default until the team decides otherwise.
 
-## Release
+## Versions
 
-Bump `version` in `package.json`, move the `CHANGELOG.md` entries under the new
-version, merge, then push a matching tag (`git tag v0.2.0 && git push origin v0.2.0`).
-The release workflow checks, builds and publishes it.
+Until the first release every version is a prerelease. Each push to `main`
+publishes `<version>-alpha.<n>` under the `next` dist-tag, `<version>` being
+`package.json`'s without its prerelease part and `<n>` the run number, so
+nobody edits version numbers. Apps pin the exact version and update with:
+
+```bash
+npm install --save-exact @team6083/ui@next
+```
+
+A release: set `version` in `package.json`, move the `CHANGELOG.md` entries
+under it, merge, then push a matching tag (`git tag v0.1.0 && git push origin v0.1.0`).
+The release workflow checks, builds and publishes it as `latest`.
 
 ## Development
 

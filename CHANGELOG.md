@@ -7,7 +7,7 @@ or behave without code changes on their side is a major version.
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-11-15
+Not released yet; published as `0.1.0-alpha.<n>` prereleases.
 
 ### Added
 
@@ -27,5 +27,9 @@ or behave without code changes on their side is a major version.
 - `AppCommitProvider` also takes `outdated` from apps that detect a new build
   themselves; `loadRuntimeConfig` treats an HTML answer (the SPA fallback) as a
   missing `config.json`.
+- Data pages: `DataTable` (cards on a phone, row actions in a ⋯ menu, picking
+  rows by row, group and all, group headings), `FilterBar`, `SelectionBar`,
+  `FactList`, `Totals`; `AppShell width="wide"`; DESIGN.md's "Data pages"
+  and "Reviewing a change".
 - Helpers: `readApiError`, `ApiError`, `loadRuntimeConfig`, `parseBaseConfig`,
   `commitsDiffer`.

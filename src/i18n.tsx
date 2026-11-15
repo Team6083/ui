@@ -14,6 +14,17 @@ export interface UiMessages {
   apiError: Record<string, string> & { fallback: string }
   colorMode: { label: string; system: string; light: string; dark: string }
   shell: { menu: string; openMenu: string; signIn: string; signOut: string; language: string }
+  data: {
+    selectAll: string
+    selectRow: string
+    rowActions: string
+    /** {count} is replaced with the number of selected rows. */
+    selected: string
+    clearSelection: string
+    filter: string
+    clearFilters: string
+    search: string
+  }
 }
 
 export const uiMessages: Record<UiLocale, UiMessages> = {
@@ -51,6 +62,16 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
     },
     colorMode: { label: "Color mode", system: "System", light: "Light", dark: "Dark" },
     shell: { menu: "Menu", openMenu: "Open menu", signIn: "Sign in", signOut: "Sign out", language: "Language" },
+    data: {
+      selectAll: "Select all",
+      selectRow: "Select row",
+      rowActions: "More actions",
+      selected: "{count} selected",
+      clearSelection: "Clear selection",
+      filter: "Filter",
+      clearFilters: "Clear filters",
+      search: "Search",
+    },
   },
   "zh-TW": {
     noAccess: {
@@ -86,6 +107,16 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
     },
     colorMode: { label: "外觀", system: "跟隨系統", light: "淺色", dark: "深色" },
     shell: { menu: "選單", openMenu: "開啟選單", signIn: "登入", signOut: "登出", language: "語言" },
+    data: {
+      selectAll: "全選",
+      selectRow: "選取這一列",
+      rowActions: "更多動作",
+      selected: "已選 {count} 項",
+      clearSelection: "取消選取",
+      filter: "篩選",
+      clearFilters: "清除篩選",
+      search: "搜尋",
+    },
   },
 }
 

@@ -60,6 +60,12 @@ export interface AppShellProps extends Omit<ContainerProps, "title"> {
   buildInfo?: ReactNode
   /** The footer's left side, e.g. © year and the organization. */
   footer?: ReactNode
+  /**
+   * "column" (default): one 5xl column for pages read top to bottom.
+   * "wide": up to 8xl, for pages whose point is a wide table (a batch's items,
+   * placing orders). Text-only pages stay in the column.
+   */
+  width?: "column" | "wide"
   children: ReactNode
 }
 
@@ -95,15 +101,17 @@ export function AppShell({
   actions,
   buildInfo,
   footer,
+  width = "column",
   children,
   ...containerProps
 }: AppShellProps) {
   const m = useUiMessages().shell
+  const maxW = width === "wide" ? "8xl" : "5xl"
 
   return (
     <>
       <AppOutdatedBanner />
-      <Container maxW="5xl" fluid p="4" my="2" {...containerProps}>
+      <Container maxW={maxW} fluid p="4" my="2" {...containerProps}>
         <Flex as="header" align="center" justify="space-between" gap="3" mb="4">
           <Stack gap="0" minW="0">
             <Heading as="div" size="xl" display="flex" alignItems="baseline" gap="2">
@@ -182,7 +190,7 @@ export function AppShell({
       </Container>
 
       {(footer || buildInfo) && (
-        <Container as="footer" maxW="5xl" fluid mb="8">
+        <Container as="footer" maxW={maxW} fluid mb="8">
           <Flex direction={{ base: "column", sm: "row" }} justify="space-between" gap="2" textStyle="xs" color="fg.muted" textAlign={{ base: "center", sm: "start" }}>
             <Box>{footer}</Box>
             <Box hideBelow="sm" textAlign="end">

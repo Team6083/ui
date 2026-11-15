@@ -68,3 +68,18 @@ export {
   type PageHeaderProps,
   type SectionHeaderProps,
 } from "./blocks/page-parts.js"
+
+// Data pages: tables people pick from and act on
+export { DataTable, type DataColumn, type DataTableProps, type DataTableSelection, type RowAction } from "./blocks/data-table.js"
+export {
+  FactList,
+  FilterBar,
+  SelectionBar,
+  Totals,
+  type Fact,
+  type FactListProps,
+  type FilterBarProps,
+  type SelectionBarProps,
+  type TotalsLine,
+  type TotalsProps,
+} from "./blocks/data-parts.js"
