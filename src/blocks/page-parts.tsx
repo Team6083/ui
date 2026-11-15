@@ -5,19 +5,24 @@ import type { ReactNode } from "react"
 
 export interface PageHeaderProps extends Omit<FlexProps, "title"> {
   title: ReactNode
+  /** A status or tag beside the title, outside the heading (e.g. the batch's status). */
+  badge?: ReactNode
   description?: ReactNode
   /** The page's own actions, e.g. 建立團隊; never navigation. */
   actions?: ReactNode
 }
 
 /** The one heading of a page, with the actions that change its content beside it. */
-export function PageHeader({ title, description, actions, ...rest }: PageHeaderProps) {
+export function PageHeader({ title, badge, description, actions, ...rest }: PageHeaderProps) {
   return (
     <Flex align={{ base: "stretch", sm: "center" }} direction={{ base: "column", sm: "row" }} justify="space-between" gap="3" mb="4" {...rest}>
       <Stack gap="1" minW="0">
-        <Heading as="h1" size="2xl">
-          {title}
-        </Heading>
+        <HStack gap="3" wrap="wrap">
+          <Heading as="h1" size="2xl">
+            {title}
+          </Heading>
+          {badge}
+        </HStack>
         {description && <Text color="fg.muted">{description}</Text>}
       </Stack>
       {actions && (
