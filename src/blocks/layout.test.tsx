@@ -7,7 +7,7 @@ import { renderWithUi } from "../test-utils.js"
 import { ColorModeButton } from "../chakra/color-mode.js"
 import { AccountMenu, AppShell, BuildInfo, LanguageMenu, SignOutMenuItem } from "./app-shell.js"
 import { avatarPaletteFor } from "./member-avatar.js"
-import { EmptyState, SectionHeader } from "./page-parts.js"
+import { EmptyState, PageHeader, SectionHeader } from "./page-parts.js"
 
 describe("AppShell", () => {
   const nav = [
@@ -125,5 +125,11 @@ describe("SectionHeader and EmptyState", () => {
     renderWithUi(<EmptyState title="現在沒人" description="目前沒有使用者簽到中。" />)
     expect(screen.getByText("現在沒人")).toBeInTheDocument()
     expect(screen.getByText("目前沒有使用者簽到中。")).toBeInTheDocument()
+  })
+
+  it("keeps the page badge out of the heading's name", () => {
+    renderWithUi(<PageHeader title="#7 Spring order" badge={<span>Collecting</span>} />)
+    expect(screen.getByRole("heading", { name: "#7 Spring order" })).toBeInTheDocument()
+    expect(screen.getByText("Collecting")).toBeInTheDocument()
   })
 })
