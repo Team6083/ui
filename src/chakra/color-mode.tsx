@@ -1,12 +1,12 @@
 "use client"
 
 import type { IconButtonProps, SpanProps } from "@chakra-ui/react"
-import { ClientOnly, IconButton, Skeleton, Span } from "@chakra-ui/react"
+import { ClientOnly, IconButton, Menu, Portal, Skeleton, Span } from "@chakra-ui/react"
 import { useUiMessages } from "../i18n.js"
 import { ThemeProvider, useTheme } from "next-themes"
 import type { ThemeProviderProps } from "next-themes"
 import * as React from "react"
-import { LuMoon, LuSun } from "react-icons/lu"
+import { LuMonitor, LuMoon, LuSun } from "react-icons/lu"
 
 export type ColorModeProviderProps = ThemeProviderProps
 
@@ -17,21 +17,28 @@ export function ColorModeProvider(props: ColorModeProviderProps) {
 }
 
 export type ColorMode = "light" | "dark"
+/** What the user picked: follow the system, or always light or dark. */
+export type ColorModePreference = "system" | ColorMode
 
 export interface UseColorModeReturn {
+  /** The mode on screen now. */
   colorMode: ColorMode
-  setColorMode: (colorMode: ColorMode) => void
+  /** The user's choice; "system" follows the operating system. */
+  preference: ColorModePreference
+  setColorMode: (preference: ColorModePreference) => void
   toggleColorMode: () => void
 }
 
 export function useColorMode(): UseColorModeReturn {
-  const { resolvedTheme, setTheme, forcedTheme } = useTheme()
+  const { theme, resolvedTheme, setTheme, forcedTheme } = useTheme()
   const colorMode = forcedTheme || resolvedTheme
+  const preference = theme === "light" || theme === "dark" ? theme : "system"
   const toggleColorMode = () => {
     setTheme(resolvedTheme === "dark" ? "light" : "dark")
   }
   return {
     colorMode: colorMode as ColorMode,
+    preference,
     setColorMode: setTheme,
     toggleColorMode,
   }
@@ -49,30 +56,55 @@ export function ColorModeIcon() {
 
 type ColorModeButtonProps = Omit<IconButtonProps, "aria-label">
 
+const PREFERENCE_ICONS: Record<ColorModePreference, React.ReactNode> = {
+  system: <LuMonitor />,
+  light: <LuSun />,
+  dark: <LuMoon />,
+}
+
+/** An icon button showing the current choice; it opens a menu of system, light and dark. */
 export const ColorModeButton = React.forwardRef<
   HTMLButtonElement,
   ColorModeButtonProps
 >(function ColorModeButton(props, ref) {
-  const { toggleColorMode } = useColorMode()
-  const label = useUiMessages().colorMode.toggle
+  const { preference, setColorMode } = useColorMode()
+  const m = useUiMessages().colorMode
   return (
     <ClientOnly fallback={<Skeleton boxSize="9" />}>
-      <IconButton
-        onClick={toggleColorMode}
-        variant="ghost"
-        aria-label={label}
-        size="sm"
-        ref={ref}
-        {...props}
-        css={{
-          _icon: {
-            width: "5",
-            height: "5",
-          },
-        }}
-      >
-        <ColorModeIcon />
-      </IconButton>
+      <Menu.Root positioning={{ placement: "bottom-end" }}>
+        <Menu.Trigger asChild>
+          <IconButton
+            variant="ghost"
+            aria-label={m.label}
+            size="sm"
+            ref={ref}
+            {...props}
+            css={{
+              _icon: {
+                width: "5",
+                height: "5",
+              },
+            }}
+          >
+            {PREFERENCE_ICONS[preference]}
+          </IconButton>
+        </Menu.Trigger>
+        <Portal>
+          <Menu.Positioner>
+            <Menu.Content>
+              <Menu.RadioItemGroup value={preference} onValueChange={(e) => setColorMode(e.value as ColorModePreference)}>
+                {(["system", "light", "dark"] as const).map((value) => (
+                  <Menu.RadioItem key={value} value={value}>
+                    {PREFERENCE_ICONS[value]}
+                    <Menu.ItemText>{m[value]}</Menu.ItemText>
+                    <Menu.ItemIndicator />
+                  </Menu.RadioItem>
+                ))}
+              </Menu.RadioItemGroup>
+            </Menu.Content>
+          </Menu.Positioner>
+        </Portal>
+      </Menu.Root>
     </ClientOnly>
   )
 })

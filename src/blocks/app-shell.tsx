@@ -18,7 +18,7 @@ import {
   type ContainerProps,
 } from "@chakra-ui/react"
 import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react"
-import { LuLogIn, LuMenu } from "react-icons/lu"
+import { LuChevronRight, LuLanguages, LuLogIn, LuLogOut, LuMenu } from "react-icons/lu"
 
 import { ColorModeButton } from "../chakra/color-mode.js"
 import { useUiMessages } from "../i18n.js"
@@ -195,27 +195,25 @@ export function AppShell({
   )
 }
 
-export interface AccountMenuItem {
-  value: string
-  label: ReactNode
-  icon?: ReactNode
-  /** Runs on select; a Next.js server action works too. */
-  onSelect?: () => void | Promise<void>
-}
-
 export interface AccountMenuProps {
   name: string
   image?: string | null
   /** Shown under the name at the top of the menu, e.g. the email. */
   detail?: ReactNode
-  /** Sign out goes last. */
-  items: AccountMenuItem[]
+  /**
+   * The menu's contents, in the app's own order: Chakra's Menu.Item,
+   * Menu.Separator and Menu.ItemGroup, and this package's LanguageMenu and
+   * SignOutMenuItem. Sign out goes last.
+   */
+  children: ReactNode
+  /** Called with the selected item's value; a Next.js server action works too. */
+  onSelect?: (value: string) => void | Promise<void>
 }
 
-/** The signed-in user's avatar, opening a menu of account actions. */
-export function AccountMenu({ name, image, detail, items }: AccountMenuProps) {
+/** The signed-in user's avatar, opening the app's account menu under their name. */
+export function AccountMenu({ name, image, detail, children, onSelect }: AccountMenuProps) {
   return (
-    <Menu.Root positioning={{ placement: "bottom-end" }} onSelect={({ value }) => void items.find((i) => i.value === value)?.onSelect?.()}>
+    <Menu.Root positioning={{ placement: "bottom-end" }} onSelect={onSelect && (({ value }) => void onSelect(value))}>
       <Menu.Trigger asChild>
         <Button variant="plain" p="0" h="auto" minW="0" rounded="full" aria-label={name}>
           <MemberAvatar name={name} image={image} size="sm" />
@@ -235,16 +233,63 @@ export function AccountMenu({ name, image, detail, items }: AccountMenuProps) {
               )}
             </Box>
             <Menu.Separator />
-            {items.map((item) => (
-              <Menu.Item key={item.value} value={item.value}>
-                {item.icon}
-                {item.label}
-              </Menu.Item>
-            ))}
+            {children}
           </Menu.Content>
         </Menu.Positioner>
       </Portal>
     </Menu.Root>
+  )
+}
+
+export interface LanguageMenuProps {
+  /** The languages to offer, each labeled in its own language (English, 繁體中文). */
+  languages: { value: string; label: string }[]
+  value: string
+  onChange: (value: string) => void
+}
+
+/** A 語言 item in the account menu that opens the languages beside it, the current one checked. */
+export function LanguageMenu({ languages, value, onChange }: LanguageMenuProps) {
+  const m = useUiMessages().shell
+  const current = languages.find((l) => l.value === value)
+  return (
+    <Menu.Root positioning={{ placement: "left-start", gutter: 2 }}>
+      <Menu.TriggerItem>
+        <LuLanguages />
+        <Box flex="1">{m.language}</Box>
+        {current && (
+          <Text as="span" color="fg.muted" textStyle="xs">
+            {current.label}
+          </Text>
+        )}
+        <LuChevronRight />
+      </Menu.TriggerItem>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content>
+            <Menu.RadioItemGroup value={value} onValueChange={(e) => onChange(e.value)}>
+              {languages.map((language) => (
+                <Menu.RadioItem key={language.value} value={language.value}>
+                  <Menu.ItemText>{language.label}</Menu.ItemText>
+                  <Menu.ItemIndicator />
+                </Menu.RadioItem>
+              ))}
+            </Menu.RadioItemGroup>
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
+  )
+}
+
+/** The last item of the account menu. */
+export function SignOutMenuItem({ value = "signout", onSelect }: { value?: string; onSelect?: () => void }) {
+  const m = useUiMessages().shell
+  return (
+    <Menu.Item value={value} onSelect={onSelect}>
+      <LuLogOut />
+      {m.signOut}
+    </Menu.Item>
   )
 }
 
