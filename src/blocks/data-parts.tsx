@@ -15,6 +15,7 @@ import {
   Stack,
   Text,
   type FlexProps,
+  type PopoverRootProps,
   type SimpleGridProps,
   type StackProps,
 } from "@chakra-ui/react"
@@ -32,10 +33,15 @@ export interface FilterBarProps extends Omit<FlexProps, "children"> {
   children?: ReactNode
   /** Actions on the right of the bar, e.g. 新增批次 when the page header is far away. */
   actions?: ReactNode
+  /**
+   * Where the filter popover opens, merged over the default (below the button,
+   * flipping above it when there is no room).
+   */
+  positioning?: PopoverRootProps["positioning"]
 }
 
 /** A search box and one 篩選 button, instead of a row of always-open selects. */
-export function FilterBar({ search, activeCount = 0, onClear, children, actions, ...rest }: FilterBarProps) {
+export function FilterBar({ search, activeCount = 0, onClear, children, actions, positioning, ...rest }: FilterBarProps) {
   const m = useUiMessages().data
   return (
     <Flex gap="2" align="center" wrap="wrap" mb="3" {...rest}>
@@ -45,7 +51,7 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
         </InputGroup>
       )}
       {children && (
-        <Popover.Root positioning={{ placement: "bottom-start" }} lazyMount unmountOnExit>
+        <Popover.Root positioning={{ placement: "bottom-start", ...positioning }} lazyMount unmountOnExit>
           <Popover.Trigger asChild>
             <Button size="sm" variant="outline">
               <LuListFilter />
@@ -59,7 +65,8 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
           </Popover.Trigger>
           <Portal>
             <Popover.Positioner>
-              <Popover.Content w="xs">
+              {/* Content is capped at the room left on screen; scroll inside it instead of spilling over the page. */}
+              <Popover.Content w="xs" overflowY="auto">
                 <Popover.Body>
                   <Stack gap="3">{children}</Stack>
                 </Popover.Body>
