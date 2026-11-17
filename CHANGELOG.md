@@ -9,6 +9,12 @@ or behave without code changes on their side is a major version.
 
 Not released yet; published as `0.1.0-alpha.<n>` prereleases.
 
+### Fixed
+
+- `FilterBar`: when the screen is too short for the filters, the popover scrolls
+  instead of spilling its fields over the page; a new `positioning` prop changes
+  where it opens.
+
 ### Added
 
 - `system`: the team theme on Chakra's defaults, with a `brand` palette (Chakra's
