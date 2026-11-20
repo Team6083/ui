@@ -74,8 +74,9 @@ export function OverviewPage() {
         title="Install"
         description={
           <>
-            The package is on GitHub Packages, so installing needs a token with <Code>read:packages</Code>; the README
-            has the steps for machines, CI and Dependabot.
+            The package is public on GitHub Packages, but its registry still asks for a token with{" "}
+            <Code>read:packages</Code>, from any GitHub account; the README has the steps for machines, CI and
+            Dependabot.
           </>
         }
         code={`
