@@ -19,7 +19,7 @@ export function OverviewPage() {
         title="@team6083/ui"
         description="The team's Chakra UI v3 theme and the blocks every web app needs. Everything on these pages is the real component, imported from the package."
         actions={
-          <Button asChild size="sm" variant="ghost">
+          <Button asChild size="sm" variant="outline">
             <a href="https://github.com/Team6083/ui">
               <LuGithub />
               View on GitHub
