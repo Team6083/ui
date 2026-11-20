@@ -1,8 +1,8 @@
 # @team6083/ui
 
 The team's Chakra UI v3 theme and the blocks every web app needs under the
-team standard (the wiki's `/it-team/standards`), so each app stops copying the
-same snippets and writing the same pages.
+team standard, so each app stops copying the same snippets and writing the
+same pages.
 
 | Export | What it is | Standard |
 | --- | --- | --- |
@@ -26,7 +26,8 @@ react-i18next: pass the app's locale to `UiProvider`.
 
 ## Install
 
-The package is private, on GitHub Packages. Every place that runs `npm ci`
+The package is on GitHub Packages, which needs a token even for public
+packages. Every place that runs `npm ci`
 needs a token that can read it.
 
 1. In the app, next to `package.json`, add `.npmrc`:

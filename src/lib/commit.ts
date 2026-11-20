@@ -1,5 +1,5 @@
 // Every API response carries X-App-Commit; the front end compares it with the
-// commit it was built from. See the wiki's frontend standard.
+// commit it was built from.
 
 export const COMMIT_HEADER = "X-App-Commit"
 

@@ -10,14 +10,15 @@ npm run lint
 npm run build     # tsc into dist/
 ```
 
-Node's major version is the one in `package.json` `engines`.
+Develop on Node 26, the version CI uses. `engines` in `package.json` is the
+minimum for apps that install the package.
 
 ## What belongs here
 
 - **Theme tokens** the team has decided on. Anything undecided stays Chakra's
   default; do not add a token "for later".
-- **Blocks the team standard requires** of every app (the wiki's
-  `/it-team/standards`), such as the no-access page or the update banner.
+- **Blocks the team standard requires** of every app, such as the no-access
+  page or the update banner.
   Their wording and behavior follow the standard; change the standard first.
 - **A component two or more apps already need.** One app's component stays in
   that app until a second one needs it.

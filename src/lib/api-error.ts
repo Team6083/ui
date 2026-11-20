@@ -1,5 +1,4 @@
 // The team's error body: {"error":{"code":"...","message":"...","details":{...}}}.
-// See the wiki's common standard, "HTTP API 慣例".
 
 export const STANDARD_ERROR_CODES = [
   "invalid_request",

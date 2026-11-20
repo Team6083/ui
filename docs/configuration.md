@@ -12,4 +12,4 @@ This package reads no environment variables. Apps configure it through props:
 | `createRuntimeConfig` | `basePath`, `parse` | Where `config.json` lives and how to validate it |
 
 Chakra injects styles at run time, so the app's CSP needs
-`style-src 'self' 'unsafe-inline'` (see the wiki's common standard).
+`style-src 'self' 'unsafe-inline'`.
