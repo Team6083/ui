@@ -1,5 +1,6 @@
-import { Box, Button, Code, HStack, Link, SegmentGroup, SimpleGrid, Stack, Switch, Text } from "@chakra-ui/react"
-import { PageHeader, SectionHeader, useColorMode } from "@team6083/ui"
+import { Box, Button, Code, HStack, IconButton, Link, SegmentGroup, SimpleGrid, Stack, Switch, Text } from "@chakra-ui/react"
+import { PageHeader, SectionHeader, Tooltip, useColorMode } from "@team6083/ui"
+import { LuGithub } from "react-icons/lu"
 
 import { useDemoState } from "../demo-state"
 import { Example } from "../Example"
@@ -18,9 +19,13 @@ export function OverviewPage() {
         title="@team6083/ui"
         description="The team's Chakra UI v3 theme and the blocks every web app needs. Everything on these pages is the real component, imported from the package."
         actions={
-          <Button asChild size="sm" variant="outline">
-            <a href="https://github.com/Team6083/ui">GitHub</a>
-          </Button>
+          <Tooltip content="GitHub">
+            <IconButton asChild size="sm" variant="outline" aria-label="GitHub">
+              <a href="https://github.com/Team6083/ui">
+                <LuGithub />
+              </a>
+            </IconButton>
+          </Tooltip>
         }
       />
 
