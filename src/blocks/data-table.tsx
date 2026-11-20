@@ -87,6 +87,18 @@ const cardCell = {
   _before: { base: { content: "attr(data-label)", color: "fg.muted", flexShrink: 0 }, md: { content: "none" } },
 } as const
 
+// A card's name and checkbox have no label: they start at the left, with no empty label taking up the gap.
+const unlabeledCell = { ...cardCell, justifyContent: "flex-start", _before: { content: "none" } } as const
+
+// On a card the checkbox sits at the top left, beside the first line, instead of on a line of its own.
+const cardCheckboxCell = {
+  ...unlabeledCell,
+  position: { base: "absolute", md: "static" },
+  insetStart: "3",
+  top: "2.5",
+  py: { base: "0", md: "2" },
+} as const
+
 /**
  * The table for records people pick from and act on: numbers right-aligned,
  * secondary columns dropped when space runs out, a row's actions in one ⋯
@@ -174,32 +186,35 @@ export function DataTable<T>({
                   return (
                     <Table.Row key={id} css={cardRow} data-selected={selected.has(id) ? "" : undefined} _selected={{ bg: "brand.subtle/40" }}>
                       {selection && (
-                        <Table.Cell css={cardCell} w={{ md: "10" }} data-label="" justifyContent="flex-start">
+                        <Table.Cell css={canPick ? cardCheckboxCell : unlabeledCell} data-label="" w={{ md: "10" }} display={canPick ? undefined : { base: "none", md: "table-cell" }}>
                           {canPick && checkbox(selected.has(id), m.selectRow, (on) => toggle([id], on))}
                         </Table.Cell>
                       )}
-                      {columns.map((c) => {
+                      {columns.map((c, i) => {
                         const label = c.label ?? (typeof c.header === "string" ? c.header : "")
                         const primary = c.priority === "primary"
                         return (
                           <Table.Cell
                             key={c.key}
-                            css={cardCell}
+                            css={primary ? unlabeledCell : cardCell}
                             data-label={primary ? "" : label}
+                            // The card's first line leaves room for the checkbox at its top left and the ⋯ button at its top right.
+                            ps={i === 0 && canPick ? { base: "7", md: "3" } : undefined}
+                            pe={i === 0 && rowActions ? { base: "8", md: "3" } : undefined}
                             textAlign={c.numeric ? "end" : "start"}
                             fontVariantNumeric={c.numeric ? "tabular-nums" : undefined}
                             whiteSpace={c.numeric ? "nowrap" : undefined}
                             fontWeight={primary ? "medium" : undefined}
                             {...hideSecondary(c)}
                           >
-                            <Text as="span" textAlign={c.numeric ? "end" : { base: "end", md: "start" }} minW="0">
+                            <Text as="span" textAlign={c.numeric ? "end" : primary ? "start" : { base: "end", md: "start" }} minW="0" overflowWrap={{ base: "anywhere", md: "normal" }}>
                               {c.cell(row)}
                             </Text>
                           </Table.Cell>
                         )
                       })}
                       {rowActions && (
-                        <Table.Cell css={cardCell} data-label="" w={{ md: "10" }} textAlign="end" position={{ base: "absolute", md: "static" }} top="1" right="1">
+                        <Table.Cell css={unlabeledCell} data-label="" w={{ md: "10" }} textAlign="end" position={{ base: "absolute", md: "static" }} top="1" right="1">
                           {actions.length > 0 && (
                             <Menu.Root positioning={{ placement: "bottom-end" }}>
                               <Menu.Trigger asChild>
