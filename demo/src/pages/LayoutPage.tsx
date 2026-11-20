@@ -2,6 +2,7 @@ import { Badge, Box, Button, HStack, IconButton, Stack, Text } from "@chakra-ui/
 import { BuildInfo, EmptyState, MemberAvatar, PageHeader, SectionHeader } from "@team6083/ui"
 import { LuInbox, LuPlus, LuRefreshCw } from "react-icons/lu"
 
+import { AVATARS } from "../avatars"
 import { Example } from "../Example"
 
 const PEOPLE = ["Alex Chen", "林怡君", "Jordan Lee", "王小明", "Sam Rivera", "陳柏翰"]
@@ -124,13 +125,13 @@ export function LayoutPage() {
 
       <Example
         title="MemberAvatar"
-        description="A person's picture, or their initials on a color picked from their name: the same person gets the same color in every app."
+        description="A person's picture, or, without one, their initials on a color picked from their name: the same person gets the same color in every app."
         code={`<MemberAvatar name="林怡君" image={member.avatarUrl} />`}
       >
         <HStack gap="4" wrap="wrap">
           {PEOPLE.map((name) => (
             <Stack key={name} align="center" gap="1">
-              <MemberAvatar name={name} />
+              <MemberAvatar name={name} image={AVATARS[name]} />
               <Text textStyle="xs" color="fg.muted">
                 {name}
               </Text>

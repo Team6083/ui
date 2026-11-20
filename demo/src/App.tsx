@@ -14,6 +14,7 @@ import {
 import { useMemo, useState, type ReactNode } from "react"
 import { LuBlocks, LuHouse, LuLayoutTemplate, LuShieldAlert, LuTable, LuUser } from "react-icons/lu"
 
+import { AVATARS } from "./avatars"
 import { DemoStateContext, type DemoState } from "./demo-state"
 import { DataPage } from "./pages/DataPage"
 import { LayoutPage } from "./pages/LayoutPage"
@@ -57,7 +58,7 @@ export function App() {
             width={page.wide ? "wide" : "column"}
             account={
               signedIn ? (
-                <AccountMenu name="Alex Chen" detail="alex@example.com">
+                <AccountMenu name="Alex Chen" image={AVATARS["Alex Chen"]} detail="alex@example.com">
                   <Menu.Item value="profile">
                     <LuUser />
                     Profile

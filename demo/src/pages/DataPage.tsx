@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import { LuCheck, LuEye, LuSearchX, LuShoppingCart, LuX } from "react-icons/lu"
 
 import { formatMoney, ITEMS, STATUS_COLOR, STATUS_LABEL, type Item, type ItemStatus } from "../data"
+import { AVATARS } from "../avatars"
 import { Example } from "../Example"
 
 const statuses = createListCollection({
@@ -18,7 +19,7 @@ const COLUMNS: DataColumn<Item>[] = [
     priority: "secondary",
     cell: (item) => (
       <HStack gap="2">
-        <MemberAvatar name={item.requester} size="2xs" />
+        <MemberAvatar name={item.requester} image={AVATARS[item.requester]} size="2xs" />
         {item.requester}
       </HStack>
     ),
@@ -195,7 +196,7 @@ export function DataPage() {
           items={[
             { label: "Batch", value: "2026 春季採購" },
             { label: "Vendor", value: "REV Robotics" },
-            { label: "Requested by", value: <HStack gap="2"><MemberAvatar name="林怡君" size="2xs" />林怡君</HStack> },
+            { label: "Requested by", value: <HStack gap="2"><MemberAvatar name="林怡君" image={AVATARS["林怡君"]} size="2xs" />林怡君</HStack> },
             { label: "Status", value: <Badge colorPalette="blue">Approved</Badge> },
             { label: "Requested on", value: "2026-03-02 14:20" },
             { label: "Budget line", value: "Drivetrain" },
