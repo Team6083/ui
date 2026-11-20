@@ -8,10 +8,15 @@ npm test          # Vitest + Testing Library
 npm run typecheck
 npm run lint
 npm run build     # tsc into dist/
+npm run demo      # the demo site (demo/) on Vite, importing src/ directly
 ```
 
 Develop on Node 26, the version CI uses. `engines` in `package.json` is the
 minimum for apps that install the package.
+
+When you add or change a block, show it in the demo too: each page in
+`demo/src/pages` puts every block in an `Example` with the code an app would
+write. The Pages workflow publishes the demo from `main`.
 
 ## What belongs here
 

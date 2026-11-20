@@ -34,10 +34,12 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p demo",
     "lint": "eslint .",
     "test": "vitest run",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "demo": "vite --config demo/vite.config.ts",
+    "demo:build": "vite build --config demo/vite.config.ts"
   },
   "peerDependencies": {
     "@chakra-ui/react": "^3.37.0",
@@ -65,6 +67,7 @@
     "react-dom": "^19.3.1",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.8",
     "vitest": "^5.1.0"
   },
   "publishConfig": {

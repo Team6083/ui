@@ -19,7 +19,8 @@ same pages.
 | `DataTable`, `FilterBar`, `SelectionBar`, `FactList`, `Totals` | Pages of records to pick from and act on: a table that becomes cards on a phone with row actions in a ⋯ menu, filters behind one button, a bar for acting on the picked rows, a record's facts, amounts that add up | [DESIGN.md](DESIGN.md): Data pages |
 
 How apps should look, and what to use these for, is in [DESIGN.md](DESIGN.md).
-OverHours is the reference.
+OverHours is the reference. Every block is on show, live and with its code, in
+the [demo](https://team6083.github.io/ui/).
 
 Strings come in `en` and `zh-TW`. The package does not depend on next-intl or
 react-i18next: pass the app's locale to `UiProvider`.
