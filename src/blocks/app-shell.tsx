@@ -43,6 +43,7 @@ export interface NavItem {
   active?: boolean
 }
 
+/** Other Container props (padding, margins) go to the content area, `<main>`. */
 export interface AppShellProps extends Omit<ContainerProps, "title"> {
   /** The app's name, linking home. */
   appName: ReactNode
@@ -63,7 +64,9 @@ export interface AppShellProps extends Omit<ContainerProps, "title"> {
   /**
    * "column" (default): one 5xl column for pages read top to bottom.
    * "wide": up to 8xl, for pages whose point is a wide table (a batch's items,
-   * placing orders). Text-only pages stay in the column.
+   * placing orders). Text-only pages stay in the column. The header and
+   * footer are always the wide width and a column page starts at their left
+   * edge, so nothing moves when the user goes from one kind of page to the other.
    */
   width?: "column" | "wide"
   children: ReactNode
@@ -106,12 +109,15 @@ export function AppShell({
   ...containerProps
 }: AppShellProps) {
   const m = useUiMessages().shell
-  const maxW = width === "wide" ? "8xl" : "5xl"
+  // The frame (header, content area, footer) is always 8xl, so it never moves;
+  // a column page keeps its text to 5xl from the frame's left edge.
+  const frameW = "8xl"
+  const contentW = width === "wide" ? undefined : "5xl"
 
   return (
     <>
       <AppOutdatedBanner />
-      <Container maxW={maxW} fluid p="4" my="2" {...containerProps}>
+      <Container maxW={frameW} fluid px="4" pt="4" mt="2">
         <Flex as="header" align="center" justify="space-between" gap="3" mb="4">
           <Stack gap="0" minW="0">
             <Heading as="div" size="xl" display="flex" alignItems="baseline" gap="2">
@@ -185,12 +191,14 @@ export function AppShell({
             </Drawer.Root>
           </HStack>
         </Flex>
+      </Container>
 
-        <Box as="main">{children}</Box>
+      <Container as="main" maxW={frameW} fluid px="4" pb="4" mb="2" {...containerProps}>
+        <Box maxW={contentW}>{children}</Box>
       </Container>
 
       {(footer || buildInfo) && (
-        <Container as="footer" maxW={maxW} fluid mb="8">
+        <Container as="footer" maxW={frameW} fluid mb="8">
           <Flex direction={{ base: "column", sm: "row" }} justify="space-between" gap="2" textStyle="xs" color="fg.muted" textAlign={{ base: "center", sm: "start" }}>
             <Box>{footer}</Box>
             <Box hideBelow="sm" textAlign="end">
