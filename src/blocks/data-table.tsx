@@ -158,7 +158,7 @@ export function DataTable<T>({
                 {groupBy && (
                   <Table.Row display={{ base: "flex", md: "table-row" }} alignItems="center" gap="2" mb={{ base: "2", md: "0" }}>
                     {selection && (
-                      <Table.Cell borderBottomWidth={{ base: "0", md: "1px" }} px={{ base: "0", md: "3" }}>
+                      <Table.Cell borderBottomWidth={{ base: "0", md: "1px" }} px={{ base: "0", md: "3" }} pt={{ md: "4" }}>
                         {groupIds.length > 0 && checkbox(allState(groupIds), m.selectAll, (on) => toggle(groupIds, on))}
                       </Table.Cell>
                     )}
