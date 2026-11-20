@@ -11,6 +11,8 @@ Not released yet; published as `0.1.0-alpha.<n>` prereleases.
 
 ### Fixed
 
+- `DataTable`: in a grouped table with selection, the group heading's checkbox
+  lines up with the group name on wide screens.
 - `FilterBar`: when the screen is too short for the filters, the popover scrolls
   instead of spilling its fields over the page; a new `positioning` prop changes
   where it opens.
