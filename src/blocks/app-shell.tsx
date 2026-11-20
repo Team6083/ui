@@ -93,8 +93,8 @@ function NavButton({ item, renderLink, onClick }: { item: NavItem; renderLink: R
  * organization on the left; the pages, the color mode toggle and the account on
  * the right; a drawer with the pages on phones; a quiet footer. Header,
  * content and footer share one width: a 5xl column, or 8xl for apps with wide
- * tables. A rule under the header sets the frame apart from the page's title.
- * The update banner shows above it when the server is on a newer build.
+ * tables. The app name stays small so the page's own title leads. The update
+ * banner shows above it when the server is on a newer build.
  */
 export function AppShell({
   appName,
@@ -116,85 +116,83 @@ export function AppShell({
   return (
     <>
       <AppOutdatedBanner />
-      <Box borderBottomWidth="1px">
-        <Container maxW={frameW} fluid px="4" pt="4" pb="3" mt="2">
-          <Flex as="header" align="center" justify="space-between" gap="3">
-            <Stack gap="0" minW="0">
-              <Heading as="div" size="xl" display="flex" alignItems="baseline" gap="2">
-                <Box as="span" truncate>
-                  {renderLink(homeHref, appName)}
-                </Box>
-                {orgName && (
-                  <Box as="span" textStyle="md" fontWeight="normal" hideBelow="md" truncate>
-                    {orgName}
-                  </Box>
-                )}
-              </Heading>
+      <Container maxW={frameW} fluid px="4" pt="4" mt="2">
+        <Flex as="header" align="center" justify="space-between" gap="3" mb="4">
+          <Stack gap="0" minW="0">
+            <Heading as="div" size="md" fontWeight="semibold" display="flex" alignItems="baseline" gap="2">
+              <Box as="span" truncate>
+                {renderLink(homeHref, appName)}
+              </Box>
               {orgName && (
-                <Text as="span" textStyle="xs" hideFrom="md" truncate>
+                <Box as="span" textStyle="sm" fontWeight="normal" color="fg.muted" hideBelow="md" truncate>
                   {orgName}
-                </Text>
+                </Box>
               )}
-            </Stack>
+            </Heading>
+            {orgName && (
+              <Text as="span" textStyle="xs" color="fg.muted" hideFrom="md" truncate>
+                {orgName}
+              </Text>
+            )}
+          </Stack>
 
-            <HStack gap="2" flexShrink={0}>
-              {nav.length > 0 && (
-                <HStack as="nav" gap="1" hideBelow="md">
-                  {nav.map((item) => (
-                    <NavButton key={item.href} item={item} renderLink={renderLink} />
-                  ))}
-                </HStack>
-              )}
-              {actions}
-              <ColorModeButton hideBelow="md" />
-              {account}
+          <HStack gap="2" flexShrink={0}>
+            {nav.length > 0 && (
+              <HStack as="nav" gap="1" hideBelow="md">
+                {nav.map((item) => (
+                  <NavButton key={item.href} item={item} renderLink={renderLink} />
+                ))}
+              </HStack>
+            )}
+            {actions}
+            <ColorModeButton hideBelow="md" />
+            {account}
 
-              <Drawer.Root size="xs" placement="start">
-                <Drawer.Trigger asChild>
-                  <IconButton hideFrom="md" size="sm" variant="outline" aria-label={m.openMenu}>
-                    <LuMenu />
-                  </IconButton>
-                </Drawer.Trigger>
-                <Portal>
-                  <Drawer.Backdrop />
-                  <Drawer.Positioner>
-                    <Drawer.Content maxW="3xs">
-                      <Drawer.Context>
-                        {(drawer) => (
-                          <>
-                            <Drawer.Header>
-                              <Drawer.Title>{m.menu}</Drawer.Title>
-                            </Drawer.Header>
-                            <Drawer.Body>
-                              <Separator mb="4" />
-                              <Stack as="nav" gap="2">
-                                {nav.map((item) => (
-                                  <NavButton key={item.href} item={item} renderLink={renderLink} onClick={() => drawer.setOpen(false)} />
-                                ))}
-                              </Stack>
-                            </Drawer.Body>
-                            <Drawer.Footer justifyContent="space-between">
-                              <Box textStyle="xs" color="fg.muted">
-                                {buildInfo}
-                              </Box>
-                              <ColorModeButton />
-                            </Drawer.Footer>
-                          </>
-                        )}
-                      </Drawer.Context>
-                      <Drawer.CloseTrigger asChild>
-                        <CloseButton size="sm" />
-                      </Drawer.CloseTrigger>
-                    </Drawer.Content>
-                  </Drawer.Positioner>
-                </Portal>
-              </Drawer.Root>
-            </HStack>
-          </Flex>
-        </Container>
-      </Box>
+            <Drawer.Root size="xs" placement="start">
+              <Drawer.Trigger asChild>
+                <IconButton hideFrom="md" size="sm" variant="outline" aria-label={m.openMenu}>
+                  <LuMenu />
+                </IconButton>
+              </Drawer.Trigger>
+              <Portal>
+                <Drawer.Backdrop />
+                <Drawer.Positioner>
+                  <Drawer.Content maxW="3xs">
+                    <Drawer.Context>
+                      {(drawer) => (
+                        <>
+                          <Drawer.Header>
+                            <Drawer.Title>{m.menu}</Drawer.Title>
+                          </Drawer.Header>
+                          <Drawer.Body>
+                            <Separator mb="4" />
+                            <Stack as="nav" gap="2">
+                              {nav.map((item) => (
+                                <NavButton key={item.href} item={item} renderLink={renderLink} onClick={() => drawer.setOpen(false)} />
+                              ))}
+                            </Stack>
+                          </Drawer.Body>
+                          <Drawer.Footer justifyContent="space-between">
+                            <Box textStyle="xs" color="fg.muted">
+                              {buildInfo}
+                            </Box>
+                            <ColorModeButton />
+                          </Drawer.Footer>
+                        </>
+                      )}
+                    </Drawer.Context>
+                    <Drawer.CloseTrigger asChild>
+                      <CloseButton size="sm" />
+                    </Drawer.CloseTrigger>
+                  </Drawer.Content>
+                </Drawer.Positioner>
+              </Portal>
+            </Drawer.Root>
+          </HStack>
+        </Flex>
+      </Container>
 
-      <Container as="main" maxW={frameW} fluid px="4" pt={{ base: "4", md: "6" }} pb="4" mb="2" {...containerProps}>
+      <Container as="main" maxW={frameW} fluid px="4" pb="4" mb="2" {...containerProps}>
         {children}
       </Container>
 
