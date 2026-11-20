@@ -20,7 +20,7 @@ export function OverviewPage() {
         description="The team's Chakra UI v3 theme and the blocks every web app needs. Everything on these pages is the real component, imported from the package."
         actions={
           <Tooltip content="GitHub">
-            <IconButton asChild size="sm" variant="outline" aria-label="GitHub">
+            <IconButton asChild size="sm" variant="ghost" aria-label="GitHub">
               <a href="https://github.com/Team6083/ui">
                 <LuGithub />
               </a>
