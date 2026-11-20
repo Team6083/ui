@@ -24,7 +24,7 @@ export interface PageHeaderProps extends Omit<FlexProps, "title"> {
 /** The one heading of a page, with the actions that change its content beside it. */
 export function PageHeader({ title, badge, description, actions, ...rest }: PageHeaderProps) {
   return (
-    <Flex align={{ base: "stretch", sm: "center" }} direction={{ base: "column", sm: "row" }} justify="space-between" gap="3" mb="4" {...rest}>
+    <Flex align={{ base: "stretch", sm: "flex-start" }} direction={{ base: "column", sm: "row" }} justify="space-between" gap="3" mb="4" {...rest}>
       <Stack gap="1" minW="0">
         <HStack gap="3" wrap="wrap">
           <Heading as="h1" size="3xl">
