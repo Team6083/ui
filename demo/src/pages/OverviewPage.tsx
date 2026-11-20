@@ -26,7 +26,7 @@ export function OverviewPage() {
 
       <Example
         title="Try it in another setting"
-        description="The package's own strings come in English and 繁體中文; the app passes its locale to UiProvider. The same switches are in the header: the color mode button, and 語言 in the account menu. frameWidth and width are AppShell’s: the app’s header and footer, and the page’s content."
+        description="The package's own strings come in English and 繁體中文; the app passes its locale to UiProvider. The same switches are in the header: the color mode button, and 語言 in the account menu. App width is AppShell’s width prop."
       >
         <Stack gap="4">
           <HStack gap="4" wrap="wrap">
@@ -47,7 +47,12 @@ export function OverviewPage() {
               <SegmentGroup.Items items={["system", "light", "dark"]} />
             </SegmentGroup.Root>
           </HStack>
-          <WidthSwitch labelWidth="28" />
+          <HStack gap="4" wrap="wrap">
+            <Text minW="28" fontWeight="medium">
+              App width
+            </Text>
+            <WidthSwitch />
+          </HStack>
           <HStack gap="4" wrap="wrap">
             <Text minW="28" fontWeight="medium">
               Update banner

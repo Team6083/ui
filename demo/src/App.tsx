@@ -5,6 +5,7 @@ import {
   AppShell,
   BuildInfo,
   LanguageMenu,
+  PageColumn,
   SignInButton,
   SignOutMenuItem,
   Toaster,
@@ -15,7 +16,7 @@ import { useMemo, useState, type ReactNode } from "react"
 import { LuBlocks, LuHouse, LuLayoutTemplate, LuShieldAlert, LuTable, LuUser } from "react-icons/lu"
 
 import { AVATARS } from "./avatars"
-import { DemoStateContext, type DemoState, type DemoWidth } from "./demo-state"
+import { DemoStateContext, type DemoState } from "./demo-state"
 import { DataPage } from "./pages/DataPage"
 import { LayoutPage } from "./pages/LayoutPage"
 import { OverviewPage } from "./pages/OverviewPage"
@@ -41,11 +42,11 @@ export function App() {
   const [locale, setLocale] = useState("zh-TW")
   const [outdated, setOutdated] = useState(false)
   const [signedIn, setSignedIn] = useState(true)
-  const [frameWidth, setFrameWidth] = useState<"column" | "wide">("wide")
-  const [width, setWidth] = useState<DemoWidth>("page")
+  // The demo has a wide table (Data pages), so its app is wide and its other pages sit in a PageColumn.
+  const [width, setWidth] = useState<"column" | "wide">("wide")
   const state = useMemo<DemoState>(
-    () => ({ locale, setLocale, outdated, setOutdated, frameWidth, setFrameWidth, width, setWidth }),
-    [locale, outdated, frameWidth, width],
+    () => ({ locale, setLocale, outdated, setOutdated, width, setWidth }),
+    [locale, outdated, width],
   )
 
   const page = PAGES.find((p) => p.path === route) ?? PAGES[0]!
@@ -60,8 +61,7 @@ export function App() {
             orgName="Team 6083"
             homeHref="#/"
             nav={nav}
-            frameWidth={frameWidth}
-            width={width === "page" ? (page.wide ? "wide" : "column") : width}
+            width={width}
             account={
               signedIn ? (
                 <AccountMenu name="Alex Chen" image={AVATARS["Alex Chen"]} detail="alex@example.com">
@@ -85,7 +85,7 @@ export function App() {
               </>
             }
           >
-            {page.page()}
+            {page.wide ? page.page() : <PageColumn>{page.page()}</PageColumn>}
           </AppShell>
           <Toaster />
         </AppCommitProvider>

@@ -62,6 +62,7 @@ export {
 export { avatarPaletteFor, MemberAvatar, type MemberAvatarProps } from "./blocks/member-avatar.js"
 export {
   EmptyState,
+  PageColumn,
   PageHeader,
   SectionHeader,
   type EmptyStateProps,

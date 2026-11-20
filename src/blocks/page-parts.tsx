@@ -1,7 +1,16 @@
 "use client"
 
-import { Badge, EmptyState as ChakraEmptyState, Flex, Heading, HStack, Stack, Text, VStack, type FlexProps } from "@chakra-ui/react"
+import { Badge, Box, EmptyState as ChakraEmptyState, Flex, Heading, HStack, Stack, Text, VStack, type BoxProps, type FlexProps } from "@chakra-ui/react"
 import type { ReactNode } from "react"
+
+/**
+ * Keeps a page that is read top to bottom (a form, settings, a record) to the
+ * 5xl column, centered, in an app whose AppShell is `width="wide"`. In a
+ * column app it changes nothing.
+ */
+export function PageColumn(props: BoxProps) {
+  return <Box maxW="5xl" mx="auto" {...props} />
+}
 
 export interface PageHeaderProps extends Omit<FlexProps, "title"> {
   title: ReactNode
