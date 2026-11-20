@@ -114,7 +114,7 @@ export function DataPage() {
               </Select.Control>
               <Portal>
                 <Select.Positioner>
-                  <Select.Content zIndex="popover">
+                  <Select.Content>
                     {statuses.items.map((item) => (
                       <Select.Item key={item.value} item={item}>
                         {item.label}
