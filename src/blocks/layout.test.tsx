@@ -7,7 +7,7 @@ import { renderWithUi } from "../test-utils.js"
 import { ColorModeButton } from "../chakra/color-mode.js"
 import { AccountMenu, AppShell, BuildInfo, LanguageMenu, SignOutMenuItem } from "./app-shell.js"
 import { avatarPaletteFor } from "./member-avatar.js"
-import { EmptyState, PageHeader, SectionHeader } from "./page-parts.js"
+import { EmptyState, PageColumn, PageHeader, SectionHeader } from "./page-parts.js"
 
 describe("AppShell", () => {
   const nav = [
@@ -44,6 +44,19 @@ describe("AppShell", () => {
     renderWithUi(<AppShell appName="App" footer="© 2026" buildInfo={<BuildInfo commit="sha-abc1234def" />}><p /></AppShell>)
     expect(screen.getByRole("contentinfo")).toHaveTextContent("© 2026")
     expect(screen.getByRole("contentinfo")).toHaveTextContent("abc1234")
+  })
+})
+
+describe("PageColumn", () => {
+  it("holds the page's content inside the app's main area", () => {
+    renderWithUi(
+      <AppShell appName="App" width="wide">
+        <PageColumn>
+          <PageHeader title="Settings" />
+        </PageColumn>
+      </AppShell>,
+    )
+    expect(within(screen.getByRole("main")).getByRole("heading", { level: 1, name: "Settings" })).toBeInTheDocument()
   })
 })
 

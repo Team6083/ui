@@ -1,8 +1,10 @@
 import { Box, Button, Code, HStack, Link, SegmentGroup, SimpleGrid, Stack, Switch, Text } from "@chakra-ui/react"
 import { PageHeader, SectionHeader, useColorMode } from "@team6083/ui"
+import { LuGithub } from "react-icons/lu"
 
 import { useDemoState } from "../demo-state"
 import { Example } from "../Example"
+import { WidthSwitch } from "../WidthSwitch"
 
 const SHADES = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"]
 const SEMANTIC = ["solid", "subtle", "muted", "emphasized", "fg", "border"]
@@ -18,14 +20,17 @@ export function OverviewPage() {
         description="The team's Chakra UI v3 theme and the blocks every web app needs. Everything on these pages is the real component, imported from the package."
         actions={
           <Button asChild size="sm" variant="outline">
-            <a href="https://github.com/Team6083/ui">GitHub</a>
+            <a href="https://github.com/Team6083/ui">
+              <LuGithub />
+              View on GitHub
+            </a>
           </Button>
         }
       />
 
       <Example
         title="Try it in another setting"
-        description="The package's own strings come in English and 繁體中文; the app passes its locale to UiProvider. The same switches are in the header: the color mode button, and 語言 in the account menu."
+        description="The package's own strings come in English and 繁體中文; the app passes its locale to UiProvider. The same switches are in the header: the color mode button, and 語言 in the account menu. App width is AppShell’s width prop."
       >
         <Stack gap="4">
           <HStack gap="4" wrap="wrap">
@@ -45,6 +50,12 @@ export function OverviewPage() {
               <SegmentGroup.Indicator />
               <SegmentGroup.Items items={["system", "light", "dark"]} />
             </SegmentGroup.Root>
+          </HStack>
+          <HStack gap="4" wrap="wrap">
+            <Text minW="28" fontWeight="medium">
+              App width
+            </Text>
+            <WidthSwitch />
           </HStack>
           <HStack gap="4" wrap="wrap">
             <Text minW="28" fontWeight="medium">

@@ -11,6 +11,9 @@ the rules are for what each app builds on top of them.
   the pages fold into a drawer on phones; a quiet footer with the build.
 - Content sits in one centered column, `maxW="5xl"`. Never let a page run the
   full width of a monitor: cards stretched across 1800px are mostly empty.
+- The width is the app's, not the page's: set `AppShell width` once, so the
+  header never moves while navigating. An app with wide tables uses
+  `width="wide"` (8xl) and wraps its other pages in `PageColumn`.
 - Navigation is ghost buttons with an icon and a word or two, never a row of
   blue text links. The current page is highlighted. Keep it to about five
   pages; admin pages share one entry.
@@ -41,8 +44,10 @@ the rules are for what each app builds on top of them.
 ## Type
 
 - Chakra's system font stack; no web fonts.
-- One heading per page (`PageHeader`, `2xl`). Sections use `SectionHeader`
-  (`xl`), cards `md`. Secondary text is `fg.muted`, not smaller gray.
+- One heading per page (`PageHeader`, `3xl`). Sections use `SectionHeader`
+  (`xl`), cards `md`. The app name in the header is `xl`, two steps below the
+  page's title so the two never compete. Secondary text is `fg.muted`, not
+  smaller gray.
 - Do not repeat a heading: a page titled 我的待辦 does not also hold a card
   titled 我的待辦.
 - Numbers that line up in a table use `fontVariantNumeric="tabular-nums"`;
@@ -74,9 +79,8 @@ rules are the reference here.
   the record's name as the `primary` column, detail that can go when space runs
   out as `secondary`. On a phone the same rows become cards; never let a phone
   scroll a table sideways to reach a column.
-- A page whose table has more than about six columns uses
-  `AppShell width="wide"`. If it still does not fit, drop `secondary` columns
-  before shrinking text.
+- A table with more than about six columns needs `AppShell width="wide"`. If
+  it still does not fit, drop `secondary` columns before shrinking text.
 - A row's actions go into its ⋯ menu (`rowActions`), destructive ones in red.
   No buttons inside rows, and never a red button on every row.
 - Filters sit behind one 篩選 button with the count of what is set

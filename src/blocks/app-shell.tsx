@@ -62,11 +62,12 @@ export interface AppShellProps extends Omit<ContainerProps, "title"> {
   /** The footer's left side, e.g. © year and the organization. */
   footer?: ReactNode
   /**
-   * "column" (default): one 5xl column for pages read top to bottom.
-   * "wide": up to 8xl, for pages whose point is a wide table (a batch's items,
-   * placing orders). Text-only pages stay in the column. The header and
-   * footer are always the wide width and a column page starts at their left
-   * edge, so nothing moves when the user goes from one kind of page to the other.
+   * The app's width, set once where the app renders AppShell, so the header
+   * never moves from page to page and content never runs past it.
+   * "column" (default): 5xl, for apps whose pages are read top to bottom.
+   * "wide": 8xl, for apps with pages whose point is a wide table (a batch's
+   * items, placing orders). Their other pages wrap their content in
+   * `PageColumn` to stay in a centered 5xl column.
    */
   width?: "column" | "wide"
   children: ReactNode
@@ -90,9 +91,9 @@ function NavButton({ item, renderLink, onClick }: { item: NavItem; renderLink: R
 /**
  * The frame every team app shares (taken from OverHours): the app name and
  * organization on the left; the pages, the color mode toggle and the account on
- * the right; a drawer with the pages on phones; a quiet footer. Content sits in
- * one centered 5xl column. The update banner shows above it when the server is
- * on a newer build.
+ * the right; a drawer with the pages on phones; a quiet footer. Header,
+ * content and footer share one width: a 5xl column, or 8xl for apps with wide
+ * tables. The update banner shows above it when the server is on a newer build.
  */
 export function AppShell({
   appName,
@@ -109,10 +110,7 @@ export function AppShell({
   ...containerProps
 }: AppShellProps) {
   const m = useUiMessages().shell
-  // The frame (header, content area, footer) is always 8xl, so it never moves;
-  // a column page keeps its text to 5xl from the frame's left edge.
-  const frameW = "8xl"
-  const contentW = width === "wide" ? undefined : "5xl"
+  const frameW = width === "wide" ? "8xl" : "5xl"
 
   return (
     <>
@@ -194,11 +192,11 @@ export function AppShell({
       </Container>
 
       <Container as="main" maxW={frameW} fluid px="4" pb="4" mb="2" {...containerProps}>
-        <Box maxW={contentW}>{children}</Box>
+        {children}
       </Container>
 
       {(footer || buildInfo) && (
-        <Container as="footer" maxW={frameW} fluid mb="8">
+        <Container as="footer" maxW={frameW} fluid px="4" mb="8">
           <Flex direction={{ base: "column", sm: "row" }} justify="space-between" gap="2" textStyle="xs" color="fg.muted" textAlign={{ base: "center", sm: "start" }}>
             <Box>{footer}</Box>
             <Box hideBelow="sm" textAlign="end">

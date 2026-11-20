@@ -14,7 +14,7 @@ same pages.
 | `readApiError`, `ApiError`, `useApiErrorMessage` | Reads the standard error body; localized text for the standard codes | Common: HTTP API 慣例 |
 | `StatusPage` | The layout the pages above share, for an app's own not-found or error pages | |
 | `AppShell`, `AccountMenu`, `LanguageMenu`, `SignOutMenuItem`, `SignInButton`, `BuildInfo`, `ColorModeButton` | The frame every app shares, from OverHours: app name, pages with icons, color mode (system, light, dark), an account menu each app fills with its own items, phone drawer, footer, update banner | [DESIGN.md](DESIGN.md) |
-| `PageHeader`, `SectionHeader`, `EmptyState`, `MemberAvatar` | A page's one heading, a section's title with its count and actions, the empty-list message, a person's avatar | [DESIGN.md](DESIGN.md) |
+| `PageHeader`, `PageColumn`, `SectionHeader`, `EmptyState`, `MemberAvatar` | A page's one heading, a page's 5xl column inside a wide app, a section's title with its count and actions, the empty-list message, a person's avatar | [DESIGN.md](DESIGN.md) |
 
 | `DataTable`, `FilterBar`, `SelectionBar`, `FactList`, `Totals` | Pages of records to pick from and act on: a table that becomes cards on a phone with row actions in a ⋯ menu, filters behind one button, a bar for acting on the picked rows, a record's facts, amounts that add up | [DESIGN.md](DESIGN.md): Data pages |
 

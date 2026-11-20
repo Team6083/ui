@@ -5,6 +5,7 @@ import {
   AppShell,
   BuildInfo,
   LanguageMenu,
+  PageColumn,
   SignInButton,
   SignOutMenuItem,
   Toaster,
@@ -41,7 +42,12 @@ export function App() {
   const [locale, setLocale] = useState("zh-TW")
   const [outdated, setOutdated] = useState(false)
   const [signedIn, setSignedIn] = useState(true)
-  const state = useMemo<DemoState>(() => ({ locale, setLocale, outdated, setOutdated }), [locale, outdated])
+  // The demo has a wide table (Data pages), so its app is wide and its other pages sit in a PageColumn.
+  const [width, setWidth] = useState<"column" | "wide">("wide")
+  const state = useMemo<DemoState>(
+    () => ({ locale, setLocale, outdated, setOutdated, width, setWidth }),
+    [locale, outdated, width],
+  )
 
   const page = PAGES.find((p) => p.path === route) ?? PAGES[0]!
   const nav: NavItem[] = PAGES.map((p) => ({ href: `#${p.path}`, label: p.label, icon: p.icon, active: p === page }))
@@ -55,7 +61,7 @@ export function App() {
             orgName="Team 6083"
             homeHref="#/"
             nav={nav}
-            width={page.wide ? "wide" : "column"}
+            width={width}
             account={
               signedIn ? (
                 <AccountMenu name="Alex Chen" image={AVATARS["Alex Chen"]} detail="alex@example.com">
@@ -79,7 +85,7 @@ export function App() {
               </>
             }
           >
-            {page.page()}
+            {page.wide ? page.page() : <PageColumn>{page.page()}</PageColumn>}
           </AppShell>
           <Toaster />
         </AppCommitProvider>

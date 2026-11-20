@@ -1,7 +1,16 @@
 "use client"
 
-import { Badge, EmptyState as ChakraEmptyState, Flex, Heading, HStack, Stack, Text, VStack, type FlexProps } from "@chakra-ui/react"
+import { Badge, Box, EmptyState as ChakraEmptyState, Flex, Heading, HStack, Stack, Text, VStack, type BoxProps, type FlexProps } from "@chakra-ui/react"
 import type { ReactNode } from "react"
+
+/**
+ * Keeps a page that is read top to bottom (a form, settings, a record) to the
+ * 5xl column, centered, in an app whose AppShell is `width="wide"`. In a
+ * column app it changes nothing.
+ */
+export function PageColumn(props: BoxProps) {
+  return <Box maxW="5xl" mx="auto" {...props} />
+}
 
 export interface PageHeaderProps extends Omit<FlexProps, "title"> {
   title: ReactNode
@@ -15,10 +24,10 @@ export interface PageHeaderProps extends Omit<FlexProps, "title"> {
 /** The one heading of a page, with the actions that change its content beside it. */
 export function PageHeader({ title, badge, description, actions, ...rest }: PageHeaderProps) {
   return (
-    <Flex align={{ base: "stretch", sm: "center" }} direction={{ base: "column", sm: "row" }} justify="space-between" gap="3" mb="4" {...rest}>
+    <Flex align={{ base: "stretch", sm: "flex-start" }} direction={{ base: "column", sm: "row" }} justify="space-between" gap="3" mb="4" {...rest}>
       <Stack gap="1" minW="0">
         <HStack gap="3" wrap="wrap">
-          <Heading as="h1" size="2xl">
+          <Heading as="h1" size="3xl">
             {title}
           </Heading>
           {badge}

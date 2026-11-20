@@ -15,7 +15,7 @@ export function Example({ title, description, code, children }: ExampleProps) {
   return (
     <Stack as="section" gap="3" mb="10">
       <Stack gap="1">
-        <Heading as="h2" size="lg">
+        <Heading as="h2" size="xl">
           {title}
         </Heading>
         {description && <Text color="fg.muted">{description}</Text>}
