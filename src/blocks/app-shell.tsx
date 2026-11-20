@@ -93,8 +93,7 @@ function NavButton({ item, renderLink, onClick }: { item: NavItem; renderLink: R
  * organization on the left; the pages, the color mode toggle and the account on
  * the right; a drawer with the pages on phones; a quiet footer. Header,
  * content and footer share one width: a 5xl column, or 8xl for apps with wide
- * tables. The app name stays small so the page's own title leads. The update
- * banner shows above it when the server is on a newer build.
+ * tables. The update banner shows above it when the server is on a newer build.
  */
 export function AppShell({
   appName,
@@ -119,18 +118,18 @@ export function AppShell({
       <Container maxW={frameW} fluid px="4" pt="4" mt="2">
         <Flex as="header" align="center" justify="space-between" gap="3" mb="4">
           <Stack gap="0" minW="0">
-            <Heading as="div" size="md" fontWeight="semibold" display="flex" alignItems="baseline" gap="2">
+            <Heading as="div" size="xl" display="flex" alignItems="baseline" gap="2">
               <Box as="span" truncate>
                 {renderLink(homeHref, appName)}
               </Box>
               {orgName && (
-                <Box as="span" textStyle="sm" fontWeight="normal" color="fg.muted" hideBelow="md" truncate>
+                <Box as="span" textStyle="md" fontWeight="normal" hideBelow="md" truncate>
                   {orgName}
                 </Box>
               )}
             </Heading>
             {orgName && (
-              <Text as="span" textStyle="xs" color="fg.muted" hideFrom="md" truncate>
+              <Text as="span" textStyle="xs" hideFrom="md" truncate>
                 {orgName}
               </Text>
             )}

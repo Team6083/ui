@@ -27,7 +27,7 @@ export function PageHeader({ title, badge, description, actions, ...rest }: Page
     <Flex align={{ base: "stretch", sm: "center" }} direction={{ base: "column", sm: "row" }} justify="space-between" gap="3" mb="4" {...rest}>
       <Stack gap="1" minW="0">
         <HStack gap="3" wrap="wrap">
-          <Heading as="h1" size="2xl">
+          <Heading as="h1" size="3xl">
             {title}
           </Heading>
           {badge}

@@ -44,8 +44,10 @@ the rules are for what each app builds on top of them.
 ## Type
 
 - Chakra's system font stack; no web fonts.
-- One heading per page (`PageHeader`, `2xl`). Sections use `SectionHeader`
-  (`xl`), cards `md`. Secondary text is `fg.muted`, not smaller gray.
+- One heading per page (`PageHeader`, `3xl`). Sections use `SectionHeader`
+  (`xl`), cards `md`. The app name in the header is `xl`, two steps below the
+  page's title so the two never compete. Secondary text is `fg.muted`, not
+  smaller gray.
 - Do not repeat a heading: a page titled 我的待辦 does not also hold a card
   titled 我的待辦.
 - Numbers that line up in a table use `fontVariantNumeric="tabular-nums"`;
