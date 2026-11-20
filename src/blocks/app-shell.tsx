@@ -65,8 +65,8 @@ export interface AppShellProps extends Omit<ContainerProps, "title"> {
    * "column" (default): one 5xl column for pages read top to bottom.
    * "wide": up to 8xl, for pages whose point is a wide table (a batch's items,
    * placing orders). Text-only pages stay in the column. The header and
-   * footer are always the wide width and a column page starts at their left
-   * edge, so nothing moves when the user goes from one kind of page to the other.
+   * footer are always the wide width and the column is centered inside them,
+   * so nothing moves when the user goes from one kind of page to the other.
    */
   width?: "column" | "wide"
   children: ReactNode
@@ -110,7 +110,7 @@ export function AppShell({
 }: AppShellProps) {
   const m = useUiMessages().shell
   // The frame (header, content area, footer) is always 8xl, so it never moves;
-  // a column page keeps its text to 5xl from the frame's left edge.
+  // a column page keeps its text to a centered 5xl inside it.
   const frameW = "8xl"
   const contentW = width === "wide" ? undefined : "5xl"
 
@@ -194,7 +194,7 @@ export function AppShell({
       </Container>
 
       <Container as="main" maxW={frameW} fluid px="4" pb="4" mb="2" {...containerProps}>
-        <Box maxW={contentW}>{children}</Box>
+        <Box maxW={contentW} mx="auto">{children}</Box>
       </Container>
 
       {(footer || buildInfo) && (
