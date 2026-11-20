@@ -75,8 +75,9 @@ rules are the reference here.
   out as `secondary`. On a phone the same rows become cards; never let a phone
   scroll a table sideways to reach a column.
 - A page whose table has more than about six columns uses
-  `AppShell width="wide"`. If it still does not fit, drop `secondary` columns
-  before shrinking text.
+  `AppShell width="wide"`, and an app with such pages sets
+  `frameWidth="wide"` so its header stays put from page to page. If the table
+  still does not fit, drop `secondary` columns before shrinking text.
 - A row's actions go into its ⋯ menu (`rowActions`), destructive ones in red.
   No buttons inside rows, and never a red button on every row.
 - Filters sit behind one 篩選 button with the count of what is set

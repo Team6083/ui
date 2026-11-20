@@ -62,11 +62,19 @@ export interface AppShellProps extends Omit<ContainerProps, "title"> {
   /** The footer's left side, e.g. © year and the organization. */
   footer?: ReactNode
   /**
+   * The width of the header and footer, set once for the whole app.
+   * "column" (default): 5xl, for apps whose pages are all columns.
+   * "wide": 8xl, for apps with any wide page; column pages are then centered
+   * inside it, so the header stays put when the user moves between pages.
+   */
+  frameWidth?: "column" | "wide"
+  /**
+   * This page's content.
    * "column" (default): one 5xl column for pages read top to bottom.
    * "wide": up to 8xl, for pages whose point is a wide table (a batch's items,
-   * placing orders). Text-only pages stay in the column. The header and
-   * footer are always the wide width and the column is centered inside them,
-   * so nothing moves when the user goes from one kind of page to the other.
+   * placing orders). Text-only pages stay in the column. In a column frame a
+   * wide page widens the header too, so apps with wide pages set
+   * `frameWidth="wide"`.
    */
   width?: "column" | "wide"
   children: ReactNode
@@ -91,8 +99,8 @@ function NavButton({ item, renderLink, onClick }: { item: NavItem; renderLink: R
  * The frame every team app shares (taken from OverHours): the app name and
  * organization on the left; the pages, the color mode toggle and the account on
  * the right; a drawer with the pages on phones; a quiet footer. Content sits in
- * one centered 5xl column. The update banner shows above it when the server is
- * on a newer build.
+ * one centered 5xl column, or up to 8xl on a wide page. The update banner
+ * shows above it when the server is on a newer build.
  */
 export function AppShell({
   appName,
@@ -104,14 +112,14 @@ export function AppShell({
   actions,
   buildInfo,
   footer,
+  frameWidth = "column",
   width = "column",
   children,
   ...containerProps
 }: AppShellProps) {
   const m = useUiMessages().shell
-  // The frame (header, content area, footer) is always 8xl, so it never moves;
-  // a column page keeps its text to a centered 5xl inside it.
-  const frameW = "8xl"
+  // Content never runs past the header: a wide page widens a column frame.
+  const frameW = frameWidth === "wide" || width === "wide" ? "8xl" : "5xl"
   const contentW = width === "wide" ? undefined : "5xl"
 
   return (

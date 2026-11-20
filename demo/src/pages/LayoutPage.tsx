@@ -18,14 +18,15 @@ export function LayoutPage() {
 
       <Example
         title="AppShell"
-        description="The app name and organization on the left; pages, color mode and the account on the right. On a phone the pages fold into a drawer. Narrow the window to see it. width=&quot;wide&quot; gives data pages up to 8xl (the Data pages tab uses it); a column page keeps a centered 5xl column inside the same frame."
+        description="The app name and organization on the left; pages, color mode and the account on the right. On a phone the pages fold into a drawer. Narrow the window to see it. width=&quot;wide&quot; gives a data page up to 8xl (the Data pages tab uses it). frameWidth sets the header and footer for the whole app: column (5xl) for apps that are all columns, wide (8xl) for apps with wide pages, so the header stays put and column pages sit centered inside it."
         code={`
 <AppShell
   appName="採購中心"
   orgName={config.orgName}
   nav={[{ href: "/batches", label: "批次", icon: <LuPackage />, active: true }]}
   renderLink={(href, children) => <NextLink href={href}>{children}</NextLink>}
-  width="column" // or "wide" for a page that is mostly a wide table
+  frameWidth="wide" // the app has wide pages; leave it out if every page is a column
+  width={isTablePage ? "wide" : "column"}
   account={
     <AccountMenu name={user.name} detail={user.email}>
       <LanguageMenu languages={languages} value={locale} onChange={setLocale} />
@@ -44,10 +45,7 @@ export function LayoutPage() {
             You are looking at it: the header above and the footer below. Open the avatar for the account menu, sign out
             to see the sign-in button.
           </Text>
-          <HStack gap="4" wrap="wrap">
-            <Text fontWeight="medium">width</Text>
-            <WidthSwitch />
-          </HStack>
+          <WidthSwitch labelWidth="24" />
         </Stack>
       </Example>
 

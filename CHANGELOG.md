@@ -32,8 +32,9 @@ The first release. `0.1.0-alpha.<n>` prereleases came before it.
 ### Layout
 
 - From OverHours: `AppShell` (header, pages, color mode, account, phone drawer,
-  footer, update banner; `width="wide"` for data pages), `AccountMenu` (the
-  app's own items as children), `LanguageMenu`, `SignOutMenuItem`,
+  footer, update banner; `width="wide"` for data pages, `frameWidth="wide"`
+  for apps that have them), `AccountMenu` (the app's own items as children),
+  `LanguageMenu`, `SignOutMenuItem`,
   `SignInButton`, `BuildInfo`, `MemberAvatar`, `PageHeader` (with a `badge`
   beside the title), `SectionHeader`, `EmptyState`.
 

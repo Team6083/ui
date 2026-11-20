@@ -41,10 +41,11 @@ export function App() {
   const [locale, setLocale] = useState("zh-TW")
   const [outdated, setOutdated] = useState(false)
   const [signedIn, setSignedIn] = useState(true)
+  const [frameWidth, setFrameWidth] = useState<"column" | "wide">("wide")
   const [width, setWidth] = useState<DemoWidth>("page")
   const state = useMemo<DemoState>(
-    () => ({ locale, setLocale, outdated, setOutdated, width, setWidth }),
-    [locale, outdated, width],
+    () => ({ locale, setLocale, outdated, setOutdated, frameWidth, setFrameWidth, width, setWidth }),
+    [locale, outdated, frameWidth, width],
   )
 
   const page = PAGES.find((p) => p.path === route) ?? PAGES[0]!
@@ -59,6 +60,7 @@ export function App() {
             orgName="Team 6083"
             homeHref="#/"
             nav={nav}
+            frameWidth={frameWidth}
             width={width === "page" ? (page.wide ? "wide" : "column") : width}
             account={
               signedIn ? (
