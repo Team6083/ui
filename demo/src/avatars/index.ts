@@ -9,7 +9,8 @@ import mountain from "./mountain.svg"
 import parrot from "./ultrafastparrot.gif"
 
 export const AVATARS: Record<string, string> = {
-  "Alex Chen": parrot,
+  // Alex Chen is the signed-in user in the header.
+  "Alex Chen": mountain,
   林怡君: cat,
-  "Sam Rivera": mountain,
+  "Jordan Lee": parrot,
 }

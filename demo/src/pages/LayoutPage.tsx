@@ -4,6 +4,7 @@ import { LuInbox, LuPlus, LuRefreshCw } from "react-icons/lu"
 
 import { AVATARS } from "../avatars"
 import { Example } from "../Example"
+import { WidthSwitch } from "../WidthSwitch"
 
 const PEOPLE = ["Alex Chen", "林怡君", "Jordan Lee", "王小明", "Sam Rivera", "陳柏翰"]
 
@@ -17,13 +18,14 @@ export function LayoutPage() {
 
       <Example
         title="AppShell"
-        description="The app name and organization on the left; pages, color mode and the account on the right. On a phone the pages fold into a drawer. Narrow the window to see it. width=&quot;wide&quot; gives data pages up to 8xl (the Data pages tab uses it)."
+        description="The app name and organization on the left; pages, color mode and the account on the right. On a phone the pages fold into a drawer. Narrow the window to see it. width=&quot;wide&quot; gives data pages up to 8xl (the Data pages tab uses it); a column page keeps a centered 5xl column inside the same frame."
         code={`
 <AppShell
   appName="採購中心"
   orgName={config.orgName}
   nav={[{ href: "/batches", label: "批次", icon: <LuPackage />, active: true }]}
   renderLink={(href, children) => <NextLink href={href}>{children}</NextLink>}
+  width="column" // or "wide" for a page that is mostly a wide table
   account={
     <AccountMenu name={user.name} detail={user.email}>
       <LanguageMenu languages={languages} value={locale} onChange={setLocale} />
@@ -37,10 +39,16 @@ export function LayoutPage() {
 </AppShell>
 `}
       >
-        <Text color="fg.muted">
-          You are looking at it: the header above and the footer below. Open the avatar for the account menu, sign out
-          to see the sign-in button.
-        </Text>
+        <Stack gap="4">
+          <Text color="fg.muted">
+            You are looking at it: the header above and the footer below. Open the avatar for the account menu, sign out
+            to see the sign-in button.
+          </Text>
+          <HStack gap="4" wrap="wrap">
+            <Text fontWeight="medium">width</Text>
+            <WidthSwitch />
+          </HStack>
+        </Stack>
       </Example>
 
       <Example

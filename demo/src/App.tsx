@@ -15,7 +15,7 @@ import { useMemo, useState, type ReactNode } from "react"
 import { LuBlocks, LuHouse, LuLayoutTemplate, LuShieldAlert, LuTable, LuUser } from "react-icons/lu"
 
 import { AVATARS } from "./avatars"
-import { DemoStateContext, type DemoState } from "./demo-state"
+import { DemoStateContext, type DemoState, type DemoWidth } from "./demo-state"
 import { DataPage } from "./pages/DataPage"
 import { LayoutPage } from "./pages/LayoutPage"
 import { OverviewPage } from "./pages/OverviewPage"
@@ -41,7 +41,11 @@ export function App() {
   const [locale, setLocale] = useState("zh-TW")
   const [outdated, setOutdated] = useState(false)
   const [signedIn, setSignedIn] = useState(true)
-  const state = useMemo<DemoState>(() => ({ locale, setLocale, outdated, setOutdated }), [locale, outdated])
+  const [width, setWidth] = useState<DemoWidth>("page")
+  const state = useMemo<DemoState>(
+    () => ({ locale, setLocale, outdated, setOutdated, width, setWidth }),
+    [locale, outdated, width],
+  )
 
   const page = PAGES.find((p) => p.path === route) ?? PAGES[0]!
   const nav: NavItem[] = PAGES.map((p) => ({ href: `#${p.path}`, label: p.label, icon: p.icon, active: p === page }))
@@ -55,7 +59,7 @@ export function App() {
             orgName="Team 6083"
             homeHref="#/"
             nav={nav}
-            width={page.wide ? "wide" : "column"}
+            width={width === "page" ? (page.wide ? "wide" : "column") : width}
             account={
               signedIn ? (
                 <AccountMenu name="Alex Chen" image={AVATARS["Alex Chen"]} detail="alex@example.com">

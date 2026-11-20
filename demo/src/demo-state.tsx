@@ -1,11 +1,16 @@
 import { createContext, useContext } from "react"
 
-/** What the demo's own controls change: the package's locale and the update banner. */
+/** "page": each page's own width (Data pages is wide, the rest column). */
+export type DemoWidth = "page" | "column" | "wide"
+
+/** What the demo's own controls change: the package's locale, the update banner and AppShell's width. */
 export interface DemoState {
   locale: string
   setLocale: (locale: string) => void
   outdated: boolean
   setOutdated: (outdated: boolean) => void
+  width: DemoWidth
+  setWidth: (width: DemoWidth) => void
 }
 
 export const DemoStateContext = createContext<DemoState | null>(null)

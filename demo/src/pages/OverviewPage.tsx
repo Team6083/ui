@@ -3,6 +3,7 @@ import { PageHeader, SectionHeader, useColorMode } from "@team6083/ui"
 
 import { useDemoState } from "../demo-state"
 import { Example } from "../Example"
+import { WidthSwitch } from "../WidthSwitch"
 
 const SHADES = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"]
 const SEMANTIC = ["solid", "subtle", "muted", "emphasized", "fg", "border"]
@@ -25,7 +26,7 @@ export function OverviewPage() {
 
       <Example
         title="Try it in another setting"
-        description="The package's own strings come in English and 繁體中文; the app passes its locale to UiProvider. The same switches are in the header: the color mode button, and 語言 in the account menu."
+        description="The package's own strings come in English and 繁體中文; the app passes its locale to UiProvider. The same switches are in the header: the color mode button, and 語言 in the account menu. Page width is AppShell’s width prop."
       >
         <Stack gap="4">
           <HStack gap="4" wrap="wrap">
@@ -45,6 +46,12 @@ export function OverviewPage() {
               <SegmentGroup.Indicator />
               <SegmentGroup.Items items={["system", "light", "dark"]} />
             </SegmentGroup.Root>
+          </HStack>
+          <HStack gap="4" wrap="wrap">
+            <Text minW="28" fontWeight="medium">
+              Page width
+            </Text>
+            <WidthSwitch />
           </HStack>
           <HStack gap="4" wrap="wrap">
             <Text minW="28" fontWeight="medium">
