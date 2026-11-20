@@ -1,5 +1,5 @@
 // SPAs read their environment from /config.json at start-up instead of baking
-// it into the build. See the wiki's frontend standard, "執行期設定與托管".
+// it into the build.
 
 /** The fields every app's config.json has; apps add their own after these. */
 export interface BaseRuntimeConfig {

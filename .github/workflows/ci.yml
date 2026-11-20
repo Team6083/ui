@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      # engines is ^26; keep in sync.
+      # The Node the package is developed on; engines is only the minimum for apps.
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
