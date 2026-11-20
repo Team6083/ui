@@ -20,16 +20,16 @@ same pages.
 
 How apps should look, and what to use these for, is in [DESIGN.md](DESIGN.md).
 OverHours is the reference. Every block is on show, live and with its code, in
-the [demo](https://team6083.github.io/ui/).
+the [demo](https://ui.cmsrobotics.org/).
 
 Strings come in `en` and `zh-TW`. The package does not depend on next-intl or
 react-i18next: pass the app's locale to `UiProvider`.
 
 ## Install
 
-The package is on GitHub Packages, which needs a token even for public
-packages. Every place that runs `npm ci`
-needs a token that can read it.
+The package is public on GitHub Packages, so any GitHub account can install
+it. The registry still asks every client for a token, even for a public
+package, so each place that runs `npm ci` needs one.
 
 1. In the app, next to `package.json`, add `.npmrc`:
 
@@ -38,9 +38,7 @@ needs a token that can read it.
    //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
    ```
 
-2. Give the app's repository read access to the package once: the package's
-   page on GitHub → Package settings → Manage Actions access → Add repository
-   (Read). Its workflows then install with the built-in `GITHUB_TOKEN`:
+2. In the app's workflows, the built-in `GITHUB_TOKEN` is enough:
 
    ```yaml
    permissions:
@@ -58,7 +56,7 @@ needs a token that can read it.
 
 3. On your machine, and on hosts that build the app (Cloudflare Pages or
    Workers builds), set `NODE_AUTH_TOKEN` to a classic personal access token
-   with `read:packages`. With the GitHub CLI:
+   with `read:packages`, from any GitHub account. With the GitHub CLI:
    `gh auth refresh -h github.com -s read:packages`, then
    `export NODE_AUTH_TOKEN=$(gh auth token)`.
 
