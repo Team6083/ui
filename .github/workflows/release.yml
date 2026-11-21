@@ -1,10 +1,11 @@
 name: Release
 
-# Publishes a release to npm (registry.npmjs.org) when a version tag is pushed.
-# The tag must match package.json: v0.1.1 for "version": "0.1.1". Trusted
-# publishing: npm trusts this workflow file, so the repository holds no npm
-# token, and each version carries provenance. Prereleases go to GitHub
-# Packages instead (prerelease.yml).
+# Stages a release on npm (registry.npmjs.org) when a version tag is pushed; a
+# maintainer approves it with 2FA before it goes live, so nothing reaches npm
+# on the workflow's word alone. The tag must match package.json: v0.1.1 for
+# "version": "0.1.1". Trusted publishing: npm trusts this workflow file to
+# stage, so the repository holds no npm token, and each version carries
+# provenance. Prereleases go to GitHub Packages instead (prerelease.yml).
 on:
   push:
     tags: [ "v*.*.*" ]
@@ -49,10 +50,10 @@ jobs:
           npm run lint
           npm test
 
-      # prepack builds dist/. Trusted publishing needs npm 11.5.1 or later;
+      # prepack builds dist/. npm stage publish needs npm 11.15.0 or later;
       # Node 26 ships with it.
-      - name: Publish
-        run: npm publish
+      - name: Stage
+        run: npm stage publish
 
       - name: Summary
-        run: echo "Published @team6083/ui@$(node -p 'require("./package.json").version') (latest)" >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Staged @team6083/ui@$(node -p 'require("./package.json").version'); approve it under Staged Packages on npmjs.com, or with npm stage approve" >> "$GITHUB_STEP_SUMMARY"

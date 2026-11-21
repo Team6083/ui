@@ -157,8 +157,10 @@ Releases are on npm, as `latest`. Apps pin the exact version.
 
 A release: set `version` in `package.json`, move the `CHANGELOG.md` entries
 under it, merge, then push a matching tag (`git tag v0.1.1 && git push origin v0.1.1`).
-The release workflow checks, builds and publishes it to npm, with provenance
-linking it to the workflow run.
+The release workflow checks and builds it and stages it on npm, with provenance
+linking it to the workflow run. A maintainer then approves it with 2FA, under
+Staged Packages on npmjs.com or with `npm stage list` and
+`npm stage approve <stage-id>`, and it goes live as `latest`.
 
 Each push to `main` publishes a prerelease, `<version>-alpha.<n>`, to GitHub
 Packages under the `next` dist-tag (`<version>` is `package.json`'s, `<n>` the
