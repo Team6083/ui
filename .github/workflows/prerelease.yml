@@ -1,7 +1,8 @@
 name: Prerelease
 
 # Every push to main publishes <version>-alpha.<run number> under the "next"
-# dist-tag, so nobody bumps version numbers by hand before the first release.
+# dist-tag to GitHub Packages, so nobody bumps version numbers by hand.
+# Releases go to npm (release.yml); prereleases stay off it.
 on:
   push:
     branches: [ "main" ]

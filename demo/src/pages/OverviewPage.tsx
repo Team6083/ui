@@ -72,18 +72,8 @@ export function OverviewPage() {
 
       <Example
         title="Install"
-        description={
-          <>
-            The package is public on GitHub Packages, but its registry still asks for a token with{" "}
-            <Code>read:packages</Code>, from any GitHub account; the README has the steps for machines, CI and
-            Dependabot.
-          </>
-        }
+        description="The package is on npm, along with Chakra UI and the libraries it builds on."
         code={`
-# .npmrc
-@team6083:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=\${NODE_AUTH_TOKEN}
-
 npm install @team6083/ui @chakra-ui/react next-themes react-icons
 `}
       >

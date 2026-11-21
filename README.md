@@ -27,43 +27,7 @@ react-i18next: pass the app's locale to `UiProvider`.
 
 ## Install
 
-The package is public on GitHub Packages, so any GitHub account can install
-it. The registry still asks every client for a token, even for a public
-package, so each place that runs `npm ci` needs one.
-
-1. In the app, next to `package.json`, add `.npmrc`:
-
-   ```ini
-   @team6083:registry=https://npm.pkg.github.com
-   //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
-   ```
-
-2. In the app's workflows, the built-in `GITHUB_TOKEN` is enough:
-
-   ```yaml
-   permissions:
-     contents: read
-     packages: read
-   # ...
-   - uses: actions/setup-node@v7
-     with:
-       registry-url: https://npm.pkg.github.com
-       scope: "@team6083"
-   - run: npm ci
-     env:
-       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-   ```
-
-3. On your machine, and on hosts that build the app (Cloudflare Pages or
-   Workers builds), set `NODE_AUTH_TOKEN` to a classic personal access token
-   with `read:packages`, from any GitHub account. With the GitHub CLI:
-   `gh auth refresh -h github.com -s read:packages`, then
-   `export NODE_AUTH_TOKEN=$(gh auth token)`.
-
-4. Dependabot needs the registry and a Dependabot secret holding such a token;
-   see the `registries` block in GitHub's Dependabot docs.
-
-Then:
+The package is on npm:
 
 ```bash
 npm install @team6083/ui @chakra-ui/react next-themes react-icons
@@ -189,18 +153,31 @@ token is Chakra's default until the team decides otherwise.
 
 ## Versions
 
-Until the first release every version is a prerelease. Each push to `main`
-publishes `<version>-alpha.<n>` under the `next` dist-tag, `<version>` being
-`package.json`'s without its prerelease part and `<n>` the run number, so
-nobody edits version numbers. Apps pin the exact version and update with:
-
-```bash
-npm install --save-exact @team6083/ui@next
-```
+Releases are on npm, as `latest`. Apps pin the exact version.
 
 A release: set `version` in `package.json`, move the `CHANGELOG.md` entries
-under it, merge, then push a matching tag (`git tag v0.1.0 && git push origin v0.1.0`).
-The release workflow checks, builds and publishes it as `latest`.
+under it, merge, then push a matching tag (`git tag v0.1.1 && git push origin v0.1.1`).
+The release workflow checks and builds it and stages it on npm, with provenance
+linking it to the workflow run. A maintainer then approves it with 2FA, under
+Staged Packages on npmjs.com or with `npm stage list` and
+`npm stage approve <stage-id>`, and it goes live as `latest`.
+
+Each push to `main` publishes a prerelease, `<version>-alpha.<n>`, to GitHub
+Packages under the `next` dist-tag (`<version>` is `package.json`'s, `<n>` the
+run number), so a change can be tried in an app before it is released. The
+GitHub registry needs a token even though the package is public: add to the
+app's `.npmrc`
+
+```ini
+@team6083:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+```
+
+set `NODE_AUTH_TOKEN` to a token with `read:packages` (`gh auth refresh -h
+github.com -s read:packages`, then `export NODE_AUTH_TOKEN=$(gh auth token)`;
+in a workflow, `secrets.GITHUB_TOKEN` with `packages: read`), and run
+`npm install --save-exact @team6083/ui@next`. Go back to a release by removing
+those lines.
 
 ## Development
 

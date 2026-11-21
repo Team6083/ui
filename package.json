@@ -1,6 +1,6 @@
 {
   "name": "@team6083/ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The team's Chakra UI theme and the standard blocks every web app needs",
   "keywords": [
     "chakra-ui",
@@ -71,6 +71,6 @@
     "vitest": "^5.1.0"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   }
 }
