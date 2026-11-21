@@ -1,10 +1,33 @@
 import { Badge, Box, Button, HStack, IconButton, Stack, Text } from "@chakra-ui/react"
-import { BuildInfo, EmptyState, MemberAvatar, PageHeader, SectionHeader } from "@team6083/ui"
+import { AppCommitProvider, BuildInfo, EmptyState, MemberAvatar, PageHeader, SectionHeader } from "@team6083/ui"
 import { LuInbox, LuPlus, LuRefreshCw } from "react-icons/lu"
 
 import { AVATARS } from "../avatars"
 import { Example } from "../Example"
 import { WidthSwitch } from "../WidthSwitch"
+
+const API = { name: "API", version: "v0.3.1", commit: "3f9c2a1e7b55", builtAt: "2026-11-20T04:28:00Z" }
+const PART_FINDER = { name: "part-finder", version: "v1.2.0", commit: "c41d9e0a2b", builtAt: "2026-11-02T09:15:00Z" }
+
+const BUILD_CASES = [
+  { label: "A release with a version", props: `version="v0.3.1" commit`, build: <BuildInfo version="v0.3.1" commit="3f9c2a1e7b55" builtAt="2026-11-20T04:30:00Z" /> },
+  { label: "Only a commit: a hosted build without a tag", props: `commit="sha-3f9c2a1e7b"`, build: <BuildInfo commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" /> },
+  { label: "Only a version", props: `version="1.4.0"`, build: <BuildInfo version="1.4.0" /> },
+  { label: "No build at all: a dev build", props: "no props", build: <BuildInfo /> },
+  { label: "With the API built from the same commit", props: "commit, components={[API on the same commit]}", build: <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[API]} /> },
+  { label: "With the API on another commit", props: "commit, components={[API on 3f9c2a1]}", build: <BuildInfo name="App" commit="sha-8d1e0f2" builtAt="2026-11-21T02:10:00Z" components={[API]} /> },
+  { label: "With a service released on its own", props: `version="v0.3.1" commit, components={[API, part-finder]}`, build: <BuildInfo name="App" version="v0.3.1" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[API, PART_FINDER]} /> },
+  { label: "Components, but no build of its own", props: "components={[API]}", build: <BuildInfo components={[API]} /> },
+  {
+    label: "Outdated: the server runs a newer build",
+    props: `commit, components={[API]}, inside AppCommitProvider outdated`,
+    build: (
+      <AppCommitProvider buildCommit={null} outdated>
+        <BuildInfo name="App" commit="sha-8d1e0f2" components={[API]} />
+      </AppCommitProvider>
+    ),
+  },
+]
 
 const PEOPLE = ["Alex Chen", "林怡君", "Jordan Lee", "王小明", "Sam Rivera", "陳柏翰"]
 
@@ -150,7 +173,7 @@ export function LayoutPage() {
 
       <Example
         title="BuildInfo"
-        description="Which build is running, for the footer and the drawer: the version, else the short commit, else dev. Pass the other components' builds too, each named by the app: the line shows this page's own build, with a warning mark while the app is outdated. Click it for every build's version, commit and build time, and a button that copies them for an issue."
+        description="Which build is running, for the footer and the drawer: the version, else the short commit, else dev. Pass the other components' builds too, each named by the app: the line shows this page's own build and nothing else, with a warning mark while the app is outdated. Click one for every build's version, commit and build time, and a button that copies them for an issue."
         code={`<BuildInfo
   name="App"
   commit={config.commit}
@@ -159,29 +182,22 @@ export function LayoutPage() {
   components={[{ name: "API", ...meta.build }, { name: "part-finder", ...meta.partFinder }]}
 />`}
       >
-        <Stack gap="2" textStyle="sm">
-          <Box>
-            <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", version: "v0.3.1", commit: "3f9c2a1e7b55", builtAt: "2026-11-20T04:28:00Z" }, { name: "part-finder", version: "v1.2.0", commit: "c41d9e0a2b" }]} />
-          </Box>
-          <Box>
-            <BuildInfo name="App" version="2.4.0" commit="sha-8d1e0f2" components={[{ name: "API", version: "v0.3.1", commit: "e4f5a6b9c0d1" }, { name: "Worker", version: "1.1.0", commit: "77ab3c9" }]} />
-          </Box>
-          <Box>
-            <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", commit: "3f9c2a1e7b55", builtAt: "2026-11-20T04:28:00Z" }]} />
-          </Box>
-          <Box>
-            <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", commit: "e4f5a6b9c0d1", builtAt: "2026-11-21T02:10:00Z" }]} />
-          </Box>
-          <Box>
-            <BuildInfo commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" />
-          </Box>
-          <Box>
-            <BuildInfo version="1.4.0" />
-          </Box>
-          <Box>
-            <BuildInfo />
-          </Box>
-        </Stack>
+        {/* Its own provider, so the demo's outdated switch only reaches the outdated case. */}
+        <AppCommitProvider buildCommit={null}>
+          <Stack gap="0" textStyle="sm" divideY="1px">
+            {BUILD_CASES.map(({ label, props, build }) => (
+              <HStack key={label} justify="space-between" gap="4" py="2">
+                <Stack gap="0.5" minW="0">
+                  <Text>{label}</Text>
+                  <Text color="fg.muted" fontFamily="mono" textStyle="xs">
+                    {props}
+                  </Text>
+                </Stack>
+                <Box flexShrink="0">{build}</Box>
+              </HStack>
+            ))}
+          </Stack>
+        </AppCommitProvider>
       </Example>
     </>
   )
