@@ -55,6 +55,7 @@ export {
   type AccountMenuProps,
   type LanguageMenuProps,
   type AppShellProps,
+  type AppBuild,
   type BuildInfoProps,
   type NavItem,
   type RenderLink,

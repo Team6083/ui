@@ -5,6 +5,7 @@ import { LuLogs } from "react-icons/lu"
 
 import { renderWithUi } from "../test-utils.js"
 import { ColorModeButton } from "../chakra/color-mode.js"
+import { AppCommitProvider } from "./app-commit.js"
 import { AccountMenu, AppShell, BuildInfo, LanguageMenu, SignOutMenuItem } from "./app-shell.js"
 import { avatarPaletteFor } from "./member-avatar.js"
 import { EmptyState, PageColumn, PageHeader, SectionHeader } from "./page-parts.js"
@@ -112,11 +113,45 @@ describe("ColorModeButton", () => {
 })
 
 describe("BuildInfo", () => {
-  it("prefers the version, then the commit, then dev", () => {
-    const { rerender } = renderWithUi(<BuildInfo version="1.2.0" commit="abc1234" />)
-    expect(screen.getByText("1.2.0")).toBeInTheDocument()
+  it("shows the version, else the short commit, else dev", () => {
+    const { rerender } = renderWithUi(<BuildInfo version="1.2.0" commit="sha-abc1234def" />)
+    expect(screen.getByRole("button", { name: "Build details" })).toHaveTextContent(/^1\.2\.0$/)
+    rerender(<BuildInfo commit="sha-abc1234def" />)
+    expect(screen.getByRole("button", { name: "Build details" })).toHaveTextContent(/^abc1234$/)
     rerender(<BuildInfo />)
     expect(screen.getByText("dev")).toBeInTheDocument()
+    expect(screen.queryByRole("button")).not.toBeInTheDocument()
+  })
+
+  it("shows one name while every build shares a commit and a version", () => {
+    renderWithUi(<BuildInfo name="App" commit="a1b2c3d" components={[{ name: "API", version: "v0.3.1", commit: "a1b2c3d4e5f6" }, { name: "Worker", commit: "a1b2c3d" }]} />)
+    expect(screen.getByRole("button", { name: "Build details" })).toHaveTextContent(/^v0\.3\.1$/)
+  })
+
+  it("shows this page's build when the builds differ, marked while outdated", () => {
+    const { rerender } = renderWithUi(<BuildInfo name="App" version="2.0.0" commit="a1b2c3d" components={[{ name: "API", version: "v0.3.1", commit: "e4f5a6b" }]} />)
+    const trigger = () => screen.getByRole("button", { name: "Build details" })
+    expect(trigger()).toHaveTextContent(/^2\.0\.0$/)
+    expect(trigger().querySelector("svg")).toBeNull()
+    rerender(
+      <AppCommitProvider buildCommit="a1b2c3d" outdated>
+        <BuildInfo name="App" commit="a1b2c3d" components={[{ name: "API", version: "v0.3.1", commit: "e4f5a6b" }]} />
+      </AppCommitProvider>,
+    )
+    expect(trigger()).toHaveTextContent(/^a1b2c3d$/)
+    expect(trigger().querySelector("svg")).not.toBeNull()
+  })
+
+  it("lists every build and copies them", async () => {
+    const user = userEvent.setup()
+    renderWithUi(<BuildInfo name="App" commit="a1b2c3d" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", version: "v0.3.1", commit: "e4f5a6b", builtAt: "2026-11-20T04:28:00Z" }]} />)
+    await user.click(screen.getByRole("button", { name: "Build details" }))
+    const details = within(await screen.findByRole("dialog"))
+    expect(details.getByText("App")).toBeVisible()
+    expect(details.getByText("API")).toBeVisible()
+    expect(details.getByText("v0.3.1")).toBeVisible()
+    await user.click(details.getByRole("button", { name: /copy/i }))
+    expect(await navigator.clipboard.readText()).toBe("App: a1b2c3d 2026-11-20T04:30:00Z\nAPI: v0.3.1 e4f5a6b 2026-11-20T04:28:00Z")
   })
 })
 

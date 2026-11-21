@@ -114,10 +114,11 @@ hand it what the server knows (session, server actions):
 import NextLink from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu } from "@chakra-ui/react"
-import { AccountMenu, AppShell, BuildInfo, SignOutMenuItem } from "@team6083/ui"
+import { AccountMenu, AppShell, BuildInfo, SignOutMenuItem, type AppBuild } from "@team6083/ui"
 import { LuLogs, LuUser } from "react-icons/lu"
 
-export function Frame({ user, signOut, children }: { user: { name: string; image?: string }; signOut: () => Promise<void>; children: React.ReactNode }) {
+// build: the API's { version, commit, builtAt }, e.g. from GET /api/v1/meta
+export function Frame({ user, build, signOut, children }: { user: { name: string; image?: string }; build?: AppBuild; signOut: () => Promise<void>; children: React.ReactNode }) {
   const pathname = usePathname()
   return (
     <AppShell
@@ -134,7 +135,7 @@ export function Frame({ user, signOut, children }: { user: { name: string; image
           <SignOutMenuItem onSelect={() => void signOut()} />
         </AccountMenu>
       }
-      buildInfo={<BuildInfo commit={process.env.NEXT_PUBLIC_COMMIT_SHA} builtAt={process.env.NEXT_PUBLIC_BUILD_DATE} />}
+      buildInfo={<BuildInfo commit={process.env.NEXT_PUBLIC_COMMIT_SHA} builtAt={process.env.NEXT_PUBLIC_BUILD_DATE} components={build && [{ name: "API", ...build }]} />}
     >
       {children}
     </AppShell>

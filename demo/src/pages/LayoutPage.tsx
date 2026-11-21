@@ -150,15 +150,32 @@ export function LayoutPage() {
 
       <Example
         title="BuildInfo"
-        description="Which build is running, for the footer and the drawer: a release version, else the short commit and build time, else dev."
-        code={`<BuildInfo version={config.version} commit={config.commit} builtAt={config.builtAt} />`}
+        description="Which build is running, for the footer and the drawer: the version, else the short commit, else dev. Pass the other components' builds too, each named by the app: when every build shares a commit and a version it shows that one; otherwise this page's own, with a warning mark while the app is outdated. Click it for every build's version, commit and build time, and a button that copies them for an issue."
+        code={`<BuildInfo
+  name="App"
+  commit={config.commit}
+  builtAt={config.builtAt}
+  components={[{ name: "API", ...meta.build }]} // { version, commit, builtAt }
+/>`}
       >
-        <Stack gap="1" textStyle="sm">
+        <Stack gap="2" textStyle="sm">
           <Box>
-            <BuildInfo version="1.4.0" />
+            <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", version: "v0.3.1", commit: "3f9c2a1e7b55", builtAt: "2026-11-20T04:28:00Z" }]} />
+          </Box>
+          <Box>
+            <BuildInfo name="App" version="2.4.0" commit="sha-8d1e0f2" components={[{ name: "API", version: "v0.3.1", commit: "e4f5a6b9c0d1" }, { name: "Worker", version: "1.1.0", commit: "77ab3c9" }]} />
+          </Box>
+          <Box>
+            <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", commit: "3f9c2a1e7b55", builtAt: "2026-11-20T04:28:00Z" }]} />
+          </Box>
+          <Box>
+            <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", commit: "e4f5a6b9c0d1", builtAt: "2026-11-21T02:10:00Z" }]} />
           </Box>
           <Box>
             <BuildInfo commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" />
+          </Box>
+          <Box>
+            <BuildInfo version="1.4.0" />
           </Box>
           <Box>
             <BuildInfo />
