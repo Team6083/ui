@@ -123,9 +123,24 @@ describe("BuildInfo", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument()
   })
 
-  it("shows one name while every build shares a commit and a version", () => {
-    renderWithUi(<BuildInfo name="App" commit="a1b2c3d" components={[{ name: "API", version: "v0.3.1", commit: "a1b2c3d4e5f6" }, { name: "Worker", commit: "a1b2c3d" }]} />)
-    expect(screen.getByRole("button", { name: "Build details" })).toHaveTextContent(/^v0\.3\.1$/)
+  it("shows only this page's build, whatever the others run", () => {
+    renderWithUi(
+      <BuildInfo
+        name="App"
+        commit="a1b2c3d"
+        components={[
+          { name: "Worker", commit: "a1b2c3d" },
+          { name: "part-finder", version: "v1.4.0", commit: "9f8e7d6" },
+          { name: "API", version: "v0.3.1", commit: "a1b2c3d4e5f6" },
+        ]}
+      />,
+    )
+    expect(screen.getByRole("button", { name: "Build details" })).toHaveTextContent(/^a1b2c3d$/)
+  })
+
+  it("shows dev for a page without a build, whatever the API runs", () => {
+    renderWithUi(<BuildInfo components={[{ name: "API", version: "v0.3.1", commit: "a1b2c3d" }]} />)
+    expect(screen.getByRole("button", { name: "Build details" })).toHaveTextContent(/^dev$/)
   })
 
   it("shows this page's build when the builds differ, marked while outdated", () => {

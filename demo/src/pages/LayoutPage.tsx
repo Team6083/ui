@@ -150,17 +150,18 @@ export function LayoutPage() {
 
       <Example
         title="BuildInfo"
-        description="Which build is running, for the footer and the drawer: the version, else the short commit, else dev. Pass the other components' builds too, each named by the app: when every build shares a commit and a version it shows that one; otherwise this page's own, with a warning mark while the app is outdated. Click it for every build's version, commit and build time, and a button that copies them for an issue."
+        description="Which build is running, for the footer and the drawer: the version, else the short commit, else dev. Pass the other components' builds too, each named by the app: the line shows this page's own build, with a warning mark while the app is outdated. Click it for every build's version, commit and build time, and a button that copies them for an issue."
         code={`<BuildInfo
   name="App"
   commit={config.commit}
   builtAt={config.builtAt}
-  components={[{ name: "API", ...meta.build }]} // { version, commit, builtAt }
+  // { version, commit, builtAt } of each
+  components={[{ name: "API", ...meta.build }, { name: "part-finder", ...meta.partFinder }]}
 />`}
       >
         <Stack gap="2" textStyle="sm">
           <Box>
-            <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", version: "v0.3.1", commit: "3f9c2a1e7b55", builtAt: "2026-11-20T04:28:00Z" }]} />
+            <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", version: "v0.3.1", commit: "3f9c2a1e7b55", builtAt: "2026-11-20T04:28:00Z" }, { name: "part-finder", version: "v1.2.0", commit: "c41d9e0a2b" }]} />
           </Box>
           <Box>
             <BuildInfo name="App" version="2.4.0" commit="sha-8d1e0f2" components={[{ name: "API", version: "v0.3.1", commit: "e4f5a6b9c0d1" }, { name: "Worker", version: "1.1.0", commit: "77ab3c9" }]} />
