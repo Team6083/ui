@@ -1,33 +1,5 @@
 # Changelog
 
-All notable changes to this package are documented here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses
-[Semantic Versioning](https://semver.org/): a change that alters how apps look
-or behave without code changes on their side is a major version.
-
-## [Unreleased]
-
-### Added
-
-- `BuildInfo` takes a `name` for this page's build and the builds of the other
-  components it works with as `components` (`[{ name: "API", version, commit,
-  builtAt }]`, e.g. from `GET /api/v1/meta`). When every build shares a commit
-  and a version it shows that one; otherwise this page's own, with a warning
-  mark while the app is outdated. Clicking it lists every build's version,
-  commit and build time, with a button that copies them for an issue.
-
-### Changed
-
-- `BuildInfo` shows the version, else the short commit, in the footer's own
-  color; the build time moves to the details. Only an outdated app's build
-  stands out, in orange with a warning mark.
-
-- Releases move to npm, where installing needs no token; from this one on,
-  each carries provenance. 0.1.0 is on npm too. Prereleases stay on GitHub
-  Packages. Apps on 0.1.0: remove the `@team6083` lines from `.npmrc`, and the
-  `packages: read` permission and `NODE_AUTH_TOKEN` from the steps that install
-  dependencies.
-
 ## [0.1.0] - 2026-11-20
 
 The first release. `0.1.0-alpha.<n>` prereleases came before it.

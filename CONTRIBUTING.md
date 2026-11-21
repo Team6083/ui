@@ -36,5 +36,8 @@ write. The Pages workflow publishes the demo from `main`.
 - No organization strings other than the GitHub owner; apps pass names in.
 - Files that use hooks or Chakra components start with `"use client"`, so
   Next.js server components can import the package.
-- A change that alters how apps look or behave without code changes on their
-  side is a major version (see `CHANGELOG.md`).
+- Each PR that changes the package adds a changeset (`npx changeset`). A change
+  that alters how apps look or behave without code changes on their side is a
+  major (a minor while on 0.x). Never edit `version` in `package.json` or
+  `CHANGELOG.md` by hand; `npx changeset version` does both at release (see
+  the README's Versions).

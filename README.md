@@ -156,8 +156,16 @@ token is Chakra's default until the team decides otherwise.
 
 Releases are on npm, as `latest`. Apps pin the exact version.
 
-A release: set `version` in `package.json` (if a PR has not already), move the `CHANGELOG.md` entries
-under it, merge, then push a matching tag (`git tag v0.1.1 && git push origin v0.1.1`).
+Each PR that changes the package adds a changeset: run `npx changeset`, pick
+patch, minor or major, and write the line the changelog will carry. A change
+that alters how apps look or behave without code changes on their side is a
+major (a minor while on 0.x). A PR that changes nothing apps see adds
+`npx changeset --empty`; CI checks for one. Branches never touch `version` in
+`package.json`: it stays the last release.
+
+A release: in one PR, run `npx changeset version`, which sets `version` from
+the pending changesets, writes them into `CHANGELOG.md` and deletes them; merge,
+then push a matching tag (`git tag v0.2.0 && git push origin v0.2.0`).
 The release workflow checks and builds it and stages it on npm, with provenance
 linking it to the workflow run. A maintainer then approves it with 2FA, under
 Staged Packages on npmjs.com or with `npm stage list` and
@@ -165,11 +173,10 @@ Staged Packages on npmjs.com or with `npm stage list` and
 
 Each push to `main` that changes the package publishes a prerelease,
 `<version>-alpha.<n>`, to GitHub Packages under the `next` dist-tag, so a change
-can be tried in an app before it is released. `<version>` is the patch after the
-latest release tag, or `package.json`'s version when that is higher: raise it
-in the PR that needs a minor or major release (0.2.0 for a breaking change).
-`<n>` counts the commits since the tag, so each alpha sorts above the last
-release. The
+can be tried in an app before it is released. `<version>` is what the pending
+changesets would release, and `<n>` counts the commits since the latest release
+tag, so each alpha sorts above the last release.
+The
 GitHub registry needs a token even though the package is public: add to the
 app's `.npmrc`
 

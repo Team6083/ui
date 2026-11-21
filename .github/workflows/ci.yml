@@ -20,6 +20,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          # main's history, for the changeset check.
+          fetch-depth: 0
 
       # The Node the package is developed on; engines is only the minimum for apps.
       - name: Set up Node.js
@@ -47,6 +50,12 @@ jobs:
       - name: Build
         if: ${{ !cancelled() }}
         run: npm run build
+
+      # A PR that changes the package says how in a changeset (npx changeset);
+      # one that changes nothing apps see adds an empty one (npx changeset --empty).
+      - name: Changeset
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        run: npx changeset status --since=origin/main
 
       - name: Audit production dependencies
         if: ${{ !cancelled() }}
