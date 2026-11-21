@@ -153,19 +153,29 @@ token is Chakra's default until the team decides otherwise.
 
 ## Versions
 
-Until the first release every version is a prerelease. Each push to `main`
-publishes `<version>-alpha.<n>` under the `next` dist-tag, `<version>` being
-`package.json`'s without its prerelease part and `<n>` the run number, so
-nobody edits version numbers. Apps pin the exact version and update with:
-
-```bash
-npm install --save-exact @team6083/ui@next
-```
+Releases are on npm, as `latest`. Apps pin the exact version.
 
 A release: set `version` in `package.json`, move the `CHANGELOG.md` entries
-under it, merge, then push a matching tag (`git tag v0.1.0 && git push origin v0.1.0`).
-The publish workflow checks, builds and publishes it as `latest`, with npm
-provenance linking it to the workflow run.
+under it, merge, then push a matching tag (`git tag v0.1.1 && git push origin v0.1.1`).
+The release workflow checks, builds and publishes it to npm, with provenance
+linking it to the workflow run.
+
+Each push to `main` publishes a prerelease, `<version>-alpha.<n>`, to GitHub
+Packages under the `next` dist-tag (`<version>` is `package.json`'s, `<n>` the
+run number), so a change can be tried in an app before it is released. The
+GitHub registry needs a token even though the package is public: add to the
+app's `.npmrc`
+
+```ini
+@team6083:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+```
+
+set `NODE_AUTH_TOKEN` to a token with `read:packages` (`gh auth refresh -h
+github.com -s read:packages`, then `export NODE_AUTH_TOKEN=$(gh auth token)`;
+in a workflow, `secrets.GITHUB_TOKEN` with `packages: read`), and run
+`npm install --save-exact @team6083/ui@next`. Go back to a release by removing
+those lines.
 
 ## Development
 

@@ -1,0 +1,59 @@
+name: Prerelease
+
+# Every push to main publishes <version>-alpha.<run number> under the "next"
+# dist-tag to GitHub Packages, so nobody bumps version numbers by hand.
+# Releases go to npm (release.yml); prereleases stay off it.
+on:
+  push:
+    branches: [ "main" ]
+
+concurrency:
+  group: prerelease
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: "@team6083"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check
+        run: |
+          npm run typecheck
+          npm run lint
+          npm test
+
+      - name: Set the prerelease version
+        run: |
+          base="$(node -p 'require("./package.json").version.split("-")[0]')"
+          npm version --no-git-tag-version "${base}-alpha.${GITHUB_RUN_NUMBER}"
+
+      # prepack builds dist/.
+      - name: Publish
+        run: npm publish --tag next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: echo "Published @team6083/ui@$(node -p 'require("./package.json").version') (next)" >> "$GITHUB_STEP_SUMMARY"

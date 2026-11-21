@@ -1,0 +1,58 @@
+name: Release
+
+# Publishes a release to npm (registry.npmjs.org) when a version tag is pushed.
+# The tag must match package.json: v0.1.1 for "version": "0.1.1". Trusted
+# publishing: npm trusts this workflow file, so the repository holds no npm
+# token, and each version carries provenance. Prereleases go to GitHub
+# Packages instead (prerelease.yml).
+on:
+  push:
+    tags: [ "v*.*.*" ]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Check the tag matches package.json
+        run: |
+          version="$(node -p 'require("./package.json").version')"
+          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package.json version ${version}" >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check
+        run: |
+          npm run typecheck
+          npm run lint
+          npm test
+
+      # prepack builds dist/. Trusted publishing needs npm 11.5.1 or later;
+      # Node 26 ships with it.
+      - name: Publish
+        run: npm publish
+
+      - name: Summary
+        run: echo "Published @team6083/ui@$(node -p 'require("./package.json").version') (latest)" >> "$GITHUB_STEP_SUMMARY"
