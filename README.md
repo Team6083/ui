@@ -27,43 +27,7 @@ react-i18next: pass the app's locale to `UiProvider`.
 
 ## Install
 
-The package is public on GitHub Packages, so any GitHub account can install
-it. The registry still asks every client for a token, even for a public
-package, so each place that runs `npm ci` needs one.
-
-1. In the app, next to `package.json`, add `.npmrc`:
-
-   ```ini
-   @team6083:registry=https://npm.pkg.github.com
-   //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
-   ```
-
-2. In the app's workflows, the built-in `GITHUB_TOKEN` is enough:
-
-   ```yaml
-   permissions:
-     contents: read
-     packages: read
-   # ...
-   - uses: actions/setup-node@v7
-     with:
-       registry-url: https://npm.pkg.github.com
-       scope: "@team6083"
-   - run: npm ci
-     env:
-       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-   ```
-
-3. On your machine, and on hosts that build the app (Cloudflare Pages or
-   Workers builds), set `NODE_AUTH_TOKEN` to a classic personal access token
-   with `read:packages`, from any GitHub account. With the GitHub CLI:
-   `gh auth refresh -h github.com -s read:packages`, then
-   `export NODE_AUTH_TOKEN=$(gh auth token)`.
-
-4. Dependabot needs the registry and a Dependabot secret holding such a token;
-   see the `registries` block in GitHub's Dependabot docs.
-
-Then:
+The package is on npm:
 
 ```bash
 npm install @team6083/ui @chakra-ui/react next-themes react-icons
@@ -200,7 +164,8 @@ npm install --save-exact @team6083/ui@next
 
 A release: set `version` in `package.json`, move the `CHANGELOG.md` entries
 under it, merge, then push a matching tag (`git tag v0.1.0 && git push origin v0.1.0`).
-The release workflow checks, builds and publishes it as `latest`.
+The publish workflow checks, builds and publishes it as `latest`, with npm
+provenance linking it to the workflow run.
 
 ## Development
 

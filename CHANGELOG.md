@@ -9,7 +9,8 @@ or behave without code changes on their side is a major version.
 
 ## [0.1.0] - 2026-11-20
 
-The first release. `0.1.0-alpha.<n>` prereleases came before it.
+The first release, and the first on npm: installing needs no token. The
+`0.1.0-alpha.<n>` prereleases before it were on GitHub Packages.
 
 ### Theme and setup
 
