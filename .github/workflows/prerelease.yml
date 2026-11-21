@@ -1,11 +1,25 @@
 name: Prerelease
 
-# Every push to main publishes <version>-alpha.<run number> under the "next"
-# dist-tag to GitHub Packages, so nobody bumps version numbers by hand.
-# Releases go to npm (release.yml); prereleases stay off it.
+# Every push to main that changes the package publishes <version>-alpha.<n>
+# under the "next" dist-tag to GitHub Packages, so a change can be tried before
+# it is released. <version> is the patch after the latest release tag, or
+# package.json's version when it is higher (set it to 0.2.0 for a breaking
+# change); <n> counts the commits since that tag, so every alpha sorts above
+# the last release and a re-run publishes nothing new. Releases go to npm
+# (release.yml); prereleases stay off it.
 on:
   push:
     branches: [ "main" ]
+    # What reaches the published package, and this workflow itself.
+    paths:
+      - "src/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "tsconfig.build.json"
+      - "README.md"
+      - "LICENSE"
+      - ".github/workflows/prerelease.yml"
 
 concurrency:
   group: prerelease
@@ -26,6 +40,8 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+          # The tags and history, to find the latest release and count since it.
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -45,15 +61,53 @@ jobs:
           npm test
 
       - name: Set the prerelease version
+        id: version
         run: |
-          base="$(node -p 'require("./package.json").version.split("-")[0]')"
-          npm version --no-git-tag-version "${base}-alpha.${GITHUB_RUN_NUMBER}"
+          # Release tags only (v0.1.0), not prerelease ones (v0.2.0-rc.1).
+          if tag="$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' --exclude '*-*' 2>/dev/null)"; then
+            count="$(git rev-list --count "${tag}..HEAD")"
+          else
+            tag="v0.0.0"
+            count="$(git rev-list --count HEAD)"
+          fi
+          version="$(TAG="${tag#v}" COUNT="${count}" node -e '
+            const parse = (v) => v.split("-")[0].split(".").map(Number)
+            const [major, minor, patch] = parse(process.env.TAG)
+            const next = [major, minor, patch + 1]
+            const own = parse(require("./package.json").version)
+            const higher = own.findIndex((n, i) => n !== next[i]) // first differing part
+            const base = higher !== -1 && own[higher] > next[higher] ? own : next
+            console.log(`${base.join(".")}-alpha.${process.env.COUNT}`)
+          ')"
+          npm version --no-git-tag-version --allow-same-version "${version}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          # Already published from this commit: a re-run, nothing to do. From
+          # another commit: the count collided, so stop rather than skip.
+          if published="$(npm view "@team6083/ui@${version}" gitHead 2>/dev/null)" && [ -n "${published}" ]; then
+            if [ "${published}" != "$(git rev-parse HEAD)" ]; then
+              echo "@team6083/ui@${version} was published from ${published}, not this commit" >&2
+              exit 1
+            fi
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # A re-run of the same commit finds its version already published.
       # prepack builds dist/.
       - name: Publish
+        if: ${{ steps.version.outputs.exists != 'true' }}
         run: npm publish --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Summary
-        run: echo "Published @team6083/ui@$(node -p 'require("./package.json").version') (next)" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          if [ "${EXISTS}" = "true" ]; then
+            echo "@team6083/ui@${VERSION} was already published" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Published @team6083/ui@${VERSION} (next)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          EXISTS: ${{ steps.version.outputs.exists }}
