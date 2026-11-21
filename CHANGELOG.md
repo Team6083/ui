@@ -7,10 +7,17 @@ or behave without code changes on their side is a major version.
 
 ## [Unreleased]
 
+### Changed
+
+- The package moves to npm, where installing needs no token; each version
+  carries provenance. 0.1.0 and the prereleases before it stay on GitHub
+  Packages. Apps on them: remove the `@team6083` lines from `.npmrc`, and the
+  `packages: read` permission and `NODE_AUTH_TOKEN` from the steps that install
+  dependencies.
+
 ## [0.1.0] - 2026-11-20
 
-The first release, and the first on npm: installing needs no token. The
-`0.1.0-alpha.<n>` prereleases before it were on GitHub Packages.
+The first release. `0.1.0-alpha.<n>` prereleases came before it.
 
 ### Theme and setup
 
