@@ -2,10 +2,11 @@ name: Prerelease
 
 # Every push to main that changes the package publishes <version>-alpha.<n>
 # under the "next" dist-tag to GitHub Packages, so a change can be tried before
-# it is released. <version> is the patch after the latest release tag, or
-# package.json's version when it is higher (set it to 0.2.0 for a breaking
-# change); <n> counts the commits since that tag, so every alpha sorts above
-# the last release and a re-run publishes nothing new. Releases go to npm
+# it is released. <version> is what the next release will be: the pending
+# changesets' bump on the last release, or at least the patch after the latest
+# release tag. <n> counts the commits since that tag, so every alpha sorts above
+# the last release and a re-run publishes nothing new. package.json's version
+# changes only in a release PR (changeset version). Releases go to npm
 # (release.yml); prereleases stay off it.
 on:
   push:
@@ -19,6 +20,7 @@ on:
       - "tsconfig.build.json"
       - "README.md"
       - "LICENSE"
+      - ".changeset/**"
       - ".github/workflows/prerelease.yml"
 
 concurrency:
@@ -70,13 +72,20 @@ jobs:
             tag="v0.0.0"
             count="$(git rev-list --count HEAD)"
           fi
-          version="$(TAG="${tag#v}" COUNT="${count}" node -e '
+          # The version the pending changesets release; exits 1 when there are none.
+          npx changeset status --output "${RUNNER_TEMP}/changesets.json" >/dev/null || true
+          version="$(TAG="${tag#v}" COUNT="${count}" STATUS="${RUNNER_TEMP}/changesets.json" node -e '
+            const fs = require("fs")
             const parse = (v) => v.split("-")[0].split(".").map(Number)
+            const higher = (a, b) => { const i = a.findIndex((n, j) => n !== b[j]); return i !== -1 && a[i] > b[i] ? a : b }
             const [major, minor, patch] = parse(process.env.TAG)
-            const next = [major, minor, patch + 1]
-            const own = parse(require("./package.json").version)
-            const higher = own.findIndex((n, i) => n !== next[i]) // first differing part
-            const base = higher !== -1 && own[higher] > next[higher] ? own : next
+            let base = [major, minor, patch + 1]
+            // package.json: above the tag only between a release PR and its tag.
+            base = higher(parse(require("./package.json").version), base)
+            if (fs.existsSync(process.env.STATUS)) {
+              const release = JSON.parse(fs.readFileSync(process.env.STATUS, "utf8")).releases.find((r) => r.name === "@team6083/ui")
+              if (release?.newVersion) base = higher(parse(release.newVersion), base)
+            }
             console.log(`${base.join(".")}-alpha.${process.env.COUNT}`)
           ')"
           npm version --no-git-tag-version --allow-same-version "${version}"
