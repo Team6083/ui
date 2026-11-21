@@ -14,6 +14,7 @@ export interface UiMessages {
   apiError: Record<string, string> & { fallback: string }
   colorMode: { label: string; system: string; light: string; dark: string }
   shell: { menu: string; openMenu: string; signIn: string; signOut: string; language: string }
+  build: { details: string; thisPage: string; version: string; commit: string; builtAt: string; copy: string; copied: string }
   data: {
     selectAll: string
     selectRow: string
@@ -62,6 +63,7 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
     },
     colorMode: { label: "Color mode", system: "System", light: "Light", dark: "Dark" },
     shell: { menu: "Menu", openMenu: "Open menu", signIn: "Sign in", signOut: "Sign out", language: "Language" },
+    build: { details: "Build details", thisPage: "This page", version: "Version", commit: "Commit", builtAt: "Built", copy: "Copy", copied: "Copied" },
     data: {
       selectAll: "Select all",
       selectRow: "Select row",
@@ -107,6 +109,7 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
     },
     colorMode: { label: "外觀", system: "跟隨系統", light: "淺色", dark: "深色" },
     shell: { menu: "選單", openMenu: "開啟選單", signIn: "登入", signOut: "登出", language: "語言" },
+    build: { details: "建置資訊", thisPage: "此頁面", version: "版本", commit: "Commit", builtAt: "建置時間", copy: "複製", copied: "已複製" },
     data: {
       selectAll: "全選",
       selectRow: "選取這一列",

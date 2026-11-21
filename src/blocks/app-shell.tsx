@@ -3,14 +3,17 @@
 import {
   Box,
   Button,
+  Clipboard,
   CloseButton,
   Container,
+  DataList,
   Drawer,
   Flex,
   Heading,
   HStack,
   IconButton,
   Menu,
+  Popover,
   Portal,
   Separator,
   Stack,
@@ -18,11 +21,12 @@ import {
   type ContainerProps,
 } from "@chakra-ui/react"
 import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react"
-import { LuChevronRight, LuLanguages, LuLogIn, LuLogOut, LuMenu } from "react-icons/lu"
+import { LuChevronRight, LuLanguages, LuLogIn, LuLogOut, LuMenu, LuTriangleAlert } from "react-icons/lu"
 
 import { ColorModeButton } from "../chakra/color-mode.js"
 import { useUiMessages } from "../i18n.js"
-import { AppOutdatedBanner } from "./app-commit.js"
+import { commitsDiffer } from "../lib/commit.js"
+import { AppOutdatedBanner, useAppOutdated } from "./app-commit.js"
 import { MemberAvatar } from "./member-avatar.js"
 
 /**
@@ -318,23 +322,120 @@ export function SignInButton({ onClick }: { onClick: () => void | Promise<void> 
   )
 }
 
-export interface BuildInfoProps {
-  /** A release version; shown instead of the commit when set. */
+/** One build of a part of the system. */
+export interface AppBuild {
+  /** What the build is, as the app calls it: App, API, Worker. */
+  name?: string
+  /** A release version, e.g. v0.3.1. Leave it out when the build can't know it. */
   version?: string | null
   commit?: string | null
   /** ISO time the build ran. */
   builtAt?: string | null
 }
 
-/** Which build is running: the version, else the short commit and build time, else "dev". */
-export function BuildInfo({ version, commit, builtAt }: BuildInfoProps) {
-  if (version) return <Text as="span">{version}</Text>
-  if (!commit) return <Text as="span">dev</Text>
+export interface BuildInfoProps extends AppBuild {
+  /**
+   * The builds of the other components this page works with, each named, e.g.
+   * [{ name: "API", ...meta.build }] from GET /api/v1/meta. When every build
+   * shares a commit and a version they show as one; otherwise the line shows
+   * this page's build and the details list them all.
+   */
+  components?: (AppBuild & { name: string })[]
+}
+
+function shortCommit(commit: string) {
+  return commit.trim().replace(/^sha-/, "").slice(0, 7)
+}
+
+function formatTime(builtAt: string | null | undefined) {
   const time = builtAt ? new Date(builtAt) : null
+  return time && !Number.isNaN(time.getTime()) ? time.toLocaleString() : null
+}
+
+/** The version, else the short commit, else dev; orange with a warning mark while outdated. */
+function BuildLabel({ build, outdated }: { build: AppBuild; outdated: boolean }) {
+  const mono = !build.version && !!build.commit
   return (
-    <Text as="span" fontFamily="mono">
-      {commit.replace(/^sha-/, "").slice(0, 7)}
-      {time && !Number.isNaN(time.getTime()) && <Text as="span" fontFamily="body" suppressHydrationWarning>{` · ${time.toLocaleString()}`}</Text>}
+    <Text as="span" color={outdated ? "fg.warning" : undefined} fontFamily={mono ? "mono" : undefined} display="inline-flex" alignItems="center" gap="1">
+      {outdated && <LuTriangleAlert aria-hidden />}
+      {build.version || (build.commit ? shortCommit(build.commit) : "dev")}
     </Text>
+  )
+}
+
+/** Whether every build that names a commit or a version names the same one. */
+function sameBuild(builds: AppBuild[]) {
+  const commits = builds.map((b) => b.commit).filter(Boolean)
+  const versions = new Set(builds.map((b) => b.version).filter(Boolean))
+  return versions.size <= 1 && commits.every((c) => !commitsDiffer(commits[0], c))
+}
+
+/**
+ * Which build is running, for AppShell's buildInfo: the version, else the short
+ * commit, else "dev", marked while the app is outdated. Clicking it lists every
+ * build's version, commit and build time, with a button that copies them.
+ */
+export function BuildInfo({ name, version, commit, builtAt, components = [] }: BuildInfoProps) {
+  const m = useUiMessages().build
+  const outdated = useAppOutdated()
+  const self: AppBuild = { name: name ?? m.thisPage, version, commit, builtAt }
+  const known = [self, ...components].filter((b) => b.version || b.commit || b.builtAt)
+  if (known.length === 0) return <BuildLabel build={{}} outdated={false} />
+
+  // One build everywhere: the version any of them knows (a hosted front-end
+  // build often has no tag). Otherwise: this page's own build.
+  const shown = sameBuild(known) ? { version: known.find((b) => b.version)?.version, commit: known.find((b) => b.commit)?.commit } : self
+  const summary = <BuildLabel build={shown} outdated={outdated} />
+
+  const many = known.length > 1
+  const copyText = known
+    .map((b) => [many && `${b.name}:`, b.version, b.commit?.trim().replace(/^sha-/, ""), b.builtAt].filter(Boolean).join(" "))
+    .join("\n")
+
+  return (
+    <Popover.Root size="xs" positioning={{ placement: "top-end" }}>
+      <Popover.Trigger asChild>
+        <Button variant="plain" h="auto" minW="0" p="0" display="inline-block" textAlign="inherit" fontWeight="inherit" fontSize="inherit" lineHeight="inherit" color="inherit" _icon={{ boxSize: "1em" }} aria-label={m.details}>
+          {summary}
+        </Button>
+      </Popover.Trigger>
+      <Portal>
+        <Popover.Positioner>
+          <Popover.Content w="auto" minW="56">
+            <Popover.Body>
+              <Stack gap="3">
+                {known.map((b, i) => (
+                  <Stack key={i} gap="1">
+                    {many && <Text fontWeight="medium">{b.name}</Text>}
+                    <DataList.Root orientation="horizontal" size="sm" gap="1">
+                      {[
+                        [m.version, b.version],
+                        [m.commit, b.commit && shortCommit(b.commit)],
+                        [m.builtAt, formatTime(b.builtAt)],
+                      ].map(([field, value]) => (
+                        <DataList.Item key={field}>
+                          <DataList.ItemLabel minW="16">{field}</DataList.ItemLabel>
+                          <DataList.ItemValue fontFamily={field === m.commit ? "mono" : undefined} suppressHydrationWarning>
+                            {value || "—"}
+                          </DataList.ItemValue>
+                        </DataList.Item>
+                      ))}
+                    </DataList.Root>
+                  </Stack>
+                ))}
+                <Clipboard.Root value={copyText} alignSelf="end">
+                  <Clipboard.Trigger asChild>
+                    <Button size="xs" variant="outline">
+                      <Clipboard.Indicator />
+                      <Clipboard.Context>{({ copied }) => (copied ? m.copied : m.copy)}</Clipboard.Context>
+                    </Button>
+                  </Clipboard.Trigger>
+                </Clipboard.Root>
+              </Stack>
+            </Popover.Body>
+          </Popover.Content>
+        </Popover.Positioner>
+      </Portal>
+    </Popover.Root>
   )
 }
