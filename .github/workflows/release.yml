@@ -3,10 +3,8 @@ name: Release
 # Publishes a release to npm (registry.npmjs.org) when a version tag is pushed.
 # The tag must match package.json: v0.1.1 for "version": "0.1.1". Trusted
 # publishing: npm trusts this workflow file, so the repository holds no npm
-# token. npm creates a package only on its first publish, and trusted
-# publishing is set up on an existing package, so the first release used the
-# NPM_TOKEN secret; once trusted publishing is set up, delete the secret and
-# npm uses OIDC. Prereleases go to GitHub Packages instead (prerelease.yml).
+# token, and each version carries provenance. Prereleases go to GitHub
+# Packages instead (prerelease.yml).
 on:
   push:
     tags: [ "v*.*.*" ]
@@ -54,9 +52,7 @@ jobs:
       # prepack builds dist/. Trusted publishing needs npm 11.5.1 or later;
       # Node 26 ships with it.
       - name: Publish
-        run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish
 
       - name: Summary
         run: echo "Published @team6083/ui@$(node -p 'require("./package.json").version') (latest)" >> "$GITHUB_STEP_SUMMARY"
