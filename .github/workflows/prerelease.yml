@@ -2,11 +2,12 @@ name: Prerelease
 
 # Every push to main that changes the package publishes <version>-alpha.<n>
 # under the "next" dist-tag to GitHub Packages, so a change can be tried before
-# it is released. <version> is the patch after the latest release tag, or
-# package.json's version when it is higher (set it to 0.2.0 for a breaking
-# change); <n> counts the commits since that tag, so every alpha sorts above
-# the last release and a re-run publishes nothing new. Releases go to npm
-# (release.yml); prereleases stay off it.
+# it is released. <version> is the patch after the latest release tag; <n>
+# counts the commits since that tag, so every alpha sorts above the last
+# release and a re-run publishes nothing new. package.json's version changes
+# only in a release PR; while that PR's version is merged but not yet tagged,
+# alphas take it instead. Releases go to npm (release.yml); prereleases stay
+# off it.
 on:
   push:
     branches: [ "main" ]

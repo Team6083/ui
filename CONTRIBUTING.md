@@ -37,4 +37,4 @@ write. The Pages workflow publishes the demo from `main`.
 - Files that use hooks or Chakra components start with `"use client"`, so
   Next.js server components can import the package.
 - A change that alters how apps look or behave without code changes on their
-  side is a major version (see `CHANGELOG.md`).
+  side is a major version (a minor while on 0.x; see `CHANGELOG.md`).
