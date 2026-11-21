@@ -8,7 +8,9 @@ name: Release
 # provenance. Prereleases go to GitHub Packages instead (prerelease.yml).
 on:
   push:
-    tags: [ "v*.*.*" ]
+    # Release tags only: v0.2.0, not v0.2.0-alpha.1. Prereleases come from
+    # prerelease.yml.
+    tags: [ "v*.*.*", "!v*-*" ]
 
 permissions:
   contents: read
