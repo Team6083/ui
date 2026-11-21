@@ -156,16 +156,20 @@ token is Chakra's default until the team decides otherwise.
 
 Releases are on npm, as `latest`. Apps pin the exact version.
 
-A release: set `version` in `package.json`, move the `CHANGELOG.md` entries
+A release: set `version` in `package.json` (if a PR has not already), move the `CHANGELOG.md` entries
 under it, merge, then push a matching tag (`git tag v0.1.1 && git push origin v0.1.1`).
 The release workflow checks and builds it and stages it on npm, with provenance
 linking it to the workflow run. A maintainer then approves it with 2FA, under
 Staged Packages on npmjs.com or with `npm stage list` and
 `npm stage approve <stage-id>`, and it goes live as `latest`.
 
-Each push to `main` publishes a prerelease, `<version>-alpha.<n>`, to GitHub
-Packages under the `next` dist-tag (`<version>` is `package.json`'s, `<n>` the
-run number), so a change can be tried in an app before it is released. The
+Each push to `main` that changes the package publishes a prerelease,
+`<version>-alpha.<n>`, to GitHub Packages under the `next` dist-tag, so a change
+can be tried in an app before it is released. `<version>` is the patch after the
+latest release tag, or `package.json`'s version when that is higher: raise it
+in the PR that needs a minor or major release (0.2.0 for a breaking change).
+`<n>` counts the commits since the tag, so each alpha sorts above the last
+release. The
 GitHub registry needs a token even though the package is public: add to the
 app's `.npmrc`
 
