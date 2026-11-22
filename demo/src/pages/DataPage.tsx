@@ -182,7 +182,7 @@ export function DataPage() {
 
       <Example
         title="FactList"
-        description="One record's facts, label over value, in columns at least 12rem wide."
+        description="One record's facts, label over value: two columns on a phone, columns at least 12rem wide from md."
         code={`
 <FactList
   items={[

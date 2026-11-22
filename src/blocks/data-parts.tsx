@@ -2,22 +2,19 @@
 
 import {
   Badge,
-  Box,
   Button,
+  DataList,
   Flex,
   HStack,
   Input,
   InputGroup,
   Popover,
   Portal,
-  Separator,
-  SimpleGrid,
   Stack,
   Text,
+  type ConditionalValue,
   type FlexProps,
   type PopoverRootProps,
-  type SimpleGridProps,
-  type StackProps,
 } from "@chakra-ui/react"
 import type { ReactNode } from "react"
 import { LuListFilter, LuSearch, LuX } from "react-icons/lu"
@@ -149,23 +146,41 @@ export interface Fact {
   value: ReactNode
 }
 
-export interface FactListProps extends Omit<SimpleGridProps, "children"> {
+export interface FactListProps extends Omit<DataList.RootProps, "children"> {
   items: Fact[]
+  /**
+   * The narrowest a column may get; as many columns as fit side by side.
+   * Defaults to 9rem on a phone (two columns) and 12rem from md, so a date and
+   * time never wrap.
+   */
+  minChildWidth?: ConditionalValue<string>
 }
 
-/** One record's facts in a grid of label over value; columns at least 12rem wide, so dates never wrap. */
-export function FactList({ items, ...rest }: FactListProps) {
+const columnsOf = (width: string) => `repeat(auto-fit, minmax(${width}, 1fr))`
+
+function gridColumns(width: ConditionalValue<string>): ConditionalValue<string> {
+  if (typeof width === "string") return columnsOf(width)
+  if (Array.isArray(width)) return width.map((w) => (w == null ? w : columnsOf(w)))
+  return Object.fromEntries(Object.entries(width).map(([bp, w]) => [bp, w == null ? w : columnsOf(w as string)]))
+}
+
+/**
+ * One record's facts, label over value, in as many columns as fit.
+ *
+ * Chakra's DataList stacks items in one column; a record's page needs them side
+ * by side, with columns wide enough that a date and time never wrap. Pass the
+ * facts as a list instead of writing out DataList's parts for each one.
+ */
+export function FactList({ items, minChildWidth = { base: "9rem", md: "12rem" }, ...rest }: FactListProps) {
   return (
-    <SimpleGrid as="dl" minChildWidth="12rem" gap="4" {...rest}>
+    <DataList.Root orientation="vertical" display="grid" gridTemplateColumns={gridColumns(minChildWidth)} {...rest}>
       {items.map((item, i) => (
-        <Box key={i} minW="0">
-          <Text as="dt" textStyle="xs" color="fg.muted">
-            {item.label}
-          </Text>
-          <Box as="dd">{item.value}</Box>
-        </Box>
+        <DataList.Item key={i} minW="0">
+          <DataList.ItemLabel>{item.label}</DataList.ItemLabel>
+          <DataList.ItemValue>{item.value}</DataList.ItemValue>
+        </DataList.Item>
       ))}
-    </SimpleGrid>
+    </DataList.Root>
   )
 }
 
@@ -174,33 +189,47 @@ export interface TotalsLine {
   value: ReactNode
   /** The bottom line (the total to pay); set apart and in bold. */
   emphasis?: boolean
+  /** A note under the amount, e.g. how shipping is charged. */
   hint?: ReactNode
 }
 
-export interface TotalsProps extends StackProps {
+export interface TotalsProps extends Omit<DataList.RootProps, "children"> {
   lines: TotalsLine[]
 }
 
-/** Amounts that add up, right-aligned under a list or table; the emphasized line is the total. */
+/**
+ * Amounts that add up, under a list or table: right-aligned in tabular figures,
+ * the emphasized line (the total) set apart by a rule and in bold.
+ *
+ * Built on Chakra's horizontal DataList; this adds the alignment and the total's
+ * emphasis so every app's totals read the same.
+ */
 export function Totals({ lines, ...rest }: TotalsProps) {
   return (
-    <Stack gap="1.5" ms="auto" w="full" maxW={{ md: "sm" }} {...rest}>
+    <DataList.Root orientation="horizontal" gap="2" ms="auto" w="full" maxW={{ md: "sm" }} {...rest}>
       {lines.map((line, i) => (
-        <Box key={i}>
-          {line.emphasis && i > 0 && <Separator mb="1.5" />}
-          <HStack justify="space-between" gap="4" fontWeight={line.emphasis ? "semibold" : undefined}>
-            <Text color={line.emphasis ? "fg" : "fg.muted"}>{line.label}</Text>
-            <Text fontVariantNumeric="tabular-nums" whiteSpace="nowrap">
+        <DataList.Item
+          key={i}
+          justifyContent="space-between"
+          alignItems="flex-start"
+          fontWeight={line.emphasis ? "semibold" : undefined}
+          {...(line.emphasis && i > 0 ? { borderTopWidth: "1px", pt: "2" } : {})}
+        >
+          <DataList.ItemLabel minW="0" color={line.emphasis ? "fg" : undefined}>
+            {line.label}
+          </DataList.ItemLabel>
+          <DataList.ItemValue flexDirection="column" alignItems="flex-end" textAlign="end">
+            <Text as="span" fontVariantNumeric="tabular-nums" whiteSpace="nowrap">
               {line.value}
             </Text>
-          </HStack>
-          {line.hint && (
-            <Text textStyle="xs" color="fg.muted" textAlign="end">
-              {line.hint}
-            </Text>
-          )}
-        </Box>
+            {line.hint && (
+              <Text as="span" textStyle="xs" color="fg.muted" fontWeight="normal">
+                {line.hint}
+              </Text>
+            )}
+          </DataList.ItemValue>
+        </DataList.Item>
       ))}
-    </Stack>
+    </DataList.Root>
   )
 }
