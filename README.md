@@ -218,8 +218,9 @@ major (a minor while on 0.x). A PR that changes nothing apps see adds
 `npx changeset --empty`; CI checks for one. Branches never touch `version` in
 `package.json`: it stays the last release.
 
-A release: in one PR, run `npx changeset version`, which sets `version` from
-the pending changesets, writes them into `CHANGELOG.md` and deletes them; merge,
+A release: in one PR from a `release/vX.Y.Z` branch (CI skips the changeset
+check there), run `npx changeset version`, which sets `version` from the
+pending changesets, writes them into `CHANGELOG.md` and deletes them; merge,
 then push a matching tag (`git tag v0.2.0 && git push origin v0.2.0`).
 The release workflow checks and builds it and stages it on npm, with provenance
 linking it to the workflow run. A maintainer then approves it with 2FA, under

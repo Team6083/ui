@@ -53,8 +53,9 @@ jobs:
 
       # A PR that changes the package says how in a changeset (npx changeset);
       # one that changes nothing apps see adds an empty one (npx changeset --empty).
+      # A release PR (release/vX.Y.Z) consumes them, so it is skipped.
       - name: Changeset
-        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release/') }}
         run: npx changeset status --since=origin/main
 
       - name: Audit production dependencies
