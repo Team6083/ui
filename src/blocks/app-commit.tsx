@@ -104,16 +104,18 @@ export interface AppOutdatedBannerProps {
 
 /** Tells the user to reload once the app or its front end is outdated; renders nothing before that. */
 export function AppOutdatedBanner({ onReload = () => window.location.reload() }: AppOutdatedBannerProps) {
-  const outdated = useReloadNeeded()
+  const reload = useReloadNeeded()
+  // Only the API's build pauses saving; a newer front end alone doesn't.
+  const writesBlocked = useAppOutdated()
   const m = useUiMessages().outdated
-  if (!outdated) return null
+  if (!reload) return null
 
   return (
     <Alert.Root status="warning" position="sticky" top="0" zIndex="banner" rounded="none" data-testid="app-outdated-banner">
       <Alert.Indicator />
       <Alert.Content>
         <Alert.Title>{m.title}</Alert.Title>
-        <Alert.Description>{m.description}</Alert.Description>
+        <Alert.Description>{writesBlocked ? m.description : m.frontendDescription}</Alert.Description>
       </Alert.Content>
       <Button size="sm" variant="solid" colorPalette="orange" alignSelf="center" onClick={onReload}>
         {m.reload}

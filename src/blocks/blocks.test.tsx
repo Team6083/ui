@@ -152,6 +152,7 @@ describe("app commit check", () => {
       </AppCommitProvider>,
     )
     expect(screen.getByTestId("app-outdated-banner")).toHaveTextContent("The system has been updated")
+    expect(screen.getByTestId("app-outdated-banner")).toHaveTextContent("Saving is paused")
     expect(screen.getByText("outdated: true")).toBeInTheDocument()
   })
 
@@ -211,6 +212,8 @@ describe("useFrontendOutdated", () => {
     expect(await screen.findByTestId("app-outdated-banner")).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith("/version.json", { cache: "no-store" })
     expect(screen.getByText("app outdated: false")).toBeInTheDocument()
+    expect(screen.getByTestId("app-outdated-banner")).toHaveTextContent("A newer version is available")
+    expect(screen.getByTestId("app-outdated-banner")).not.toHaveTextContent("Saving is paused")
 
     await user.click(screen.getByRole("button", { name: "write" }))
     expect(await screen.findByText("result: ok")).toBeInTheDocument()
