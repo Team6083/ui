@@ -14,10 +14,7 @@ const BUILD_CASES = [
   { label: "Only a commit: a hosted build without a tag", props: `commit="sha-3f9c2a1e7b"`, build: <BuildInfo commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" /> },
   { label: "Only a version", props: `version="1.4.0"`, build: <BuildInfo version="1.4.0" /> },
   { label: "No build at all: a dev build", props: "no props", build: <BuildInfo /> },
-  { label: "With the API built from the same commit", props: "commit, components={[API on the same commit]}", build: <BuildInfo name="App" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[API]} /> },
-  { label: "With the API on another commit", props: "commit, components={[API on 3f9c2a1]}", build: <BuildInfo name="App" commit="sha-8d1e0f2" builtAt="2026-11-21T02:10:00Z" components={[API]} /> },
   { label: "With a service released on its own", props: `version="v0.3.1" commit, components={[API, part-finder]}`, build: <BuildInfo name="App" version="v0.3.1" commit="sha-3f9c2a1e7b" builtAt="2026-11-20T04:30:00Z" components={[API, PART_FINDER]} /> },
-  { label: "Components, but no build of its own", props: "components={[API]}", build: <BuildInfo components={[API]} /> },
   {
     label: "Outdated: the server runs a newer build",
     props: `commit, components={[API]}, inside AppCommitProvider outdated`,
