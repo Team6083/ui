@@ -25,7 +25,6 @@ import { LuChevronRight, LuLanguages, LuLogIn, LuLogOut, LuMenu, LuTriangleAlert
 
 import { ColorModeButton } from "../chakra/color-mode.js"
 import { useUiMessages } from "../i18n.js"
-import { commitsDiffer } from "../lib/commit.js"
 import { AppOutdatedBanner, useAppOutdated } from "./app-commit.js"
 import { MemberAvatar } from "./member-avatar.js"
 
@@ -336,9 +335,8 @@ export interface AppBuild {
 export interface BuildInfoProps extends AppBuild {
   /**
    * The builds of the other components this page works with, each named, e.g.
-   * [{ name: "API", ...meta.build }] from GET /api/v1/meta. When every build
-   * shares a commit and a version they show as one; otherwise the line shows
-   * this page's build and the details list them all.
+   * [{ name: "API", ...meta.build }] from GET /api/v1/meta. The details list
+   * them; the line shows only this page's build.
    */
   components?: (AppBuild & { name: string })[]
 }
@@ -363,13 +361,6 @@ function BuildLabel({ build, outdated }: { build: AppBuild; outdated: boolean })
   )
 }
 
-/** Whether every build that names a commit or a version names the same one. */
-function sameBuild(builds: AppBuild[]) {
-  const commits = builds.map((b) => b.commit).filter(Boolean)
-  const versions = new Set(builds.map((b) => b.version).filter(Boolean))
-  return versions.size <= 1 && commits.every((c) => !commitsDiffer(commits[0], c))
-}
-
 /**
  * Which build is running, for AppShell's buildInfo: the version, else the short
  * commit, else "dev", marked while the app is outdated. Clicking it lists every
@@ -382,10 +373,7 @@ export function BuildInfo({ name, version, commit, builtAt, components = [] }: B
   const known = [self, ...components].filter((b) => b.version || b.commit || b.builtAt)
   if (known.length === 0) return <BuildLabel build={{}} outdated={false} />
 
-  // One build everywhere: the version any of them knows (a hosted front-end
-  // build often has no tag). Otherwise: this page's own build.
-  const shown = sameBuild(known) ? { version: known.find((b) => b.version)?.version, commit: known.find((b) => b.commit)?.commit } : self
-  const summary = <BuildLabel build={shown} outdated={outdated} />
+  const summary = <BuildLabel build={self} outdated={outdated} />
 
   const many = known.length > 1
   const copyText = known
