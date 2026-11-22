@@ -1,11 +1,12 @@
 "use client"
 
 import { Alert, Button } from "@chakra-ui/react"
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
 
 import { useUiMessages } from "../i18n.js"
 import { ApiError } from "../lib/api-error.js"
 import { COMMIT_HEADER, commitsDiffer, isWriteMethod } from "../lib/commit.js"
+import { usePoll } from "./poll.js"
 
 interface AppCommitContextValue {
   outdated: boolean
@@ -46,21 +47,10 @@ export function AppCommitProvider({ children, buildCommit, pollUrl, pollInterval
     [buildCommit],
   )
 
-  useEffect(() => {
-    if (!pollUrl || !buildCommit || outdated) return
-
-    const check = () => {
-      if (document.visibilityState !== "visible") return
-      fetch(pollUrl, { method: "HEAD", cache: "no-store" }).then(observe, () => {})
-    }
-    check()
-    const timer = window.setInterval(check, pollIntervalMs)
-    document.addEventListener("visibilitychange", check)
-    return () => {
-      window.clearInterval(timer)
-      document.removeEventListener("visibilitychange", check)
-    }
-  }, [pollUrl, pollIntervalMs, buildCommit, outdated, observe])
+  const check = useCallback(() => {
+    if (pollUrl) fetch(pollUrl, { method: "HEAD", cache: "no-store" }).then(observe, () => {})
+  }, [pollUrl, observe])
+  usePoll(check, pollIntervalMs, !!pollUrl && !!buildCommit && !outdated)
 
   const value = useMemo(() => ({ outdated, observe }), [outdated, observe])
   return <AppCommitContext.Provider value={value}>{children}</AppCommitContext.Provider>

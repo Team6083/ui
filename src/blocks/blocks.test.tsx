@@ -8,6 +8,7 @@ import { renderWithUi } from "../test-utils.js"
 import { apiErrorMessage } from "./api-error-message.js"
 import { AppCommitProvider, AppOutdatedBanner, useAppOutdated, useCommitCheckedFetch } from "./app-commit.js"
 import { ConfigErrorPage } from "./config-error-page.js"
+import { useNewFrontendBuild } from "./frontend-build.js"
 import { NoAccessPage } from "./no-access-page.js"
 import { createRuntimeConfig } from "./runtime-config.js"
 
@@ -162,6 +163,44 @@ describe("app commit check", () => {
         <Client />
       </AppCommitProvider>,
     )
+    await act(async () => {})
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+})
+
+describe("useNewFrontendBuild", () => {
+  function Page({ buildCommit }: { buildCommit?: string }) {
+    const newBuild = useNewFrontendBuild({ buildCommit, url: "/version.json" })
+    return (
+      <AppCommitProvider buildCommit={null} outdated={newBuild}>
+        <AppOutdatedBanner />
+        <p>new build: {String(newBuild)}</p>
+      </AppCommitProvider>
+    )
+  }
+
+  it("shows the banner once the deployed front end is another build", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => Response.json({ commit: "def5678" }))
+    vi.stubGlobal("fetch", fetchMock)
+    renderWithUi(<Page buildCommit="abc1234" />)
+    expect(await screen.findByTestId("app-outdated-banner")).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith("/version.json", { cache: "no-store" })
+  })
+
+  it("stays quiet on the same build, a missing file or the SPA fallback", async () => {
+    for (const answer of [Response.json({ commit: "abc1234ffff" }), new Response("", { status: 404 }), new Response("<!doctype html>", { headers: { "Content-Type": "text/html" } })]) {
+      vi.stubGlobal("fetch", vi.fn<typeof fetch>(async () => answer))
+      const { unmount } = renderWithUi(<Page buildCommit="abc1234" />)
+      await act(async () => {})
+      expect(screen.getByText("new build: false")).toBeInTheDocument()
+      unmount()
+    }
+  })
+
+  it("does not check without a build commit", async () => {
+    const fetchMock = vi.fn<typeof fetch>()
+    vi.stubGlobal("fetch", fetchMock)
+    renderWithUi(<Page />)
     await act(async () => {})
     expect(fetchMock).not.toHaveBeenCalled()
   })

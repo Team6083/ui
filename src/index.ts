@@ -22,6 +22,7 @@ export {
   type AppCommitProviderProps,
   type AppOutdatedBannerProps,
 } from "./blocks/app-commit.js"
+export { useNewFrontendBuild, type NewFrontendBuildOptions } from "./blocks/frontend-build.js"
 export { apiErrorMessage, useApiErrorMessage } from "./blocks/api-error-message.js"
 
 // Framework-free helpers

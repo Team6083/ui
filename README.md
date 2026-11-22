@@ -10,6 +10,7 @@ same pages.
 | `Toaster`, `toaster`, `Tooltip`, `ToggleTip`, `InfoTip`, color mode | The Chakra snippets apps used to copy into `components/ui` | |
 | `NoAccessPage`, `isMissingRole` | The one page every app shows on `403 missing_role` | Auth: 使用權角色 |
 | `AppCommitProvider`, `AppOutdatedBanner`, `useAppOutdated`, `useCommitCheckedFetch` | Compares the build's commit with `X-App-Commit`, shows 「系統已更新，請重新載入」 and blocks writes | Frontend: 執行期設定與托管 |
+| `useNewFrontendBuild` | Optional: notices a newer front end by fetching a version file deployed with it, never an API | |
 | `createRuntimeConfig`, `ConfigErrorPage`, `loadRuntimeConfig`, `parseBaseConfig` | Loads `config.json` before anything else and shows the config error page when it fails (SPAs) | Frontend: 執行期設定與托管 |
 | `readApiError`, `ApiError`, `useApiErrorMessage` | Reads the standard error body; localized text for the standard codes | Common: HTTP API 慣例 |
 | `StatusPage` | The layout the pages above share, for an app's own not-found or error pages | |
@@ -100,6 +101,39 @@ Build the API client on `useCommitCheckedFetch()`: it checks `X-App-Commit` on
 every response and, once the app is outdated, rejects writes with an `ApiError`
 whose code is `app_outdated`. Turn failed responses into errors with
 `readApiError(response)` and show them with `useApiErrorMessage()`.
+
+## Notice a newer front end (optional)
+
+`useNewFrontendBuild` asks the front end's own deployment whether it now runs
+another build, so it works however many APIs the page calls. Deploy a version
+file with the front end, e.g. from `vite.config.ts`:
+
+```ts
+plugins: [
+  {
+    name: "version-file",
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ commit: process.env.APP_COMMIT }) })
+    },
+  },
+]
+```
+
+Don't give `version.json` a long cache. Then feed the result to the banner:
+
+```tsx
+function Root() {
+  const newBuild = useNewFrontendBuild({ buildCommit: import.meta.env.VITE_COMMIT_SHA, url: `${import.meta.env.BASE_URL}version.json` })
+  return (
+    <AppCommitProvider buildCommit={null} outdated={newBuild}>
+      <App />
+    </AppCommitProvider>
+  )
+}
+```
+
+`buildCommit={null}` leaves the `X-App-Commit` check off; pass the commit there
+too if the API ships from the same commit and you want both.
 
 ## Frame
 
