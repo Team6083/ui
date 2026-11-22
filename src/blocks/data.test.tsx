@@ -138,7 +138,8 @@ describe("FactList and Totals", () => {
         ]}
       />,
     )
-    expect(screen.getByText("Estimate")).toBeInTheDocument()
+    expect(screen.getByText("Estimate").tagName).toBe("DT")
     expect(screen.getAllByText("145.00 USD")).toHaveLength(2)
+    expect(screen.getAllByText("145.00 USD")[0]!.closest("dd")).not.toBeNull()
   })
 })
