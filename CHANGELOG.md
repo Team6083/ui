@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0] - 2026-11-22
+
+### Minor Changes
+
+- `BuildInfo` takes a `name` for this page's build and the builds of the other components it works with as `components` (`[{ name: "API", version, commit, builtAt }]`, e.g. from `GET /api/v1/meta`). The line shows this page's own build, with a warning mark while the app is outdated. Clicking it lists every build's version, commit and build time, with a button that copies them for an issue.
+
+  The line shows the version, else the short commit, in the footer's own color; the build time moves to the details. Only an outdated app's build stands out, in orange with a warning mark.
+- `useFrontendOutdated({ buildCommit, url })` is an optional check for a newer front end: it fetches a version file deployed with the front end (e.g. `/version.json` holding `{ "commit": "…" }`) on load, whenever the tab becomes visible again and every `pollIntervalMs` (five minutes by default), and turns true once that commit differs from the build's. It asks no API, so it works however many APIs a page calls. Pass it to `AppCommitProvider`'s new `frontendOutdated`: the banner and `BuildInfo`'s mark show, but `useAppOutdated` stays false and `useCommitCheckedFetch` keeps allowing writes. The banner then says a newer version is available instead of that saving is paused (`outdated.frontendDescription` in the messages). `useReloadNeeded` is true for either kind.
+
+### Patch Changes
+
+- Releases move to npm, where installing needs no token; from this one on, each carries provenance. 0.1.0 is on npm too. Prereleases stay on GitHub Packages. Apps on 0.1.0: remove the `@team6083` lines from `.npmrc`, and the `packages: read` permission and `NODE_AUTH_TOKEN` from the steps that install dependencies.
+
 ## [0.1.0] - 2026-11-20
 
 The first release. `0.1.0-alpha.<n>` prereleases came before it.
