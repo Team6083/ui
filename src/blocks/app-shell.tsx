@@ -25,7 +25,7 @@ import { LuChevronRight, LuLanguages, LuLogIn, LuLogOut, LuMenu, LuTriangleAlert
 
 import { ColorModeButton } from "../chakra/color-mode.js"
 import { useUiMessages } from "../i18n.js"
-import { AppOutdatedBanner, useAppOutdated } from "./app-commit.js"
+import { AppOutdatedBanner, useReloadNeeded } from "./app-commit.js"
 import { MemberAvatar } from "./member-avatar.js"
 
 /**
@@ -368,7 +368,7 @@ function BuildLabel({ build, outdated }: { build: AppBuild; outdated: boolean })
  */
 export function BuildInfo({ name, version, commit, builtAt, components = [] }: BuildInfoProps) {
   const m = useUiMessages().build
-  const outdated = useAppOutdated()
+  const outdated = useReloadNeeded()
   const self: AppBuild = { name: name ?? m.thisPage, version, commit, builtAt }
   const known = [self, ...components].filter((b) => b.version || b.commit || b.builtAt)
   if (known.length === 0) return <BuildLabel build={{}} outdated={false} />

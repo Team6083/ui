@@ -69,7 +69,7 @@ export const { RuntimeConfigProvider, useRuntimeConfig } =
 
       <Example
         title="AppOutdatedBanner"
-        description="When a response's X-App-Commit differs from the build's commit, the banner asks for a reload and useCommitCheckedFetch blocks writes until then. AppShell shows it above the page. Optional: useNewFrontendBuild checks a version file deployed with the front end instead, and feeds outdated."
+        description="When a response's X-App-Commit differs from the build's commit, the banner asks for a reload and useCommitCheckedFetch blocks writes until then. AppShell shows it above the page. Optional: useFrontendOutdated checks a version file deployed with the front end instead; then the banner shows but writes stay allowed."
         code={`
 <AppCommitProvider buildCommit={config.commit} pollUrl="/api/healthz">
   <AppShell …>{children}</AppShell>
@@ -78,8 +78,8 @@ export const { RuntimeConfigProvider, useRuntimeConfig } =
 const fetch = useCommitCheckedFetch()
 
 // Or, whatever APIs the page calls: ask the front end's own deployment
-const newBuild = useNewFrontendBuild({ buildCommit: config.commit, url: "/version.json" })
-<AppCommitProvider buildCommit={null} outdated={newBuild}>…</AppCommitProvider>
+const frontendOutdated = useFrontendOutdated({ buildCommit: config.commit, url: "/version.json" })
+<AppCommitProvider buildCommit={null} frontendOutdated={frontendOutdated}>…</AppCommitProvider>
 `}
       >
         <Switch.Root checked={outdated} onCheckedChange={(e) => setOutdated(e.checked)}>

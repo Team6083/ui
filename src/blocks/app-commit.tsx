@@ -9,12 +9,15 @@ import { COMMIT_HEADER, commitsDiffer, isWriteMethod } from "../lib/commit.js"
 import { usePoll } from "./poll.js"
 
 interface AppCommitContextValue {
+  /** The server runs another build: writes are unsafe. */
   outdated: boolean
+  /** The user should reload: the server or the deployed front end runs another build. */
+  reload: boolean
   /** Checks a response's X-App-Commit against the build. */
   observe: (response: Response | Headers) => void
 }
 
-const AppCommitContext = createContext<AppCommitContextValue>({ outdated: false, observe: () => {} })
+const AppCommitContext = createContext<AppCommitContextValue>({ outdated: false, reload: false, observe: () => {} })
 
 export interface AppCommitProviderProps {
   children: ReactNode
@@ -32,10 +35,15 @@ export interface AppCommitProviderProps {
    * client): true shows the banner and turns on useAppOutdated.
    */
   outdated?: boolean
+  /**
+   * A newer front end is deployed, e.g. from useFrontendOutdated: true shows
+   * the banner but leaves writes alone, since the API may still match.
+   */
+  frontendOutdated?: boolean
 }
 
 /** Tracks whether the server runs a newer build than this page. */
-export function AppCommitProvider({ children, buildCommit, pollUrl, pollIntervalMs = 5 * 60_000, outdated: reported = false }: AppCommitProviderProps) {
+export function AppCommitProvider({ children, buildCommit, pollUrl, pollIntervalMs = 5 * 60_000, outdated: reported = false, frontendOutdated = false }: AppCommitProviderProps) {
   const [detected, setOutdated] = useState(false)
   const outdated = detected || reported
 
@@ -52,13 +60,19 @@ export function AppCommitProvider({ children, buildCommit, pollUrl, pollInterval
   }, [pollUrl, observe])
   usePoll(check, pollIntervalMs, !!pollUrl && !!buildCommit && !outdated)
 
-  const value = useMemo(() => ({ outdated, observe }), [outdated, observe])
+  const reload = outdated || frontendOutdated
+  const value = useMemo(() => ({ outdated, reload, observe }), [outdated, reload, observe])
   return <AppCommitContext.Provider value={value}>{children}</AppCommitContext.Provider>
 }
 
 /** True once the server is on a different build; disable save buttons with it. */
 export function useAppOutdated(): boolean {
   return useContext(AppCommitContext).outdated
+}
+
+/** True once the user should reload: the server or the deployed front end runs another build. */
+export function useReloadNeeded(): boolean {
+  return useContext(AppCommitContext).reload
 }
 
 /**
@@ -88,9 +102,9 @@ export interface AppOutdatedBannerProps {
   onReload?: () => void
 }
 
-/** Tells the user to reload once the app is outdated; renders nothing before that. */
+/** Tells the user to reload once the app or its front end is outdated; renders nothing before that. */
 export function AppOutdatedBanner({ onReload = () => window.location.reload() }: AppOutdatedBannerProps) {
-  const outdated = useAppOutdated()
+  const outdated = useReloadNeeded()
   const m = useUiMessages().outdated
   if (!outdated) return null
 

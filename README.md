@@ -10,7 +10,7 @@ same pages.
 | `Toaster`, `toaster`, `Tooltip`, `ToggleTip`, `InfoTip`, color mode | The Chakra snippets apps used to copy into `components/ui` | |
 | `NoAccessPage`, `isMissingRole` | The one page every app shows on `403 missing_role` | Auth: 使用權角色 |
 | `AppCommitProvider`, `AppOutdatedBanner`, `useAppOutdated`, `useCommitCheckedFetch` | Compares the build's commit with `X-App-Commit`, shows 「系統已更新，請重新載入」 and blocks writes | Frontend: 執行期設定與托管 |
-| `useNewFrontendBuild` | Optional: notices a newer front end by fetching a version file deployed with it, never an API | |
+| `useFrontendOutdated` | Optional: notices a newer front end from a version file deployed with it, never an API; shows the banner without blocking writes | |
 | `createRuntimeConfig`, `ConfigErrorPage`, `loadRuntimeConfig`, `parseBaseConfig` | Loads `config.json` before anything else and shows the config error page when it fails (SPAs) | Frontend: 執行期設定與托管 |
 | `readApiError`, `ApiError`, `useApiErrorMessage` | Reads the standard error body; localized text for the standard codes | Common: HTTP API 慣例 |
 | `StatusPage` | The layout the pages above share, for an app's own not-found or error pages | |
@@ -104,36 +104,57 @@ whose code is `app_outdated`. Turn failed responses into errors with
 
 ## Notice a newer front end (optional)
 
-`useNewFrontendBuild` asks the front end's own deployment whether it now runs
-another build, so it works however many APIs the page calls. Deploy a version
-file with the front end, e.g. from `vite.config.ts`:
+`useFrontendOutdated` asks the front end's own deployment whether it now runs
+another build, so it works however many APIs the page calls. It only shows the
+banner: writes stay allowed, since the API may still match.
+
+Deploy a version file holding the build's git SHA with the front end. In Vite,
+read the commit with `loadEnv`, which also sees `.env` files, and use the same
+variable for the page:
 
 ```ts
-plugins: [
-  {
-    name: "version-file",
-    generateBundle() {
-      this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ commit: process.env.APP_COMMIT }) })
-    },
-  },
-]
+// vite.config.ts
+import { defineConfig, loadEnv } from "vite"
+
+export default defineConfig(({ mode }) => {
+  const commit = loadEnv(mode, process.cwd()).VITE_COMMIT_SHA
+  return {
+    plugins: [
+      {
+        name: "version-file",
+        apply: "build",
+        generateBundle() {
+          if (!commit && mode === "production") throw new Error("VITE_COMMIT_SHA is not set")
+          this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ commit }) })
+        },
+      },
+    ],
+  }
+})
 ```
 
-Don't give `version.json` a long cache. Then feed the result to the banner:
+In Next.js, write `public/version.json` in a prebuild step instead.
 
 ```tsx
 function Root() {
-  const newBuild = useNewFrontendBuild({ buildCommit: import.meta.env.VITE_COMMIT_SHA, url: `${import.meta.env.BASE_URL}version.json` })
+  const frontendOutdated = useFrontendOutdated({ buildCommit: import.meta.env.VITE_COMMIT_SHA, url: `${import.meta.env.BASE_URL}version.json` })
   return (
-    <AppCommitProvider buildCommit={null} outdated={newBuild}>
+    <AppCommitProvider buildCommit={null} frontendOutdated={frontendOutdated}>
       <App />
     </AppCommitProvider>
   )
 }
 ```
 
-`buildCommit={null}` leaves the `X-App-Commit` check off; pass the commit there
-too if the API ships from the same commit and you want both.
+- `buildCommit={null}` leaves the `X-App-Commit` check off. Pass the commit
+  there too if an API ships from the same commit and you want both.
+- `url` must be absolute: with Vite's `base: "./"`, `BASE_URL` is relative and
+  the file would be looked up under the current route.
+- The file must hold a git SHA. A version or `unknown` never counts as a new
+  build.
+- Serve `version.json` and `index.html` with `Cache-Control: no-cache`. If
+  `index.html` is cached, a reload brings back the old build and the banner
+  stays. A service worker that precaches the app must skip `version.json`.
 
 ## Frame
 

@@ -5,24 +5,25 @@ import { useCallback, useState } from "react"
 import { commitsDiffer } from "../lib/commit.js"
 import { usePoll } from "./poll.js"
 
-export interface NewFrontendBuildOptions {
+export interface FrontendOutdatedOptions {
   /** The commit this build came from; leave empty in dev builds to turn the check off. */
   buildCommit: string | null | undefined
   /**
-   * A file deployed with the front end that names its build, e.g. /version.json
-   * holding { "commit": "…" }. Fetched when the tab regains focus and every
-   * `intervalMs`.
+   * An absolute path or URL to a file deployed with the front end that names its
+   * build's git SHA, e.g. /version.json holding { "commit": "3f9c2a1…" }. Anything
+   * that isn't a SHA (a version, "unknown") never counts as a new build. Fetched
+   * when the tab regains focus and every `pollIntervalMs`.
    */
   url: string
-  intervalMs?: number
+  pollIntervalMs?: number
 }
 
 /**
  * True once the deployed front end is a different build from this page. It asks
  * only the front end's own deployment, never an API. Pass it to
- * AppCommitProvider's `outdated` to show the banner.
+ * AppCommitProvider's `frontendOutdated` to show the banner.
  */
-export function useNewFrontendBuild({ buildCommit, url, intervalMs = 5 * 60_000 }: NewFrontendBuildOptions): boolean {
+export function useFrontendOutdated({ buildCommit, url, pollIntervalMs = 5 * 60_000 }: FrontendOutdatedOptions): boolean {
   const [found, setFound] = useState(false)
 
   const check = useCallback(() => {
@@ -36,6 +37,6 @@ export function useNewFrontendBuild({ buildCommit, url, intervalMs = 5 * 60_000 
       .catch(() => {})
   }, [url, buildCommit])
 
-  usePoll(check, intervalMs, !!buildCommit && !found)
+  usePoll(check, pollIntervalMs, !!buildCommit && !found)
   return found
 }
