@@ -8,6 +8,7 @@ import { renderWithUi } from "../test-utils.js"
 import { apiErrorMessage } from "./api-error-message.js"
 import { AppCommitProvider, AppOutdatedBanner, useAppOutdated, useCommitCheckedFetch } from "./app-commit.js"
 import { ConfigErrorPage } from "./config-error-page.js"
+import { useFrontendOutdated } from "./frontend-outdated.js"
 import { NoAccessPage } from "./no-access-page.js"
 import { createRuntimeConfig } from "./runtime-config.js"
 
@@ -151,6 +152,7 @@ describe("app commit check", () => {
       </AppCommitProvider>,
     )
     expect(screen.getByTestId("app-outdated-banner")).toHaveTextContent("The system has been updated")
+    expect(screen.getByTestId("app-outdated-banner")).toHaveTextContent("Saving is paused")
     expect(screen.getByText("outdated: true")).toBeInTheDocument()
   })
 
@@ -162,6 +164,98 @@ describe("app commit check", () => {
         <Client />
       </AppCommitProvider>,
     )
+    await act(async () => {})
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+})
+
+describe("useFrontendOutdated", () => {
+  function Page({ buildCommit }: { buildCommit?: string }) {
+    const frontendOutdated = useFrontendOutdated({ buildCommit, url: "/version.json" })
+    return (
+      <AppCommitProvider buildCommit={null} frontendOutdated={frontendOutdated}>
+        <Writer />
+        <p>frontend outdated: {String(frontendOutdated)}</p>
+      </AppCommitProvider>
+    )
+  }
+
+  function Writer() {
+    const checkedFetch = useCommitCheckedFetch()
+    const outdated = useAppOutdated()
+    const [result, setResult] = useState("")
+    const write = () =>
+      checkedFetch("/api/v1/things", { method: "POST" }).then(
+        () => setResult("ok"),
+        (e: ApiError) => setResult(e.code),
+      )
+    return (
+      <>
+        <AppOutdatedBanner />
+        <button onClick={write}>write</button>
+        <p>app outdated: {String(outdated)}</p>
+        <p>result: {result}</p>
+      </>
+    )
+  }
+
+  function deployed(answer: () => Response | Promise<Response>) {
+    const fetchMock = vi.fn<typeof fetch>(async (input) => (String(input) === "/version.json" ? answer() : new Response("{}")))
+    vi.stubGlobal("fetch", fetchMock)
+    return fetchMock
+  }
+
+  it("shows the banner once the deployed front end is another build, but leaves writes alone", async () => {
+    const fetchMock = deployed(() => Response.json({ commit: "def5678" }))
+    const user = userEvent.setup()
+    renderWithUi(<Page buildCommit="abc1234" />)
+    expect(await screen.findByTestId("app-outdated-banner")).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith("/version.json", { cache: "no-store" })
+    expect(screen.getByText("app outdated: false")).toBeInTheDocument()
+    expect(screen.getByTestId("app-outdated-banner")).toHaveTextContent("A newer version is available")
+    expect(screen.getByTestId("app-outdated-banner")).not.toHaveTextContent("Saving is paused")
+
+    await user.click(screen.getByRole("button", { name: "write" }))
+    expect(await screen.findByText("result: ok")).toBeInTheDocument()
+  })
+
+  it("stays quiet on the same build, a missing file, the SPA fallback or a network error", async () => {
+    const answers = [
+      () => Response.json({ commit: "abc1234ffff" }),
+      () => new Response("", { status: 404 }),
+      () => new Response("<!doctype html>", { headers: { "Content-Type": "text/html" } }),
+      () => Promise.reject(new TypeError("Failed to fetch")),
+    ]
+    for (const answer of answers) {
+      const fetchMock = deployed(answer)
+      const { unmount } = renderWithUi(<Page buildCommit="abc1234" />)
+      await act(async () => {})
+      expect(fetchMock).toHaveBeenCalledWith("/version.json", { cache: "no-store" })
+      expect(screen.getByText("frontend outdated: false")).toBeInTheDocument()
+      expect(screen.queryByTestId("app-outdated-banner")).not.toBeInTheDocument()
+      unmount()
+    }
+  })
+
+  it("checks again when the tab comes back, and stops once it finds a new build", async () => {
+    let commit = "abc1234"
+    const fetchMock = deployed(() => Response.json({ commit }))
+    renderWithUi(<Page buildCommit="abc1234" />)
+    await act(async () => {})
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    commit = "def5678"
+    await act(async () => void document.dispatchEvent(new Event("visibilitychange")))
+    expect(await screen.findByText("frontend outdated: true")).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+
+    await act(async () => void document.dispatchEvent(new Event("visibilitychange")))
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it("does not check without a build commit", async () => {
+    const fetchMock = deployed(() => Response.json({ commit: "def5678" }))
+    renderWithUi(<Page />)
     await act(async () => {})
     expect(fetchMock).not.toHaveBeenCalled()
   })

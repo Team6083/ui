@@ -1,19 +1,23 @@
 "use client"
 
 import { Alert, Button } from "@chakra-ui/react"
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
 
 import { useUiMessages } from "../i18n.js"
 import { ApiError } from "../lib/api-error.js"
 import { COMMIT_HEADER, commitsDiffer, isWriteMethod } from "../lib/commit.js"
+import { usePoll } from "./poll.js"
 
 interface AppCommitContextValue {
+  /** The server runs another build: writes are unsafe. */
   outdated: boolean
+  /** The user should reload: the server or the deployed front end runs another build. */
+  reload: boolean
   /** Checks a response's X-App-Commit against the build. */
   observe: (response: Response | Headers) => void
 }
 
-const AppCommitContext = createContext<AppCommitContextValue>({ outdated: false, observe: () => {} })
+const AppCommitContext = createContext<AppCommitContextValue>({ outdated: false, reload: false, observe: () => {} })
 
 export interface AppCommitProviderProps {
   children: ReactNode
@@ -31,10 +35,15 @@ export interface AppCommitProviderProps {
    * client): true shows the banner and turns on useAppOutdated.
    */
   outdated?: boolean
+  /**
+   * A newer front end is deployed, e.g. from useFrontendOutdated: true shows
+   * the banner but leaves writes alone, since the API may still match.
+   */
+  frontendOutdated?: boolean
 }
 
 /** Tracks whether the server runs a newer build than this page. */
-export function AppCommitProvider({ children, buildCommit, pollUrl, pollIntervalMs = 5 * 60_000, outdated: reported = false }: AppCommitProviderProps) {
+export function AppCommitProvider({ children, buildCommit, pollUrl, pollIntervalMs = 5 * 60_000, outdated: reported = false, frontendOutdated = false }: AppCommitProviderProps) {
   const [detected, setOutdated] = useState(false)
   const outdated = detected || reported
 
@@ -46,29 +55,24 @@ export function AppCommitProvider({ children, buildCommit, pollUrl, pollInterval
     [buildCommit],
   )
 
-  useEffect(() => {
-    if (!pollUrl || !buildCommit || outdated) return
+  const check = useCallback(() => {
+    if (pollUrl) fetch(pollUrl, { method: "HEAD", cache: "no-store" }).then(observe, () => {})
+  }, [pollUrl, observe])
+  usePoll(check, pollIntervalMs, !!pollUrl && !!buildCommit && !outdated)
 
-    const check = () => {
-      if (document.visibilityState !== "visible") return
-      fetch(pollUrl, { method: "HEAD", cache: "no-store" }).then(observe, () => {})
-    }
-    check()
-    const timer = window.setInterval(check, pollIntervalMs)
-    document.addEventListener("visibilitychange", check)
-    return () => {
-      window.clearInterval(timer)
-      document.removeEventListener("visibilitychange", check)
-    }
-  }, [pollUrl, pollIntervalMs, buildCommit, outdated, observe])
-
-  const value = useMemo(() => ({ outdated, observe }), [outdated, observe])
+  const reload = outdated || frontendOutdated
+  const value = useMemo(() => ({ outdated, reload, observe }), [outdated, reload, observe])
   return <AppCommitContext.Provider value={value}>{children}</AppCommitContext.Provider>
 }
 
 /** True once the server is on a different build; disable save buttons with it. */
 export function useAppOutdated(): boolean {
   return useContext(AppCommitContext).outdated
+}
+
+/** True once the user should reload: the server or the deployed front end runs another build. */
+export function useReloadNeeded(): boolean {
+  return useContext(AppCommitContext).reload
 }
 
 /**
@@ -98,18 +102,20 @@ export interface AppOutdatedBannerProps {
   onReload?: () => void
 }
 
-/** Tells the user to reload once the app is outdated; renders nothing before that. */
+/** Tells the user to reload once the app or its front end is outdated; renders nothing before that. */
 export function AppOutdatedBanner({ onReload = () => window.location.reload() }: AppOutdatedBannerProps) {
-  const outdated = useAppOutdated()
+  const reload = useReloadNeeded()
+  // Only the API's build pauses saving; a newer front end alone doesn't.
+  const writesBlocked = useAppOutdated()
   const m = useUiMessages().outdated
-  if (!outdated) return null
+  if (!reload) return null
 
   return (
     <Alert.Root status="warning" position="sticky" top="0" zIndex="banner" rounded="none" data-testid="app-outdated-banner">
       <Alert.Indicator />
       <Alert.Content>
         <Alert.Title>{m.title}</Alert.Title>
-        <Alert.Description>{m.description}</Alert.Description>
+        <Alert.Description>{writesBlocked ? m.description : m.frontendDescription}</Alert.Description>
       </Alert.Content>
       <Button size="sm" variant="solid" colorPalette="orange" alignSelf="center" onClick={onReload}>
         {m.reload}

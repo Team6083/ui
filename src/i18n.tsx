@@ -10,7 +10,7 @@ export type UiLocale = "en" | "zh-TW"
 export interface UiMessages {
   noAccess: { title: string; description: string }
   configError: { title: string; description: string }
-  outdated: { title: string; description: string; reload: string }
+  outdated: { title: string; description: string; frontendDescription: string; reload: string }
   apiError: Record<string, string> & { fallback: string }
   colorMode: { label: string; system: string; light: string; dark: string }
   shell: { menu: string; openMenu: string; signIn: string; signOut: string; language: string }
@@ -41,6 +41,7 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
     outdated: {
       title: "The system has been updated",
       description: "Reload the page to continue. Saving is paused until you reload.",
+      frontendDescription: "A newer version is available. Reload when convenient.",
       reload: "Reload",
     },
     apiError: {
@@ -87,6 +88,7 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
     outdated: {
       title: "系統已更新，請重新載入",
       description: "重新載入之前無法儲存變更。",
+      frontendDescription: "有新版本，方便時請重新載入。",
       reload: "重新載入",
     },
     apiError: {
