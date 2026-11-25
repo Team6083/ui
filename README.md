@@ -109,9 +109,10 @@ another build, so it works however many APIs the page calls. It only shows the
 banner: writes stay allowed, since the API may still match.
 
 Deploy a version file holding the build's git SHA with the front end. In Vite,
-read the commit from the resolved config's `env`: it is the same
-`import.meta.env` the page gets, `.env` files, `root` and `envDir` included,
-so the file and the page can't disagree:
+read the commit from the resolved config's `env`: it holds the same `VITE_*`
+values the page gets, from `.env` files under `root` / `envDir` included, so
+the file and the page agree (unless `define` overrides the variable). It
+refuses any `vite build` without a commit, `--mode staging` included:
 
 ```ts
 // vite.config.ts
