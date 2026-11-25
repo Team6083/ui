@@ -127,16 +127,17 @@ describe("FilterBar", () => {
         <select />
       </FilterBar>,
     )
-    const badge = () => screen.getByRole("button", { name: /^Filter/ }).querySelector("[aria-hidden]")
     expect(screen.getByRole("button", { name: "Filter" })).toBeInTheDocument()
-    expect(badge()).toHaveTextContent("0")
-    expect(badge()).not.toBeVisible()
+    // Hidden with visibility, not display, so it still takes its space.
+    expect(screen.getByText("0")).toHaveStyle({ visibility: "hidden" })
+    expect(screen.getByText("0")).not.toHaveStyle({ display: "none" })
     rerender(
       <FilterBar activeCount={3}>
         <select />
       </FilterBar>,
     )
     expect(screen.getByRole("button", { name: /^Filter\s*3$/ })).toBeInTheDocument()
+    expect(screen.getByText("3")).toBeVisible()
   })
 })
 
