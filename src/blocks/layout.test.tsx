@@ -157,6 +157,15 @@ describe("BuildInfo", () => {
     expect(trigger().querySelector("svg")).not.toBeNull()
   })
 
+  it("is marked while a newer front end is deployed", () => {
+    renderWithUi(
+      <AppCommitProvider buildCommit="a1b2c3d" frontendOutdated>
+        <BuildInfo commit="a1b2c3d" />
+      </AppCommitProvider>,
+    )
+    expect(screen.getByRole("button", { name: "Build details" }).querySelector("svg")).not.toBeNull()
+  })
+
   it("lists every build and copies them", async () => {
     const user = userEvent.setup()
     renderWithUi(<BuildInfo name="App" commit="a1b2c3d" builtAt="2026-11-20T04:30:00Z" components={[{ name: "API", version: "v0.3.1", commit: "e4f5a6b", builtAt: "2026-11-20T04:28:00Z" }]} />)
