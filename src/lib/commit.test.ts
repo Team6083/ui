@@ -1,4 +1,4 @@
-import { commitsDiffer, isWriteMethod } from "./commit.js"
+import { commitsDiffer, isSha, isWriteMethod } from "./commit.js"
 
 describe("commitsDiffer", () => {
   it.each([
@@ -19,6 +19,13 @@ describe("commitsDiffer", () => {
     ["abc12", "def56"],
   ])("never reports an unknown build as outdated (%s, %s)", (build, server) => {
     expect(commitsDiffer(build, server)).toBe(false)
+  })
+})
+
+describe("isSha", () => {
+  it("accepts short and full SHAs and image tags, nothing else", () => {
+    expect(["abc1234", "ABC1234DEF", "sha-abc1234"].map(isSha)).toEqual([true, true, true])
+    expect([undefined, null, "", "dev", "unknown", "1.2.0", "abc12"].map(isSha)).toEqual([false, false, false, false, false, false, false])
   })
 })
 

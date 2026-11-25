@@ -2,17 +2,18 @@
 
 import { useCallback, useState } from "react"
 
-import { commitsDiffer } from "../lib/commit.js"
+import { commitsDiffer, isSha } from "../lib/commit.js"
 import { usePoll } from "./poll.js"
 
 export interface FrontendOutdatedOptions {
-  /** The commit this build came from; leave empty in dev builds to turn the check off. */
+  /** The commit this build came from; leave it empty, or anything that isn't a SHA, to turn the check off. */
   buildCommit: string | null | undefined
   /**
    * An absolute path or URL to a file deployed with the front end that names its
    * build's git SHA, e.g. /version.json holding { "commit": "3f9c2a1…" }. Anything
    * that isn't a SHA (a version, "unknown") never counts as a new build. Fetched
-   * when the tab regains focus and every `pollIntervalMs`.
+   * on mount, whenever the tab becomes visible again (not on a window switch that
+   * leaves it visible) and every `pollIntervalMs`, until a new build is found.
    */
   url: string
   pollIntervalMs?: number
@@ -37,6 +38,6 @@ export function useFrontendOutdated({ buildCommit, url, pollIntervalMs = 5 * 60_
       .catch(() => {})
   }, [url, buildCommit])
 
-  usePoll(check, pollIntervalMs, !!buildCommit && !found)
+  usePoll(check, pollIntervalMs, isSha(buildCommit) && !found)
   return found
 }

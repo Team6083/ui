@@ -10,12 +10,12 @@ same pages.
 | `Toaster`, `toaster`, `Tooltip`, `ToggleTip`, `InfoTip`, color mode | The Chakra snippets apps used to copy into `components/ui` | |
 | `NoAccessPage`, `isMissingRole` | The one page every app shows on `403 missing_role` | Auth: 使用權角色 |
 | `AppCommitProvider`, `AppOutdatedBanner`, `useAppOutdated`, `useCommitCheckedFetch` | Compares the build's commit with `X-App-Commit`, shows 「系統已更新，請重新載入」 and blocks writes | Frontend: 執行期設定與托管 |
-| `useFrontendOutdated` | Optional: notices a newer front end from a version file deployed with it, never an API; shows the banner without blocking writes | |
+| `useFrontendOutdated`, `useReloadNeeded` | Optional: notices a newer front end from a version file deployed with it, never an API; shows the banner without blocking writes. `useReloadNeeded` is true for either kind of newer build | |
 | `createRuntimeConfig`, `ConfigErrorPage`, `loadRuntimeConfig`, `parseBaseConfig` | Loads `config.json` before anything else and shows the config error page when it fails (SPAs) | Frontend: 執行期設定與托管 |
 | `readApiError`, `ApiError`, `useApiErrorMessage` | Reads the standard error body; localized text for the standard codes | Common: HTTP API 慣例 |
 | `StatusPage` | The layout the pages above share, for an app's own not-found or error pages | |
 | `AppShell`, `AccountMenu`, `LanguageMenu`, `SignOutMenuItem`, `SignInButton`, `BuildInfo`, `ColorModeButton` | The frame every app shares, from OverHours: app name, pages with icons, color mode (system, light, dark), an account menu each app fills with its own items, phone drawer, footer, update banner | [DESIGN.md](DESIGN.md) |
-| `PageHeader`, `PageColumn`, `SectionHeader`, `EmptyState`, `MemberAvatar` | A page's one heading, a page's 5xl column inside a wide app, a section's title with its count and actions, the empty-list message, a person's avatar | [DESIGN.md](DESIGN.md) |
+| `TitleBar`, `PageColumn`, `EmptyState`, `MemberAvatar` | A heading with its status, count and actions, for a page, a section or a card; a page's 5xl column inside a wide app; the empty-list message; a person's avatar | [DESIGN.md](DESIGN.md) |
 
 | `DataTable`, `FilterBar`, `SelectionBar`, `FactList`, `Totals` | Pages of records to pick from and act on: a table that becomes cards on a phone with row actions in a ⋯ menu, filters behind one button, a bar for acting on the picked rows, a record's facts, amounts that add up | [DESIGN.md](DESIGN.md): Data pages |
 
@@ -109,28 +109,36 @@ another build, so it works however many APIs the page calls. It only shows the
 banner: writes stay allowed, since the API may still match.
 
 Deploy a version file holding the build's git SHA with the front end. In Vite,
-read the commit with `loadEnv`, which also sees `.env` files, and use the same
-variable for the page:
+read the commit from the resolved config's `env`: it holds the same `VITE_*`
+values the page gets, from `.env` files under `root` / `envDir` included, so
+the file and the page agree (unless `define` overrides the variable). It
+refuses any `vite build` without a commit, `--mode staging` included:
 
 ```ts
 // vite.config.ts
-import { defineConfig, loadEnv } from "vite"
+import { defineConfig, type Plugin } from "vite"
 
-export default defineConfig(({ mode }) => {
-  const commit = loadEnv(mode, process.cwd()).VITE_COMMIT_SHA
+function versionFile(): Plugin {
+  let commit: string | undefined
+  let production = false
   return {
-    plugins: [
-      {
-        name: "version-file",
-        apply: "build",
-        generateBundle() {
-          if (!commit && mode === "production") throw new Error("VITE_COMMIT_SHA is not set")
-          this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ commit }) })
-        },
-      },
-    ],
+    name: "version-file",
+    apply: "build",
+    configResolved(config) {
+      commit = config.env.VITE_COMMIT_SHA
+      production = config.isProduction
+    },
+    buildStart() {
+      // Fails before bundling rather than after.
+      if (!commit && production) throw new Error("VITE_COMMIT_SHA is not set")
+    },
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ commit }) })
+    },
   }
-})
+}
+
+export default defineConfig({ plugins: [versionFile()] })
 ```
 
 In Next.js, write `public/version.json` in a prebuild step instead.
@@ -149,7 +157,8 @@ function Root() {
 - `buildCommit={null}` leaves the `X-App-Commit` check off. Pass the commit
   there too if an API ships from the same commit and you want both.
 - `url` must be absolute: with Vite's `base: "./"`, `BASE_URL` is relative and
-  the file would be looked up under the current route.
+  the file would be looked up under the current route. Write out the path the
+  app is served from instead, e.g. `"/version.json"` or `"/my-app/version.json"`.
 - The file must hold a git SHA. A version or `unknown` never counts as a new
   build.
 - Serve `version.json` and `index.html` with `Cache-Control: no-cache`. If

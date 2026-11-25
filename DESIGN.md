@@ -44,8 +44,9 @@ the rules are for what each app builds on top of them.
 ## Type
 
 - Chakra's system font stack; no web fonts.
-- One heading per page (`PageHeader`, `3xl`). Sections use `SectionHeader`
-  (`xl`), cards `md`. The app name in the header is `xl`, two steps below the
+- Every heading with something beside it is a `TitleBar`. One `level={1}`
+  per page (`3xl`, `2xl` on a phone); sections are the default `level={2}` (`xl`), cards and
+  dialogs `level={3}` (`md`). The app name in the header is `xl`, two steps below the
   page's title so the two never compete. Secondary text is `fg.muted`, not
   smaller gray.
 - Do not repeat a heading: a page titled 我的待辦 does not also hold a card
@@ -57,12 +58,14 @@ the rules are for what each app builds on top of them.
 
 - Group with `Card.Root` (`size="sm"` for side cards, `variant="elevated"`
   for the one card that is the point of the page, like the user's own status)
-  or with a `SectionHeader` and no frame. Wide screens put the person's own
+  or with a `TitleBar` and no frame. Wide screens put the person's own
   card on the left and the shared lists on the right (`SimpleGrid`).
-- A section's count goes in a badge beside its title; small tools (refresh,
-  search) sit right after it; the section's actions sit on the right
-  (幫其他使用者簽到). Page actions (建立團隊) go in `PageHeader`, next to the
-  content they change, never in the navigation.
+- A title's count is a `Badge` in its `after`, `colorPalette="brand"` only
+  for a live list (who is signed in now); small tools (refresh, search) sit
+  there too. Its actions go in `end` (幫其他使用者簽到 on a section, 建立團隊
+  on the page), next to the content they change, never in the navigation.
+- `TitleBar` sets no margin. A page is a `Stack` (`gap="6"` under the page's
+  title, `gap="3"` between a section's title and its content).
 - An empty list shows `EmptyState`: an icon, a short title (現在沒人) and what to
   do next. Never a bare line of gray text.
 - Tables are `Table.Root size="sm"`; ranks, statuses and roles are badges.
@@ -94,7 +97,7 @@ rules are the reference here.
 - A record's facts are a `FactList` in a card; amounts that add up are
   `Totals` under the table, the total emphasized.
 - Show people and things by name, never by id. An id on screen is a bug.
-- Counts go in a badge (`SectionHeader count`, `Badge`), not in parentheses
+- Counts go in a `Badge` (a `TitleBar`'s `after`), not in parentheses
   inside a link.
 - Dates: `toLocaleDateString` with the time only when it matters, short form
   (`11/23 03:34`); never seconds.
@@ -117,7 +120,8 @@ Apps keep a Playwright spec that saves those screenshots for every page.
 
 - Not signed in to a page that needs it: send to sign-in. Signed in without
   the role: `NoAccessPage`. Bad `config.json`: `ConfigErrorPage`. A newer
-  build on the server: the banner from `AppShell`. Other errors: an `Alert`
-  with the text from `useApiErrorMessage()`.
+  build on the server, or of the front end (`useFrontendOutdated`): the banner
+  from `AppShell`; only a newer server build pauses saving. Other errors: an
+  `Alert` with the text from `useApiErrorMessage()`.
 - Toasts (`toaster`) confirm what just happened; they never carry the only
   copy of an error the user must act on.

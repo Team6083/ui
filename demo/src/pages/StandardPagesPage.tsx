@@ -1,5 +1,5 @@
 import { Button, Code, NativeSelect, Stack, Switch, Text } from "@chakra-ui/react"
-import { ApiError, ConfigError, ConfigErrorPage, NoAccessPage, PageHeader, StatusPage, STANDARD_ERROR_CODES, useApiErrorMessage } from "@team6083/ui"
+import { ApiError, ConfigError, ConfigErrorPage, NoAccessPage, TitleBar, StatusPage, STANDARD_ERROR_CODES, useApiErrorMessage } from "@team6083/ui"
 import { useState } from "react"
 import { LuFileQuestion } from "react-icons/lu"
 
@@ -13,7 +13,9 @@ export function StandardPagesPage() {
 
   return (
     <>
-      <PageHeader
+      <TitleBar
+        level={1}
+        mb="6"
         title="Standard pages"
         description="What every app shows when it can't show its content. Wording and behavior are the team standard's, so every app says the same thing."
       />
