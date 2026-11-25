@@ -1,5 +1,5 @@
 import { Badge, Button, createListCollection, HStack, Portal, Select, Stack, Switch, Text } from "@chakra-ui/react"
-import { DataTable, EmptyState, FactList, FilterBar, MemberAvatar, PageHeader, SelectionBar, toaster, Totals, type DataColumn } from "@team6083/ui"
+import { DataTable, EmptyState, FactList, FilterBar, MemberAvatar, TitleBar, SelectionBar, toaster, Totals, type DataColumn } from "@team6083/ui"
 import { useMemo, useState } from "react"
 import { LuCheck, LuEye, LuSearchX, LuShoppingCart, LuX } from "react-icons/lu"
 
@@ -52,9 +52,11 @@ export function DataPage() {
 
   return (
     <>
-      <PageHeader
+      <TitleBar
+        level={1}
+        mb="6"
         title="2026 春季採購"
-        badge={<Badge colorPalette="green">Open</Badge>}
+        after={<Badge colorPalette="green">Open</Badge>}
         description="Data pages: a table people pick rows from and act on. Narrow the window to see the rows turn into cards."
       />
 

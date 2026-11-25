@@ -31,8 +31,8 @@ write. The Pages workflow publishes the demo from `main`.
 Everything else is Chakra. When Chakra's components and style props already
 compose what an app needs, apps use them directly and `DESIGN.md` shows how.
 A component of our own needs a clear reason, written in its doc comment:
-behavior Chakra lacks (`DataTable`'s cards on a phone), a team rule it keeps
-in one place (`SectionHeader`'s count badge), or a call that is much shorter
+behavior Chakra lacks (`DataTable`'s cards on a phone), a layout that is
+easy to get wrong and the same everywhere (`TitleBar`), or a call that is much shorter
 than the Chakra parts it stands for (`EmptyState`). Build it from Chakra's
 parts, and design its props before adding it: they are what every app writes.
 

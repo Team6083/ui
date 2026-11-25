@@ -66,11 +66,9 @@ export { avatarPaletteFor, MemberAvatar, type MemberAvatarProps } from "./blocks
 export {
   EmptyState,
   PageColumn,
-  PageHeader,
-  SectionHeader,
+  TitleBar,
   type EmptyStateProps,
-  type PageHeaderProps,
-  type SectionHeaderProps,
+  type TitleBarProps,
 } from "./blocks/page-parts.js"
 
 // Data pages: tables people pick from and act on

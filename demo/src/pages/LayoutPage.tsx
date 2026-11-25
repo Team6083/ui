@@ -1,6 +1,6 @@
-import { Badge, Box, Button, HStack, IconButton, Stack, Text } from "@chakra-ui/react"
-import { AppCommitProvider, BuildInfo, EmptyState, MemberAvatar, PageHeader, SectionHeader } from "@team6083/ui"
-import { LuInbox, LuPlus, LuRefreshCw } from "react-icons/lu"
+import { Badge, Box, Button, Card, HStack, IconButton, Stack, Text } from "@chakra-ui/react"
+import { AppCommitProvider, BuildInfo, EmptyState, MemberAvatar, TitleBar } from "@team6083/ui"
+import { LuArrowLeft, LuInbox, LuListChecks, LuLock, LuPencil, LuPlus, LuRefreshCw } from "react-icons/lu"
 
 import { AVATARS } from "../avatars"
 import { Example } from "../Example"
@@ -31,7 +31,9 @@ const PEOPLE = ["Alex Chen", "林怡君", "Jordan Lee", "王小明", "Sam Rivera
 export function LayoutPage() {
   return (
     <>
-      <PageHeader
+      <TitleBar
+        level={1}
+        mb="6"
         title="Layout"
         description="The frame around this page is AppShell; the pieces below go inside it."
       />
@@ -72,63 +74,141 @@ export function LayoutPage() {
       </Example>
 
       <Example
-        title="PageHeader"
-        description="The one h1 of a page, a status badge beside it, and the actions that change what the page shows. Never navigation."
+        title="TitleBar"
+        description="A heading with what belongs beside it, wherever it sits: the page's one h1, a section, a card. level sets the heading (1–4) and its size. start goes before the title (a back button, an avatar), after right behind it (a status, a count, a refresh button), end on the right (the actions), and the description under the title, lined up with it. end never wraps, so on a phone the app keeps it short: here the buttons drop their text below sm. It sets no margin: the container spaces it."
         code={`
-<PageHeader
+// The page's one heading
+<TitleBar
+  level={1}
   title="2026 春季採購"
-  badge={<Badge colorPalette="green">Open</Badge>}
+  after={<Badge colorPalette="green">Open</Badge>}
   description="Closes on 3/15"
-  actions={<Button size="sm"><LuPlus /> Add item</Button>}
+  end={
+    // end never wraps: on a phone, this app shows only the icon
+    <Button size="sm" px={{ base: "0", sm: "3.5" }} aria-label="Add item">
+      <LuPlus />
+      <Box as="span" hideBelow="sm">Add item</Box>
+    </Button>
+  }
 />
-`}
-      >
-        <PageHeader
-          mb="0"
-          title="2026 春季採購"
-          badge={<Badge colorPalette="green">Open</Badge>}
-          description="Closes on 3/15"
-          actions={
-            <>
-              <Button size="sm" variant="outline">
-                Close collection
-              </Button>
-              <Button size="sm">
-                <LuPlus />
-                Add item
-              </Button>
-            </>
-          }
-        />
-      </Example>
 
-      <Example
-        title="SectionHeader"
-        description="One group on a page: a title, how many it holds, small tools beside the title, and the section's actions on the right."
-        code={`
-<SectionHeader
-  title="Waiting for review"
-  count={3}
-  tools={<IconButton size="xs" variant="ghost" aria-label="Refresh"><LuRefreshCw /></IconButton>}
-  actions={<Button size="xs" variant="outline">Review all</Button>}
+// A record's page: back to its list in start
+<TitleBar
+  level={1}
+  title="#7 Spring order"
+  start={
+    <IconButton asChild variant="ghost" size="sm" aria-label="Back to batches">
+      <NextLink href="/batches"><LuArrowLeft /></NextLink>
+    </IconButton>
+  }
+  after={<Badge colorPalette="orange">Collecting</Badge>}
+  description="Opened by 林怡君 on 11/20 · closes 12/1"
+  end={
+    <Button size="sm" variant="outline" px={{ base: "0", sm: "3.5" }} aria-label="Edit">
+      <LuPencil />
+      <Box as="span" hideBelow="sm">Edit</Box>
+    </Button>
+  }
 />
+
+// A section: the count is a Badge, brand only for a live list
+<TitleBar
+  title="Waiting for review"
+  after={<>
+    <Badge>3</Badge>
+    <IconButton size="xs" variant="ghost" aria-label="Refresh"><LuRefreshCw /></IconButton>
+  </>}
+  end={
+    <Button size="xs" variant="outline" px={{ base: "0", sm: "2.5" }} aria-label="Review all">
+      <LuListChecks />
+      <Box as="span" hideBelow="sm">Review all</Box>
+    </Button>
+  }
+/>
+
+// A card about a person
+<Card.Header>
+  <TitleBar
+    level={3}
+    title="林怡君"
+    start={<MemberAvatar name="林怡君" size="xs" />}
+    after={<Badge colorPalette="green">Present</Badge>}
+  />
+</Card.Header>
 `}
       >
-        <SectionHeader
-          mb="0"
-          title="Waiting for review"
-          count={3}
-          tools={
-            <IconButton size="xs" variant="ghost" aria-label="Refresh">
-              <LuRefreshCw />
-            </IconButton>
-          }
-          actions={
-            <Button size="xs" variant="outline">
-              Review all
-            </Button>
-          }
-        />
+        <Stack gap="8">
+          <TitleBar
+            level={1}
+            title="2026 春季採購"
+            after={<Badge colorPalette="green">Open</Badge>}
+            description="Closes on 3/15"
+            end={
+              <>
+                <Button size="sm" variant="outline" px={{ base: "0", sm: "3.5" }} aria-label="Close collection">
+                  <LuLock />
+                  <Box as="span" hideBelow="sm">
+                    Close collection
+                  </Box>
+                </Button>
+                <Button size="sm" px={{ base: "0", sm: "3.5" }} aria-label="Add item">
+                  <LuPlus />
+                  <Box as="span" hideBelow="sm">
+                    Add item
+                  </Box>
+                </Button>
+              </>
+            }
+          />
+          <TitleBar
+            level={1}
+            title="#7 Spring order"
+            start={
+              <IconButton asChild variant="ghost" size="sm" aria-label="Back to batches">
+                <a href="#/layout">
+                  <LuArrowLeft />
+                </a>
+              </IconButton>
+            }
+            after={<Badge colorPalette="orange">Collecting</Badge>}
+            description="Opened by 林怡君 on 11/20 · closes 12/1"
+            end={
+              <Button size="sm" variant="outline" px={{ base: "0", sm: "3.5" }} aria-label="Edit">
+                <LuPencil />
+                <Box as="span" hideBelow="sm">
+                  Edit
+                </Box>
+              </Button>
+            }
+          />
+          <TitleBar
+            title="Waiting for review"
+            after={
+              <>
+                <Badge>3</Badge>
+                <IconButton size="xs" variant="ghost" aria-label="Refresh">
+                  <LuRefreshCw />
+                </IconButton>
+              </>
+            }
+            end={
+              <Button size="xs" variant="outline" px={{ base: "0", sm: "2.5" }} aria-label="Review all">
+                <LuListChecks />
+                <Box as="span" hideBelow="sm">
+                  Review all
+                </Box>
+              </Button>
+            }
+          />
+          <Card.Root size="sm" maxW="sm">
+            <Card.Header>
+              <TitleBar level={3} title="林怡君" start={<MemberAvatar name="林怡君" size="xs" />} after={<Badge colorPalette="green">Present</Badge>} />
+            </Card.Header>
+            <Card.Body>
+              <Text color="fg.muted">Signed in since 09:12.</Text>
+            </Card.Body>
+          </Card.Root>
+        </Stack>
       </Example>
 
       <Example

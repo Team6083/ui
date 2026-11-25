@@ -8,7 +8,7 @@ import { ColorModeButton } from "../chakra/color-mode.js"
 import { AppCommitProvider } from "./app-commit.js"
 import { AccountMenu, AppShell, BuildInfo, LanguageMenu, SignOutMenuItem } from "./app-shell.js"
 import { avatarPaletteFor } from "./member-avatar.js"
-import { EmptyState, PageColumn, PageHeader, SectionHeader } from "./page-parts.js"
+import { EmptyState, PageColumn, TitleBar } from "./page-parts.js"
 
 describe("AppShell", () => {
   const nav = [
@@ -53,7 +53,7 @@ describe("PageColumn", () => {
     renderWithUi(
       <AppShell appName="App" width="wide">
         <PageColumn>
-          <PageHeader title="Settings" />
+          <TitleBar level={1} title="Settings" />
         </PageColumn>
       </AppShell>,
     )
@@ -176,23 +176,38 @@ describe("avatarPaletteFor", () => {
   })
 })
 
-describe("SectionHeader and EmptyState", () => {
-  it("shows the count and the actions", () => {
-    renderWithUi(<SectionHeader title="目前簽到中的使用者" count={0} actions={<button>幫其他使用者簽到</button>} />)
-    expect(screen.getByRole("heading", { name: "目前簽到中的使用者" })).toBeInTheDocument()
-    expect(screen.getByText("0")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "幫其他使用者簽到" })).toBeInTheDocument()
+describe("TitleBar", () => {
+  it("is an h2 by default and takes the level it is given", () => {
+    const { unmount } = renderWithUi(<TitleBar title="目前簽到中的使用者" />)
+    expect(screen.getByRole("heading", { level: 2, name: "目前簽到中的使用者" })).toBeInTheDocument()
+    unmount()
+    renderWithUi(<TitleBar level={4} title="Details" />)
+    expect(screen.getByRole("heading", { level: 4, name: "Details" })).toBeInTheDocument()
   })
 
+  it("keeps what sits beside the title out of the heading's name", () => {
+    renderWithUi(
+      <TitleBar
+        level={1}
+        title="#7 Spring order"
+        start={<span>avatar</span>}
+        after={<span>Collecting</span>}
+        description="Closes on 3/15"
+        end={<button>Add item</button>}
+      />,
+    )
+    expect(screen.getByRole("heading", { level: 1, name: "#7 Spring order" })).toBeInTheDocument()
+    expect(screen.getByText("avatar")).toBeInTheDocument()
+    expect(screen.getByText("Collecting")).toBeInTheDocument()
+    expect(screen.getByText("Closes on 3/15")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Add item" })).toBeInTheDocument()
+  })
+})
+
+describe("EmptyState", () => {
   it("renders title and description", () => {
     renderWithUi(<EmptyState title="現在沒人" description="目前沒有使用者簽到中。" />)
     expect(screen.getByText("現在沒人")).toBeInTheDocument()
     expect(screen.getByText("目前沒有使用者簽到中。")).toBeInTheDocument()
-  })
-
-  it("keeps the page badge out of the heading's name", () => {
-    renderWithUi(<PageHeader title="#7 Spring order" badge={<span>Collecting</span>} />)
-    expect(screen.getByRole("heading", { name: "#7 Spring order" })).toBeInTheDocument()
-    expect(screen.getByText("Collecting")).toBeInTheDocument()
   })
 })

@@ -1,5 +1,5 @@
 import { Button, HStack, Stack, Text } from "@chakra-ui/react"
-import { ColorModeButton, InfoTip, PageHeader, toaster, ToggleTip, Tooltip } from "@team6083/ui"
+import { ColorModeButton, InfoTip, TitleBar, toaster, ToggleTip, Tooltip } from "@team6083/ui"
 import { LuInfo } from "react-icons/lu"
 
 import { Example } from "../Example"
@@ -7,7 +7,9 @@ import { Example } from "../Example"
 export function SnippetsPage() {
   return (
     <>
-      <PageHeader
+      <TitleBar
+        level={1}
+        mb="6"
         title="Snippets"
         description="The Chakra snippets every app used to copy into components/ui. Import them from the package instead."
       />
