@@ -120,7 +120,8 @@ Apps keep a Playwright spec that saves those screenshots for every page.
 
 - Not signed in to a page that needs it: send to sign-in. Signed in without
   the role: `NoAccessPage`. Bad `config.json`: `ConfigErrorPage`. A newer
-  build on the server: the banner from `AppShell`. Other errors: an `Alert`
-  with the text from `useApiErrorMessage()`.
+  build on the server, or of the front end (`useFrontendOutdated`): the banner
+  from `AppShell`; only a newer server build pauses saving. Other errors: an
+  `Alert` with the text from `useApiErrorMessage()`.
 - Toasts (`toaster`) confirm what just happened; they never carry the only
   copy of an error the user must act on.

@@ -156,11 +156,24 @@ describe("app commit check", () => {
     expect(screen.getByText("outdated: true")).toBeInTheDocument()
   })
 
-  it("does not poll without a build commit", async () => {
+  it("stops polling once the server is on another build", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => withCommit("def5678"))
+    vi.stubGlobal("fetch", fetchMock)
+    renderWithUi(
+      <AppCommitProvider buildCommit="abc1234" pollUrl="/api/healthz">
+        <Client />
+      </AppCommitProvider>,
+    )
+    await waitFor(() => expect(screen.getByText("outdated: true")).toBeInTheDocument())
+    await act(async () => void document.dispatchEvent(new Event("visibilitychange")))
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([undefined, "dev", "unknown", "1.2.0"])("does not poll when the build commit is %s", async (buildCommit) => {
     const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal("fetch", fetchMock)
     renderWithUi(
-      <AppCommitProvider buildCommit={undefined} pollUrl="/api/healthz">
+      <AppCommitProvider buildCommit={buildCommit} pollUrl="/api/healthz">
         <Client />
       </AppCommitProvider>,
     )
@@ -253,9 +266,9 @@ describe("useFrontendOutdated", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
-  it("does not check without a build commit", async () => {
+  it.each([undefined, "dev", "unknown", "1.2.0"])("does not check when the build commit is %s", async (buildCommit) => {
     const fetchMock = deployed(() => Response.json({ commit: "def5678" }))
-    renderWithUi(<Page />)
+    renderWithUi(<Page buildCommit={buildCommit} />)
     await act(async () => {})
     expect(fetchMock).not.toHaveBeenCalled()
   })

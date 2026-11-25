@@ -10,6 +10,11 @@ function normalize(commit: string | null | undefined): string | undefined {
   return value && /^[0-9a-f]+$/.test(value) && value.length >= SHORT_SHA ? value : undefined
 }
 
+/** Whether a commit is a SHA (short or full, or an image tag like sha-abc1234) that commitsDiffer can compare. */
+export function isSha(commit: string | null | undefined): boolean {
+  return normalize(commit) !== undefined
+}
+
 /**
  * Whether two commits differ. Short and full SHAs compare by prefix, and an
  * image tag (sha-abc1234) counts as its SHA. Returns false when either side is

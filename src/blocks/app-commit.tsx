@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 
 import { useUiMessages } from "../i18n.js"
 import { ApiError } from "../lib/api-error.js"
-import { COMMIT_HEADER, commitsDiffer, isWriteMethod } from "../lib/commit.js"
+import { COMMIT_HEADER, commitsDiffer, isSha, isWriteMethod } from "../lib/commit.js"
 import { usePoll } from "./poll.js"
 
 interface AppCommitContextValue {
@@ -21,12 +21,13 @@ const AppCommitContext = createContext<AppCommitContextValue>({ outdated: false,
 
 export interface AppCommitProviderProps {
   children: ReactNode
-  /** The commit this build came from; leave empty in dev builds to turn the check off. */
+  /** The commit this build came from; leave it empty, or anything that isn't a SHA, to turn the check off. */
   buildCommit: string | null | undefined
   /**
    * A cheap same-origin endpoint that returns X-App-Commit (e.g. /api/healthz).
-   * Checked when the tab regains focus and every `pollIntervalMs`. Needed when
-   * the app's writes don't go through fetch (Next.js server actions).
+   * Checked on mount, whenever the tab becomes visible again and every
+   * `pollIntervalMs`. Needed when the app's writes don't go through fetch
+   * (Next.js server actions).
    */
   pollUrl?: string
   pollIntervalMs?: number
@@ -58,7 +59,7 @@ export function AppCommitProvider({ children, buildCommit, pollUrl, pollInterval
   const check = useCallback(() => {
     if (pollUrl) fetch(pollUrl, { method: "HEAD", cache: "no-store" }).then(observe, () => {})
   }, [pollUrl, observe])
-  usePoll(check, pollIntervalMs, !!pollUrl && !!buildCommit && !outdated)
+  usePoll(check, pollIntervalMs, !!pollUrl && isSha(buildCommit) && !outdated)
 
   const reload = outdated || frontendOutdated
   const value = useMemo(() => ({ outdated, reload, observe }), [outdated, reload, observe])
