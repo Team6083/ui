@@ -1,5 +1,5 @@
 import { Box, Button, Code, HStack, Link, SegmentGroup, SimpleGrid, Stack, Switch, Text } from "@chakra-ui/react"
-import { PageHeader, SectionHeader, useColorMode } from "@team6083/ui"
+import { TitleBar, useColorMode } from "@team6083/ui"
 import { LuGithub } from "react-icons/lu"
 
 import { useDemoState } from "../demo-state"
@@ -15,14 +15,18 @@ export function OverviewPage() {
 
   return (
     <>
-      <PageHeader
+      <TitleBar
+        level={1}
+        mb="6"
         title="@team6083/ui"
         description="The team's Chakra UI v3 theme and the blocks every web app needs. Everything on these pages is the real component, imported from the package."
-        actions={
-          <Button asChild size="sm" variant="outline">
+        end={
+          <Button asChild size="sm" variant="outline" px={{ base: "0", sm: "3.5" }} aria-label="View on GitHub">
             <a href="https://github.com/Team6083/ui">
               <LuGithub />
-              View on GitHub
+              <Box as="span" hideBelow="sm">
+                View on GitHub
+              </Box>
             </a>
           </Button>
         }
@@ -114,7 +118,7 @@ import { UiProvider } from "@team6083/ui"
               </Stack>
             ))}
           </SimpleGrid>
-          <SectionHeader as="h3" title="Semantic tokens" mb="0" />
+          <TitleBar level={3} title="Semantic tokens" />
           <SimpleGrid columns={{ base: 3, sm: 6 }} gap="2">
             {SEMANTIC.map((token) => (
               <Stack key={token} gap="1">
