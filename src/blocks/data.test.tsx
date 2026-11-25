@@ -120,6 +120,24 @@ describe("FilterBar", () => {
     await user.click(screen.getAllByRole("button", { name: "清除篩選" })[0]!)
     expect(onClear).toHaveBeenCalled()
   })
+
+  it("keeps the filter button's badge laid out but hidden while no filter is set", () => {
+    const { rerender } = renderWithUi(
+      <FilterBar activeCount={0}>
+        <select />
+      </FilterBar>,
+    )
+    const badge = () => screen.getByRole("button", { name: /^Filter/ }).querySelector("[aria-hidden]")
+    expect(screen.getByRole("button", { name: "Filter" })).toBeInTheDocument()
+    expect(badge()).toHaveTextContent("0")
+    expect(badge()).not.toBeVisible()
+    rerender(
+      <FilterBar activeCount={3}>
+        <select />
+      </FilterBar>,
+    )
+    expect(screen.getByRole("button", { name: /^Filter\s*3$/ })).toBeInTheDocument()
+  })
 })
 
 describe("FactList and Totals", () => {
