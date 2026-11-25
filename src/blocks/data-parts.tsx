@@ -53,11 +53,10 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
             <Button size="sm" variant="outline">
               <LuListFilter />
               {m.filter}
-              {activeCount > 0 && (
-                <Badge size="sm" colorPalette="brand" variant="solid">
-                  {activeCount}
-                </Badge>
-              )}
+              {/* Always laid out, hidden at 0, so the button keeps its width and the popover doesn't move. */}
+              <Badge size="sm" colorPalette="brand" variant="solid" minW="5" justifyContent="center" visibility={activeCount > 0 ? undefined : "hidden"} aria-hidden={activeCount > 0 ? undefined : true}>
+                {activeCount}
+              </Badge>
             </Button>
           </Popover.Trigger>
           <Portal>

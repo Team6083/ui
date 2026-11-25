@@ -120,6 +120,25 @@ describe("FilterBar", () => {
     await user.click(screen.getAllByRole("button", { name: "清除篩選" })[0]!)
     expect(onClear).toHaveBeenCalled()
   })
+
+  it("keeps the filter button's badge laid out but hidden while no filter is set", () => {
+    const { rerender } = renderWithUi(
+      <FilterBar activeCount={0}>
+        <select />
+      </FilterBar>,
+    )
+    expect(screen.getByRole("button", { name: "Filter" })).toBeInTheDocument()
+    // Hidden with visibility, not display, so it still takes its space.
+    expect(screen.getByText("0")).toHaveStyle({ visibility: "hidden" })
+    expect(screen.getByText("0")).not.toHaveStyle({ display: "none" })
+    rerender(
+      <FilterBar activeCount={3}>
+        <select />
+      </FilterBar>,
+    )
+    expect(screen.getByRole("button", { name: /^Filter\s*3$/ })).toBeInTheDocument()
+    expect(screen.getByText("3")).toBeVisible()
+  })
 })
 
 describe("FactList and Totals", () => {
