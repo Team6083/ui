@@ -122,6 +122,9 @@ function groupRows<T>(rows: T[], groupBy?: (row: T) => string): [string, T[]][] 
   return [...groups]
 }
 
+// Side padding of every header and body cell from md up; one value, so the columns line up.
+const cellPx = "3"
+
 // Below md the same rows lay out as cards: one DOM, so tests and screen readers see one table.
 const cardRow = {
   display: { base: "block", md: "table-row" },
@@ -138,7 +141,7 @@ const cardCell = {
   justifyContent: "space-between",
   gap: "4",
   borderBottomWidth: { base: "0", md: "1px" },
-  px: { base: "0", md: "3" },
+  px: { base: "0", md: cellPx },
   py: { base: "1", md: "2" },
   _before: { base: { content: "attr(data-label)", color: "fg.muted", flexShrink: 0 }, md: { content: "none" } },
 } as const
@@ -362,11 +365,11 @@ export function DataTable<T>({
     {sortSelect}
     <Table.ScrollArea>
       <Table.Root size="sm" display={{ base: "block", md: "table" }} {...tableProps}>
-        {/* Header cells take the body cells' padding, so the checkboxes and column text line up. */}
+        {/* Header cells take the body cells' side padding (cellPx), so the checkboxes and column text line up; their vertical padding comes from the table's size. */}
         <Table.Header display={{ base: "none", md: "table-header-group" }}>
           <Table.Row>
             {selection && (
-              <Table.ColumnHeader w="10" px="3">
+              <Table.ColumnHeader w="10" px={cellPx}>
                 {selectable.length > 0 && checkbox(allState(selectable.map(getRowId)), m.selectAll, (on) => toggle(selectable.map(getRowId), on))}
               </Table.ColumnHeader>
             )}
@@ -375,7 +378,7 @@ export function DataTable<T>({
               return (
                 <Table.ColumnHeader
                   key={c.key}
-                  px="3"
+                  px={cellPx}
                   textAlign={c.numeric ? "end" : "start"}
                   w={c.width}
                   whiteSpace="nowrap"
@@ -405,7 +408,7 @@ export function DataTable<T>({
                 </Table.ColumnHeader>
               )
             })}
-            {rowActions && <Table.ColumnHeader w="10" px="3" />}
+            {rowActions && <Table.ColumnHeader w="10" px={cellPx} />}
           </Table.Row>
         </Table.Header>
         <Table.Body display={{ base: "block", md: "table-row-group" }}>
@@ -416,11 +419,11 @@ export function DataTable<T>({
                 {groupBy && (
                   <Table.Row display={{ base: "flex", md: "table-row" }} alignItems="center" gap="2" mb={{ base: "2", md: "0" }}>
                     {selection && (
-                      <Table.Cell borderBottomWidth={{ base: "0", md: "1px" }} px={{ base: "0", md: "3" }} pt={{ md: "4" }}>
+                      <Table.Cell borderBottomWidth={{ base: "0", md: "1px" }} px={{ base: "0", md: cellPx }} pt={{ md: "4" }}>
                         {groupIds.length > 0 && checkbox(allState(groupIds), m.selectAll, (on) => toggle(groupIds, on))}
                       </Table.Cell>
                     )}
-                    <Table.Cell colSpan={span} fontWeight="semibold" borderBottomWidth={{ base: "0", md: "1px" }} px={{ base: "0", md: "3" }} pt={{ md: "4" }}>
+                    <Table.Cell colSpan={span} fontWeight="semibold" borderBottomWidth={{ base: "0", md: "1px" }} px={{ base: "0", md: cellPx }} pt={{ md: "4" }}>
                       {groupLabel ? groupLabel(key, fullGroups.get(key) ?? groupRowsList) : key}
                     </Table.Cell>
                   </Table.Row>
@@ -445,8 +448,8 @@ export function DataTable<T>({
                             css={primary ? unlabeledCell : cardCell}
                             data-label={primary ? "" : label}
                             // The card's first line leaves room for the checkbox at its top left and the ⋯ button at its top right.
-                            ps={i === 0 && canPick ? { base: "7", md: "3" } : undefined}
-                            pe={i === 0 && rowActions ? { base: "8", md: "3" } : undefined}
+                            ps={i === 0 && canPick ? { base: "7", md: cellPx } : undefined}
+                            pe={i === 0 && rowActions ? { base: "8", md: cellPx } : undefined}
                             textAlign={c.numeric ? "end" : "start"}
                             fontVariantNumeric={c.numeric ? "tabular-nums" : undefined}
                             whiteSpace={c.numeric ? "nowrap" : undefined}
