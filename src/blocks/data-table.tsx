@@ -1,6 +1,6 @@
 "use client"
 
-import { ButtonGroup, Button, Checkbox, Flex, HStack, IconButton, Menu, NativeSelect, Pagination, Portal, Stack, Table, Text, useChakraContext, type TableRootProps } from "@chakra-ui/react"
+import { Box, ButtonGroup, Button, Checkbox, Flex, HStack, IconButton, Menu, NativeSelect, Pagination, Portal, Table, Text, useChakraContext, type TableRootProps } from "@chakra-ui/react"
 import { Fragment, useEffect, useRef, type ReactNode } from "react"
 import { LuArrowDown, LuArrowUp, LuArrowUpDown, LuChevronLeft, LuChevronRight, LuEllipsis } from "react-icons/lu"
 
@@ -218,7 +218,7 @@ export function DataTable<T>({
     if (loaded && requestedPage !== undefined && requestedPage > pageCount) paginationRef.current?.onPageChange(pageCount)
   }, [requestedPage, pageCount, loaded])
 
-  if (rows.length === 0 && empty) return <>{empty}</>
+  if (rows.length === 0 && empty) return <Box {...blockStyle}>{empty}</Box>
 
   const selected = new Set(selection?.selected ?? [])
   const selectable = selection ? pageRows.filter((r) => selection.canSelect?.(r) ?? true) : []
@@ -356,7 +356,9 @@ export function DataTable<T>({
   )
 
   return (
-    <Stack gap="3" css={blockStyle}>
+    // A Box, not a Stack: the app's style props come last so they win (display, gap), and the CSS
+    // `direction` property must not be read as Stack's flex direction.
+    <Box display="flex" flexDirection="column" gap="3" {...blockStyle}>
     {sortSelect}
     <Table.ScrollArea>
       <Table.Root size="sm" display={{ base: "block", md: "table" }} {...tableProps}>
@@ -490,6 +492,6 @@ export function DataTable<T>({
       </Table.Root>
     </Table.ScrollArea>
     {pager}
-    </Stack>
+    </Box>
   )
 }

@@ -53,12 +53,13 @@ describe("DataTable", () => {
   })
 
   it("puts style props on the whole block and the rest on the table", () => {
-    renderWithUi(<DataTable rows={items} columns={columns} getRowId={(r) => r.id} mt="7" aria-label="Parts" />)
+    renderWithUi(<DataTable rows={items} columns={columns} getRowId={(r) => r.id} mt="7" gap="8" css={{ outline: "2px solid" }} aria-label="Parts" />)
     const table = screen.getByRole("table", { name: "Parts" })
-    const block = table.closest(".chakra-stack")!
-    expect(getComputedStyle(block).marginTop).not.toBe("")
-    expect(getComputedStyle(block).marginTop).not.toBe("0px")
-    expect(["", "0px"]).toContain(getComputedStyle(table).marginTop)
+    const block = getComputedStyle(table.parentElement!.parentElement!)
+    expect(block.marginTop).not.toMatch(/^(0px)?$/)
+    expect(block.gap).toBe("32px")
+    expect(block.outline).toContain("2px solid")
+    expect(getComputedStyle(table).marginTop).toMatch(/^(0px)?$/)
   })
 
   it("shows the empty state instead of an empty table", () => {
