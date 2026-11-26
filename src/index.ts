@@ -59,7 +59,9 @@ export {
   type AppShellProps,
   type AppBuild,
   type BuildInfoProps,
+  type NavGroup,
   type NavItem,
+  type NavLink,
   type RenderLink,
 } from "./blocks/app-shell.js"
 export { avatarPaletteFor, MemberAvatar, type MemberAvatarProps } from "./blocks/member-avatar.js"

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Menu } from "@chakra-ui/react"
 import { screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
@@ -36,6 +37,44 @@ describe("AppShell", () => {
       </AppShell>,
     )
     expect(within(screen.getByRole("banner")).getByRole("link", { name: "Reports" })).toHaveAttribute("href", "/base/report")
+  })
+
+  describe("with a nav group", () => {
+    const grouped = [
+      { href: "/logs", label: "Logs" },
+      {
+        label: "Admin",
+        items: [
+          { href: "/admin/users", label: "Users", active: true },
+          { href: "/admin/teams", label: "Teams" },
+        ],
+      },
+    ]
+    const renderLink = (href: string, children: ReactNode) => <a href={`/base${href}`}>{children}</a>
+
+    it("opens a menu of sub-pages on desktop, through renderLink, marking the active one", async () => {
+      const user = userEvent.setup()
+      renderWithUi(<AppShell appName="App" nav={grouped} renderLink={renderLink}><p /></AppShell>)
+      const trigger = within(screen.getByRole("banner")).getByRole("button", { name: "Admin" })
+      expect(screen.queryByRole("menuitem", { name: "Users" })).not.toBeInTheDocument()
+      await user.click(trigger)
+      expect(await screen.findByRole("menuitem", { name: "Users" })).toHaveAttribute("aria-current", "page")
+      expect(screen.getByRole("menuitem", { name: "Teams" })).toHaveAttribute("href", "/base/admin/teams")
+      expect(screen.getByRole("menuitem", { name: "Teams" })).not.toHaveAttribute("aria-current")
+    })
+
+    it("lists the sub-pages under a heading in the drawer, which closes on pick", async () => {
+      const user = userEvent.setup()
+      renderWithUi(<AppShell appName="App" nav={grouped} renderLink={renderLink}><p /></AppShell>)
+      await user.click(screen.getByLabelText("Open menu"))
+      const drawer = await screen.findByRole("dialog")
+      expect(within(drawer).getByText("Admin")).toBeInTheDocument()
+      expect(within(drawer).getByRole("link", { name: "Users" })).toHaveAttribute("aria-current", "page")
+      const teams = within(drawer).getByRole("link", { name: "Teams" })
+      teams.addEventListener("click", (e) => e.preventDefault())
+      await user.click(teams)
+      await waitFor(() => expect(drawer).toHaveAttribute("data-state", "closed"))
+    })
   })
 
   it("shows the footer and build only when given", () => {

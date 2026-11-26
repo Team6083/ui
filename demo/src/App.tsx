@@ -13,7 +13,7 @@ import {
   type NavItem,
 } from "@team6083/ui"
 import { useMemo, useState, type ReactNode } from "react"
-import { LuBlocks, LuHouse, LuLayoutTemplate, LuShieldAlert, LuTable, LuUser } from "react-icons/lu"
+import { LuBlocks, LuBoxes, LuHouse, LuLayoutTemplate, LuShieldAlert, LuTable, LuUser } from "react-icons/lu"
 
 import { AVATARS } from "./avatars"
 import { DemoStateContext, type DemoState } from "./demo-state"
@@ -24,11 +24,11 @@ import { SnippetsPage } from "./pages/SnippetsPage"
 import { StandardPagesPage } from "./pages/StandardPagesPage"
 import { useRoute } from "./route"
 
-const PAGES: { path: string; label: string; icon: ReactNode; page: () => ReactNode; wide?: boolean }[] = [
+const PAGES: { path: string; label: string; icon: ReactNode; page: () => ReactNode; wide?: boolean; group?: boolean }[] = [
   { path: "/", label: "Overview", icon: <LuHouse />, page: () => <OverviewPage /> },
-  { path: "/layout", label: "Layout", icon: <LuLayoutTemplate />, page: () => <LayoutPage /> },
-  { path: "/data", label: "Data pages", icon: <LuTable />, page: () => <DataPage />, wide: true },
-  { path: "/standard", label: "Standard pages", icon: <LuShieldAlert />, page: () => <StandardPagesPage /> },
+  { path: "/layout", label: "Layout", icon: <LuLayoutTemplate />, page: () => <LayoutPage />, group: true },
+  { path: "/data", label: "Data pages", icon: <LuTable />, page: () => <DataPage />, wide: true, group: true },
+  { path: "/standard", label: "Standard pages", icon: <LuShieldAlert />, page: () => <StandardPagesPage />, group: true },
   { path: "/snippets", label: "Snippets", icon: <LuBlocks />, page: () => <SnippetsPage /> },
 ]
 
@@ -42,15 +42,22 @@ export function App() {
   const [locale, setLocale] = useState("zh-TW")
   const [outdated, setOutdated] = useState(false)
   const [signedIn, setSignedIn] = useState(true)
-  // The demo has a wide table (Data pages), so its app is wide and its other pages sit in a PageColumn.
-  const [width, setWidth] = useState<"column" | "wide">("wide")
+  // Column by default, like most apps; the width switch on the Layout page tries wide (for the Data pages table).
+  const [width, setWidth] = useState<"column" | "wide">("column")
   const state = useMemo<DemoState>(
     () => ({ locale, setLocale, outdated, setOutdated, width, setWidth }),
     [locale, outdated, width],
   )
 
   const page = PAGES.find((p) => p.path === route) ?? PAGES[0]!
-  const nav: NavItem[] = PAGES.map((p) => ({ href: `#${p.path}`, label: p.label, icon: p.icon, active: p === page }))
+  const link = (p: (typeof PAGES)[number]) => ({ href: `#${p.path}`, label: p.label, icon: p.icon, active: p === page })
+  // The package's own blocks sit in a nav group, so the header shows one live.
+  const blocks = PAGES.filter((p) => p.group).map(link)
+  const nav: NavItem[] = [
+    link(PAGES[0]!),
+    { label: "Blocks", icon: <LuBoxes />, items: blocks },
+    ...PAGES.slice(1).filter((p) => !p.group).map(link),
+  ]
 
   return (
     <UiProvider locale={locale}>
