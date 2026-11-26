@@ -40,12 +40,23 @@ export function LayoutPage() {
 
       <Example
         title="AppShell"
-        description="The app name and organization on the left; pages, color mode and the account on the right. On a phone the pages fold into a drawer. Narrow the window to see it. width is the app’s, set once: column (5xl) by default, wide (8xl) for an app with wide tables like the Data pages tab. A wide app wraps its other pages in PageColumn, so they stay in a centered 5xl column while the header stays put."
+        description="The app name and organization on the left; pages, color mode and the account on the right. On a phone the pages fold into a drawer. Narrow the window to see it. A nav item with items is a group for admin-style pages: a menu on desktop, a heading with its pages indented under it in the drawer. width is the app’s, set once: column (5xl) by default, wide (8xl) for an app with wide tables like the Data pages tab. A wide app wraps its other pages in PageColumn, so they stay in a centered 5xl column while the header stays put."
         code={`
 <AppShell
   appName="採購中心"
   orgName={config.orgName}
-  nav={[{ href: "/batches", label: "批次", icon: <LuPackage />, active: true }]}
+  nav={[
+    { href: "/batches", label: "批次", icon: <LuPackage />, active: true },
+    // Admin pages share one entry: a menu on desktop, an indented list in the drawer.
+    {
+      label: "管理",
+      icon: <LuSettings />,
+      items: [
+        { href: "/admin/users", label: "使用者" },
+        { href: "/admin/teams", label: "團隊" },
+      ],
+    },
+  ]}
   renderLink={(href, children) => <NextLink href={href}>{children}</NextLink>}
   width="wide" // the app has wide tables; leave it out if every page is a column
   account={

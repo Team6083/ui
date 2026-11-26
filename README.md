@@ -179,7 +179,7 @@ import NextLink from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu } from "@chakra-ui/react"
 import { AccountMenu, AppShell, BuildInfo, SignOutMenuItem, type AppBuild } from "@team6083/ui"
-import { LuLogs, LuUser } from "react-icons/lu"
+import { LuLogs, LuSettings, LuUser } from "react-icons/lu"
 
 // build: the API's { version, commit, builtAt }, e.g. from GET /api/v1/meta
 export function Frame({ user, build, signOut, children }: { user: { name: string; image?: string }; build?: AppBuild; signOut: () => Promise<void>; children: React.ReactNode }) {
@@ -188,7 +188,11 @@ export function Frame({ user, build, signOut, children }: { user: { name: string
     <AppShell
       appName="OverHours"
       orgName={process.env.NEXT_PUBLIC_ORG_NAME}
-      nav={[{ href: "/logs", label: "紀錄", icon: <LuLogs />, active: pathname.startsWith("/logs") }]}
+      nav={[
+        { href: "/logs", label: "紀錄", icon: <LuLogs />, active: pathname.startsWith("/logs") },
+        // Admin pages share one entry: a menu on desktop, an indented list in the drawer.
+        { label: "管理", icon: <LuSettings />, items: [{ href: "/admin/users", label: "使用者", active: pathname.startsWith("/admin/users") }, { href: "/admin/teams", label: "團隊", active: pathname.startsWith("/admin/teams") }] },
+      ]}
       renderLink={(href, children) => <NextLink href={href}>{children}</NextLink>}
       account={
         <AccountMenu name={user.name} image={user.image}>
