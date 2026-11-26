@@ -34,7 +34,7 @@ export interface FilterBarProps extends Omit<FlexProps, "children"> {
    * Where the filter popover opens, merged over the default (below the button,
    * flipping above it when there is no room). While it is open it keeps the
    * button's horizontal place and width from when it opened; passing
-   * `getAnchorRect` replaces that.
+   * `getAnchorElement` replaces that.
    */
   positioning?: PopoverRootProps["positioning"]
 }
@@ -48,13 +48,22 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
   // follows scrolling, flips and its own size. Measured again when the window's width changes
   // (a resize, a phone turning) and on the next open. A container scrolled sideways isn't
   // followed while open.
+  const trigger = useRef<HTMLButtonElement>(null)
   const openedAt = useRef<{ left: number; width: number; viewport: number } | null>(null)
-  const anchorRect: NonNullable<PopoverRootProps["positioning"]>["getAnchorRect"] = (el) => {
+  // The trigger as zag sees it: its live vertical place with the saved horizontal one.
+  // contextElement keeps scroll listeners on the trigger's real scrolling ancestors.
+  const anchor: NonNullable<PopoverRootProps["positioning"]>["getAnchorElement"] = () => {
+    const el = trigger.current
     if (!el) return null
-    const r = el.getBoundingClientRect()
-    const viewport = document.documentElement.clientWidth
-    if (openedAt.current?.viewport !== viewport) openedAt.current = { left: r.left + window.scrollX, width: r.width, viewport }
-    return { x: openedAt.current.left - window.scrollX, y: r.top, width: openedAt.current.width, height: r.height }
+    return {
+      contextElement: el,
+      getBoundingClientRect: () => {
+        const r = el.getBoundingClientRect()
+        const viewport = document.documentElement.clientWidth
+        if (openedAt.current?.viewport !== viewport) openedAt.current = { left: r.left + window.scrollX, width: r.width, viewport }
+        return new DOMRect(openedAt.current.left - window.scrollX, r.top, openedAt.current.width, r.height)
+      },
+    }
   }
   return (
     <Flex gap="2" align="center" wrap="wrap" mb="3" {...rest}>
@@ -65,7 +74,7 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
       )}
       {children && (
         <Popover.Root
-          positioning={{ placement: "bottom-start", getAnchorRect: anchorRect, ...positioning }}
+          positioning={{ placement: "bottom-start", getAnchorElement: anchor, ...positioning }}
           onOpenChange={(e) => {
             if (!e.open) openedAt.current = null
           }}
@@ -73,7 +82,7 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
           unmountOnExit
         >
           <Popover.Trigger asChild>
-            <Button size="sm" variant="outline">
+            <Button ref={trigger} size="sm" variant="outline">
               <LuListFilter />
               {m.filter}
               {activeCount > 0 && (

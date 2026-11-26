@@ -9,4 +9,4 @@ horizontal place and width from when it opened; it still follows scrolling,
 flips above the button when there is no room, and re-places as its own content
 grows. The next open uses the button's new size. Apps can drop CSS that set the
 trigger's `minW` through `data-scope` / `data-part` selectors. Passing
-`getAnchorRect` in `positioning` replaces this.
+`getAnchorElement` in `positioning` replaces this.
