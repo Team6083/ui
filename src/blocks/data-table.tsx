@@ -155,6 +155,10 @@ const cardCheckboxCell = {
   py: { base: "0", md: "2" },
 } as const
 
+function sortArrow(dir: "asc" | "desc" | null) {
+  return dir === "asc" ? <LuArrowUp /> : dir === "desc" ? <LuArrowDown /> : <LuArrowUpDown opacity="0.4" />
+}
+
 // The select shows the default order when `by` names a column that cannot sort.
 function sortSelectValue<T>(key: string, sortable: DataColumn<T>[]) {
   return sortable.some((c) => c.key === key) ? key : ""
@@ -394,11 +398,11 @@ export function DataTable<T>({
                       color={dir ? "fg" : "inherit"}
                       _hover={{ color: "fg" }}
                       onClick={() => sort.onChange(nextSort(sort.by, c.key))}
-                      // A numeric heading ends where its numbers end, so its arrow goes before the text.
-                      flexDirection={c.numeric ? "row-reverse" : "row"}
                     >
+                      {/* A numeric heading ends where its numbers end, so its arrow goes before the text. */}
+                      {c.numeric && sortArrow(dir)}
                       {c.header}
-                      {dir === "asc" ? <LuArrowUp /> : dir === "desc" ? <LuArrowDown /> : <LuArrowUpDown opacity="0.4" />}
+                      {!c.numeric && sortArrow(dir)}
                     </Button>
                   ) : (
                     c.header
