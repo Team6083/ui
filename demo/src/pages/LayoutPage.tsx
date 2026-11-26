@@ -143,6 +143,7 @@ export function LayoutPage() {
   keepAfterInline
   title="Laser-cut acrylic panels for the robot's side covers"
   after={<Badge colorPalette="orange">Collecting</Badge>}
+  end={<IconButton size="xs" variant="ghost" aria-label="Edit"><LuPencil /></IconButton>}
 />
 `}
       >
@@ -226,6 +227,11 @@ export function LayoutPage() {
                     keepAfterInline={keepAfterInline}
                     title="Laser-cut acrylic panels for the robot's side covers"
                     after={<Badge colorPalette="orange">Collecting</Badge>}
+                    end={
+                      <IconButton size="xs" variant="ghost" aria-label="Edit">
+                        <LuPencil />
+                      </IconButton>
+                    }
                   />
                 </Card.Header>
                 <Card.Body>
