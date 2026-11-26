@@ -16,7 +16,7 @@ import {
   type FlexProps,
   type PopoverRootProps,
 } from "@chakra-ui/react"
-import type { ReactNode } from "react"
+import { useRef, type ReactNode } from "react"
 import { LuListFilter, LuSearch, LuX } from "react-icons/lu"
 
 import { useUiMessages } from "../i18n.js"
@@ -32,7 +32,9 @@ export interface FilterBarProps extends Omit<FlexProps, "children"> {
   actions?: ReactNode
   /**
    * Where the filter popover opens, merged over the default (below the button,
-   * flipping above it when there is no room).
+   * flipping above it when there is no room). While it is open it keeps the
+   * button's horizontal place and width from when it opened; passing
+   * `getAnchorRect` replaces that.
    */
   positioning?: PopoverRootProps["positioning"]
 }
@@ -40,6 +42,17 @@ export interface FilterBarProps extends Omit<FlexProps, "children"> {
 /** A search box and one 篩選 button, instead of a row of always-open selects. */
 export function FilterBar({ search, activeCount = 0, onClear, children, actions, positioning, ...rest }: FilterBarProps) {
   const m = useUiMessages().data
+  // The button's left edge (in the page) and width when the popover opened. The button grows
+  // with the badge, and on a phone moves as the search box shrinks; the open popover keeps to
+  // this instead, so it doesn't slide sideways. Its vertical place is live, so it still
+  // follows scrolling, flips and its own size. Cleared on close: the next open measures again.
+  const openedAt = useRef<{ left: number; width: number } | null>(null)
+  const anchorRect: NonNullable<PopoverRootProps["positioning"]>["getAnchorRect"] = (el) => {
+    if (!el) return null
+    const r = el.getBoundingClientRect()
+    openedAt.current ??= { left: r.left + window.scrollX, width: r.width }
+    return { x: openedAt.current.left - window.scrollX, y: r.top, width: openedAt.current.width, height: r.height }
+  }
   return (
     <Flex gap="2" align="center" wrap="wrap" mb="3" {...rest}>
       {search && (
@@ -49,10 +62,10 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
       )}
       {children && (
         <Popover.Root
-          // Placed when it opens and left there: the button grows with the badge (and on a phone the
-          // search box shrinks to make room), but an open popover stays put until it opens again.
-          // Page scroll needs no update (it is positioned in the page); window resizes still re-place it.
-          positioning={{ placement: "bottom-start", listeners: { ancestorScroll: false, elementResize: false, layoutShift: false }, ...positioning }}
+          positioning={{ placement: "bottom-start", getAnchorRect: anchorRect, ...positioning }}
+          onOpenChange={(e) => {
+            if (!e.open) openedAt.current = null
+          }}
           lazyMount
           unmountOnExit
         >
