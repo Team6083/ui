@@ -62,6 +62,15 @@ describe("DataTable", () => {
     expect(getComputedStyle(table).marginTop).toMatch(/^(0px)?$/)
   })
 
+  it.each([
+    ["selection", { selection: { selected: [], onChange: () => {} } }],
+    ["selection and row actions", { selection: { selected: [], onChange: () => {} }, rowActions: () => [{ value: "edit", label: "Edit", onSelect: () => {} }] }],
+  ])("spans group headings across exactly the header's columns, with %s", (_, props) => {
+    renderWithUi(<DataTable rows={items} columns={columns} getRowId={(r) => r.id} groupBy={(r) => r.vendor} {...props} />)
+    const [header, ...rows] = screen.getAllByRole("row").map((r) => [...r.children].reduce((n, c) => n + (c as HTMLTableCellElement).colSpan, 0))
+    expect(rows).toEqual(rows.map(() => header))
+  })
+
   it("shows the empty state instead of an empty table", () => {
     renderWithUi(<DataTable rows={[]} columns={columns} getRowId={(r) => r.id} empty={<p>No items</p>} />)
     expect(screen.getByText("No items")).toBeInTheDocument()
@@ -147,6 +156,13 @@ describe("DataTable sorting", () => {
     expect(names()).toEqual(["Resistor kit", "USB cable", "Servo"])
     await user.click(qty())
     expect(names()).toEqual(["USB cable", "Resistor kit", "Servo"])
+  })
+
+  it("puts the arrow before a numeric heading, so the heading ends where its numbers end", () => {
+    renderWithUi(<Sortable />)
+    const button = (name: RegExp) => within(screen.getByRole("columnheader", { name })).getByRole("button")
+    expect(button(/Qty/).firstChild?.nodeName).toBe("svg")
+    expect(button(/Name/).lastChild?.nodeName).toBe("svg")
   })
 
   it("sorts within groups and keeps the groups in their order", async () => {
