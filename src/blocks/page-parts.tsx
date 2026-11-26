@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, EmptyState as ChakraEmptyState, Heading, HStack, Stack, Text, VStack, type BoxProps, type StackProps, type HeadingProps } from "@chakra-ui/react"
+import { Box, EmptyState as ChakraEmptyState, Flex, Heading, HStack, Stack, Text, VStack, type BoxProps, type StackProps, type HeadingProps } from "@chakra-ui/react"
 import type { ReactNode } from "react"
 
 /**
@@ -47,26 +47,30 @@ const SIZE_BY_LEVEL: Record<1 | 2 | 3 | 4, HeadingProps["size"]> = { 1: { base: 
  * because that layout is the same everywhere and easy to get wrong.
  */
 export function TitleBar({ title, level = 2, size, start, after, description, end, keepAfterInline, ...rest }: TitleBarProps) {
+  const headingSize = size ?? SIZE_BY_LEVEL[level]
+  // start, after and end centre on an empty line as tall as the title's, and
+  // that line sits on the title's first baseline: they line up with the
+  // title's first line however many lines it wraps to and however tall they are.
+  const onFirstLine = (content: ReactNode) => (
+    <Flex align="center" flexShrink={0}>
+      <Heading as="span" size={headingSize} aria-hidden w="0" overflow="hidden">
+        {"\u200B"}
+      </Heading>
+      <HStack gap="2">{content}</HStack>
+    </Flex>
+  )
   return (
-    <HStack align="flex-start" gap="1" {...rest}>
-      {start}
+    <HStack align="baseline" gap="1" {...rest}>
+      {start != null && onFirstLine(start)}
       <Stack gap="1" flex="1" minW="0">
-        <HStack align="flex-start" gap="3">
-          <HStack gap="2" wrap={keepAfterInline ? "nowrap" : "wrap"} flex="1" minW="0">
-            <Heading as={`h${level}`} size={size ?? SIZE_BY_LEVEL[level]}>
+        <HStack align="baseline" gap="3">
+          <HStack align={keepAfterInline ? "baseline" : "center"} gap="2" wrap={keepAfterInline ? "nowrap" : "wrap"} flex="1" minW="0">
+            <Heading as={`h${level}`} size={headingSize}>
               {title}
             </Heading>
-            {after != null && (
-              <HStack gap="2" flexShrink={0}>
-                {after}
-              </HStack>
-            )}
+            {after != null && (keepAfterInline ? onFirstLine(after) : <HStack gap="2" flexShrink={0}>{after}</HStack>)}
           </HStack>
-          {end != null && (
-            <HStack gap="2" flexShrink={0}>
-              {end}
-            </HStack>
-          )}
+          {end != null && onFirstLine(end)}
         </HStack>
         {description != null && <Text color="fg.muted">{description}</Text>}
       </Stack>
