@@ -362,10 +362,11 @@ export function DataTable<T>({
     {sortSelect}
     <Table.ScrollArea>
       <Table.Root size="sm" display={{ base: "block", md: "table" }} {...tableProps}>
+        {/* Header cells take the body cells' padding, so the checkboxes and column text line up. */}
         <Table.Header display={{ base: "none", md: "table-header-group" }}>
           <Table.Row>
             {selection && (
-              <Table.ColumnHeader w="10">
+              <Table.ColumnHeader w="10" px="3">
                 {selectable.length > 0 && checkbox(allState(selectable.map(getRowId)), m.selectAll, (on) => toggle(selectable.map(getRowId), on))}
               </Table.ColumnHeader>
             )}
@@ -374,6 +375,7 @@ export function DataTable<T>({
               return (
                 <Table.ColumnHeader
                   key={c.key}
+                  px="3"
                   textAlign={c.numeric ? "end" : "start"}
                   w={c.width}
                   whiteSpace="nowrap"
@@ -403,7 +405,7 @@ export function DataTable<T>({
                 </Table.ColumnHeader>
               )
             })}
-            {rowActions && <Table.ColumnHeader w="10" />}
+            {rowActions && <Table.ColumnHeader w="10" px="3" />}
           </Table.Row>
         </Table.Header>
         <Table.Body display={{ base: "block", md: "table-row-group" }}>
