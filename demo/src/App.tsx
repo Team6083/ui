@@ -13,7 +13,7 @@ import {
   type NavItem,
 } from "@team6083/ui"
 import { useMemo, useState, type ReactNode } from "react"
-import { LuBlocks, LuHouse, LuLayoutTemplate, LuShieldAlert, LuTable, LuUser } from "react-icons/lu"
+import { LuBlocks, LuBookOpen, LuHouse, LuLayoutTemplate, LuShieldAlert, LuTable, LuUser } from "react-icons/lu"
 
 import { AVATARS } from "./avatars"
 import { DemoStateContext, type DemoState } from "./demo-state"
@@ -24,12 +24,12 @@ import { SnippetsPage } from "./pages/SnippetsPage"
 import { StandardPagesPage } from "./pages/StandardPagesPage"
 import { useRoute } from "./route"
 
-const PAGES: { path: string; label: string; icon: ReactNode; page: () => ReactNode; wide?: boolean }[] = [
+const PAGES: { path: string; label: string; icon: ReactNode; page: () => ReactNode; wide?: boolean; group?: boolean }[] = [
   { path: "/", label: "Overview", icon: <LuHouse />, page: () => <OverviewPage /> },
   { path: "/layout", label: "Layout", icon: <LuLayoutTemplate />, page: () => <LayoutPage /> },
   { path: "/data", label: "Data pages", icon: <LuTable />, page: () => <DataPage />, wide: true },
-  { path: "/standard", label: "Standard pages", icon: <LuShieldAlert />, page: () => <StandardPagesPage /> },
-  { path: "/snippets", label: "Snippets", icon: <LuBlocks />, page: () => <SnippetsPage /> },
+  { path: "/standard", label: "Standard pages", icon: <LuShieldAlert />, page: () => <StandardPagesPage />, group: true },
+  { path: "/snippets", label: "Snippets", icon: <LuBlocks />, page: () => <SnippetsPage />, group: true },
 ]
 
 const LANGUAGES = [
@@ -50,7 +50,12 @@ export function App() {
   )
 
   const page = PAGES.find((p) => p.path === route) ?? PAGES[0]!
-  const nav: NavItem[] = PAGES.map((p) => ({ href: `#${p.path}`, label: p.label, icon: p.icon, active: p === page }))
+  const link = (p: (typeof PAGES)[number]) => ({ href: `#${p.path}`, label: p.label, icon: p.icon, active: p === page })
+  // Standard pages and Snippets sit in a nav group, so the header shows one live.
+  const nav: NavItem[] = [
+    ...PAGES.filter((p) => !p.group).map(link),
+    { label: "Reference", icon: <LuBookOpen />, items: PAGES.filter((p) => p.group).map(link) },
+  ]
 
   return (
     <UiProvider locale={locale}>
