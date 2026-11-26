@@ -7,11 +7,13 @@ export interface ExampleProps {
   description?: ReactNode
   /** The usage to show under "Code"; keep it to what an app would write. */
   code?: string
+  /** false shows the blocks straight on the page, as an app does, for blocks that draw no frame of their own. */
+  framed?: boolean
   children: ReactNode
 }
 
 /** One component on show: what it is for, the live thing, and the code behind it. */
-export function Example({ title, description, code, children }: ExampleProps) {
+export function Example({ title, description, code, framed = true, children }: ExampleProps) {
   return (
     <Stack as="section" gap="3" mb="10">
       <Stack gap="1">
@@ -20,9 +22,13 @@ export function Example({ title, description, code, children }: ExampleProps) {
         </Heading>
         {description && <Text color="fg.muted">{description}</Text>}
       </Stack>
-      <Box borderWidth="1px" rounded="l3" p={{ base: "3", md: "5" }} bg="bg">
-        {children}
-      </Box>
+      {framed ? (
+        <Box borderWidth="1px" rounded="l3" p={{ base: "3", md: "5" }} bg="bg">
+          {children}
+        </Box>
+      ) : (
+        children
+      )}
       {code && (
         <Collapsible.Root>
           <Collapsible.Trigger asChild>

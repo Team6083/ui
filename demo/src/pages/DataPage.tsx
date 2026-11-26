@@ -66,6 +66,7 @@ export function DataPage() {
 
       <Example
         title="FilterBar, DataTable and SelectionBar"
+        framed={false}
         description="Search and one 篩選 button instead of a row of selects; rows grouped under headings; pick rows by row, group or all, then act on them in the bar that appears at the bottom. Each row's own actions sit in its ⋯ menu. Click a header to sort (ascending, descending, off; on a phone use the sort select above the cards), and use the pager under the table; picks stay when you change page, and the header checkbox picks the current page. Sorting and paging are controlled, so the app can keep them in the URL or send them to a server."
         code={`
 <FilterBar

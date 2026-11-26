@@ -1,6 +1,6 @@
 "use client"
 
-import { ButtonGroup, Button, Checkbox, Flex, HStack, IconButton, Menu, NativeSelect, Pagination, Portal, Stack, Table, Text, type TableRootProps } from "@chakra-ui/react"
+import { Box, ButtonGroup, Button, Checkbox, Flex, HStack, IconButton, Menu, NativeSelect, Pagination, Portal, Table, Text, useChakraContext, type TableRootProps } from "@chakra-ui/react"
 import { Fragment, useEffect, useRef, type ReactNode } from "react"
 import { LuArrowDown, LuArrowUp, LuArrowUpDown, LuChevronLeft, LuChevronRight, LuEllipsis } from "react-icons/lu"
 
@@ -181,6 +181,8 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const m = useUiMessages().data
   const locale = useUiLocale()
+  // Style props (margins, width…) go on the whole block; the rest (size, variant, aria-label…) on the table.
+  const [blockStyle, tableProps] = useChakraContext().splitCssProps(rest)
 
   // Sort, then page, then group. With groupBy the groups keep their first-seen
   // order and rows sort within each, so the page still slices what the sort shows.
@@ -216,7 +218,7 @@ export function DataTable<T>({
     if (loaded && requestedPage !== undefined && requestedPage > pageCount) paginationRef.current?.onPageChange(pageCount)
   }, [requestedPage, pageCount, loaded])
 
-  if (rows.length === 0 && empty) return <>{empty}</>
+  if (rows.length === 0 && empty) return <Box {...blockStyle}>{empty}</Box>
 
   const selected = new Set(selection?.selected ?? [])
   const selectable = selection ? pageRows.filter((r) => selection.canSelect?.(r) ?? true) : []
@@ -354,12 +356,14 @@ export function DataTable<T>({
   )
 
   return (
-    <Stack gap="3">
+    // A Box, not a Stack: the app's style props come last so they win (display, gap), and the CSS
+    // `direction` property must not be read as Stack's flex direction.
+    <Box display="flex" flexDirection="column" gap="3" {...blockStyle}>
     {sortSelect}
-    <Table.ScrollArea borderWidth={{ base: "0", md: "1px" }} rounded="l3">
-      <Table.Root size="sm" display={{ base: "block", md: "table" }} {...rest}>
+    <Table.ScrollArea>
+      <Table.Root size="sm" display={{ base: "block", md: "table" }} {...tableProps}>
         <Table.Header display={{ base: "none", md: "table-header-group" }}>
-          <Table.Row bg="bg.subtle">
+          <Table.Row>
             {selection && (
               <Table.ColumnHeader w="10">
                 {selectable.length > 0 && checkbox(allState(selectable.map(getRowId)), m.selectAll, (on) => toggle(selectable.map(getRowId), on))}
@@ -488,6 +492,6 @@ export function DataTable<T>({
       </Table.Root>
     </Table.ScrollArea>
     {pager}
-    </Stack>
+    </Box>
   )
 }
