@@ -59,7 +59,7 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
       contextElement: el,
       getBoundingClientRect: () => {
         const r = el.getBoundingClientRect()
-        const viewport = document.documentElement.clientWidth
+        const viewport = window.innerWidth // includes the scrollbar, so one appearing as the list shrinks doesn't count
         if (openedAt.current?.viewport !== viewport) openedAt.current = { left: r.left + window.scrollX, width: r.width, viewport }
         return new DOMRect(openedAt.current.left - window.scrollX, r.top, openedAt.current.width, r.height)
       },
