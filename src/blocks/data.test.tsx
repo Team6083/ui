@@ -62,6 +62,22 @@ describe("DataTable", () => {
     expect(getComputedStyle(table).marginTop).toMatch(/^(0px)?$/)
   })
 
+  it("spans group headings across exactly the header's columns", () => {
+    const widths = () => {
+      const [header, ...rows] = screen.getAllByRole("row")
+      const span = (r: HTMLElement) => [...r.children].reduce((n, c) => n + (c as HTMLTableCellElement).colSpan, 0)
+      return { header: span(header!), rows: rows.map(span) }
+    }
+    const view = renderWithUi(<Picker onAct={() => {}} />)
+    let { header, rows } = widths()
+    expect(rows.every((n) => n === header)).toBe(true)
+
+    view.unmount()
+    renderWithUi(<DataTable rows={items} columns={columns} getRowId={(r) => r.id} groupBy={(r) => r.vendor} rowActions={() => [{ value: "edit", label: "Edit", onSelect: () => {} }]} />)
+    ;({ header, rows } = widths())
+    expect(rows.every((n) => n === header)).toBe(true)
+  })
+
   it("shows the empty state instead of an empty table", () => {
     renderWithUi(<DataTable rows={[]} columns={columns} getRowId={(r) => r.id} empty={<p>No items</p>} />)
     expect(screen.getByText("No items")).toBeInTheDocument()

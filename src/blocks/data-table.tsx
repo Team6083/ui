@@ -235,7 +235,8 @@ export function DataTable<T>({
     const picked = ids.filter((id) => selected.has(id)).length
     return picked === 0 ? false : picked === ids.length ? true : "indeterminate"
   }
-  const span = columns.length + (selection ? 1 : 0) + (rowActions ? 1 : 0)
+  // A group heading spans every column but the checkbox column, which has its own cell in that row.
+  const groupSpan = columns.length + (rowActions ? 1 : 0)
   const sortable = sort ? columns.filter((c) => c.sortValue) : []
   const columnText = (c: DataColumn<T>) => c.label ?? (typeof c.header === "string" ? c.header : c.key)
   const hideSecondary = (c: DataColumn<T>) => (c.priority === "secondary" ? { hideBelow: "lg" as const } : {})
@@ -393,6 +394,8 @@ export function DataTable<T>({
                       color={dir ? "fg" : "inherit"}
                       _hover={{ color: "fg" }}
                       onClick={() => sort.onChange(nextSort(sort.by, c.key))}
+                      // A numeric heading ends where its numbers end, so its arrow goes before the text.
+                      flexDirection={c.numeric ? "row-reverse" : "row"}
                     >
                       {c.header}
                       {dir === "asc" ? <LuArrowUp /> : dir === "desc" ? <LuArrowDown /> : <LuArrowUpDown opacity="0.4" />}
@@ -418,7 +421,7 @@ export function DataTable<T>({
                         {groupIds.length > 0 && checkbox(allState(groupIds), m.selectAll, (on) => toggle(groupIds, on))}
                       </Table.Cell>
                     )}
-                    <Table.Cell colSpan={span} fontWeight="semibold" borderBottomWidth={{ base: "0", md: "1px" }} px={{ base: "0", md: "3" }} pt={{ md: "4" }}>
+                    <Table.Cell colSpan={groupSpan} fontWeight="semibold" borderBottomWidth={{ base: "0", md: "1px" }} px={{ base: "0", md: "3" }} pt={{ md: "4" }}>
                       {groupLabel ? groupLabel(key, fullGroups.get(key) ?? groupRowsList) : key}
                     </Table.Cell>
                   </Table.Row>
