@@ -274,23 +274,20 @@ describe("FilterBar", () => {
     expect(onClear).toHaveBeenCalled()
   })
 
-  it("keeps the filter button's badge laid out but hidden while no filter is set", () => {
+  it("shows the filter button's badge only while a filter is set", () => {
     const { rerender } = renderWithUi(
       <FilterBar activeCount={0}>
         <select />
       </FilterBar>,
     )
     expect(screen.getByRole("button", { name: "Filter" })).toBeInTheDocument()
-    // Hidden with visibility, not display, so it still takes its space.
-    expect(screen.getByText("0")).toHaveStyle({ visibility: "hidden" })
-    expect(screen.getByText("0")).not.toHaveStyle({ display: "none" })
+    expect(screen.queryByText("0")).not.toBeInTheDocument()
     rerender(
       <FilterBar activeCount={3}>
         <select />
       </FilterBar>,
     )
     expect(screen.getByRole("button", { name: /^Filter\s*3$/ })).toBeInTheDocument()
-    expect(screen.getByText("3")).toBeVisible()
   })
 })
 

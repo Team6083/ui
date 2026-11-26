@@ -16,7 +16,7 @@ import {
   type FlexProps,
   type PopoverRootProps,
 } from "@chakra-ui/react"
-import type { ReactNode } from "react"
+import { useRef, type ReactNode } from "react"
 import { LuListFilter, LuSearch, LuX } from "react-icons/lu"
 
 import { useUiMessages } from "../i18n.js"
@@ -32,7 +32,9 @@ export interface FilterBarProps extends Omit<FlexProps, "children"> {
   actions?: ReactNode
   /**
    * Where the filter popover opens, merged over the default (below the button,
-   * flipping above it when there is no room).
+   * flipping above it when there is no room). While it is open it keeps the
+   * button's horizontal place and width from when it opened; passing
+   * `getAnchorElement` replaces that.
    */
   positioning?: PopoverRootProps["positioning"]
 }
@@ -40,6 +42,29 @@ export interface FilterBarProps extends Omit<FlexProps, "children"> {
 /** A search box and one 篩選 button, instead of a row of always-open selects. */
 export function FilterBar({ search, activeCount = 0, onClear, children, actions, positioning, ...rest }: FilterBarProps) {
   const m = useUiMessages().data
+  // The button's left edge (in the page) and width when the popover opened. The button grows
+  // with the badge, and on a phone moves as the search box shrinks; the open popover keeps to
+  // this instead, so it doesn't slide sideways. Its vertical place is live, so it still
+  // follows scrolling, flips and its own size. Measured again when the window's width changes
+  // (a resize, a phone turning) and on the next open. A container scrolled sideways isn't
+  // followed while open.
+  const trigger = useRef<HTMLButtonElement>(null)
+  const openedAt = useRef<{ left: number; width: number; viewport: number } | null>(null)
+  // The trigger as zag sees it: its live vertical place with the saved horizontal one.
+  // contextElement keeps scroll listeners on the trigger's real scrolling ancestors.
+  const anchor: NonNullable<PopoverRootProps["positioning"]>["getAnchorElement"] = () => {
+    const el = trigger.current
+    if (!el) return null
+    return {
+      contextElement: el,
+      getBoundingClientRect: () => {
+        const r = el.getBoundingClientRect()
+        const viewport = window.innerWidth // includes the scrollbar, so one appearing as the list shrinks doesn't count
+        if (openedAt.current?.viewport !== viewport) openedAt.current = { left: r.left + window.scrollX, width: r.width, viewport }
+        return new DOMRect(openedAt.current.left - window.scrollX, r.top, openedAt.current.width, r.height)
+      },
+    }
+  }
   return (
     <Flex gap="2" align="center" wrap="wrap" mb="3" {...rest}>
       {search && (
@@ -48,15 +73,23 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
         </InputGroup>
       )}
       {children && (
-        <Popover.Root positioning={{ placement: "bottom-start", ...positioning }} lazyMount unmountOnExit>
+        <Popover.Root
+          positioning={{ placement: "bottom-start", getAnchorElement: anchor, ...positioning }}
+          onOpenChange={(e) => {
+            if (!e.open) openedAt.current = null
+          }}
+          lazyMount
+          unmountOnExit
+        >
           <Popover.Trigger asChild>
-            <Button size="sm" variant="outline">
+            <Button ref={trigger} size="sm" variant="outline">
               <LuListFilter />
               {m.filter}
-              {/* Always laid out, hidden at 0, so the button keeps its width and the popover doesn't move. */}
-              <Badge size="sm" colorPalette="brand" variant="solid" minW="5" justifyContent="center" visibility={activeCount > 0 ? undefined : "hidden"} aria-hidden={activeCount > 0 ? undefined : true}>
-                {activeCount}
-              </Badge>
+              {activeCount > 0 && (
+                <Badge size="sm" colorPalette="brand" variant="solid">
+                  {activeCount}
+                </Badge>
+              )}
             </Button>
           </Popover.Trigger>
           <Portal>
