@@ -42,8 +42,8 @@ export function App() {
   const [locale, setLocale] = useState("zh-TW")
   const [outdated, setOutdated] = useState(false)
   const [signedIn, setSignedIn] = useState(true)
-  // The demo has a wide table (Data pages), so its app is wide and its other pages sit in a PageColumn.
-  const [width, setWidth] = useState<"column" | "wide">("wide")
+  // Column by default, like most apps; the width switch on the Layout page tries wide (for the Data pages table).
+  const [width, setWidth] = useState<"column" | "wide">("column")
   const state = useMemo<DemoState>(
     () => ({ locale, setLocale, outdated, setOutdated, width, setWidth }),
     [locale, outdated, width],
