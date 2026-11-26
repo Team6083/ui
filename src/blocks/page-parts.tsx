@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, EmptyState as ChakraEmptyState, Flex, Heading, HStack, Stack, Text, VStack, type BoxProps, type FlexProps, type HeadingProps } from "@chakra-ui/react"
+import { Box, EmptyState as ChakraEmptyState, Heading, HStack, Stack, Text, VStack, type BoxProps, type StackProps, type HeadingProps } from "@chakra-ui/react"
 import type { ReactNode } from "react"
 
 /**
@@ -12,8 +12,13 @@ export function PageColumn(props: BoxProps) {
   return <Box maxW="5xl" mx="auto" {...props} />
 }
 
-export interface TitleBarProps extends Omit<FlexProps, "title"> {
+export interface TitleBarProps extends Omit<StackProps, "title"> {
   title: ReactNode
+  /**
+   * Keeps `after` beside the title when the line runs out of room; the title
+   * wraps instead. By default `after` moves under the title.
+   */
+  keepAfterInline?: boolean
   /** The heading's level: 1 for the page's one heading, 2 for its sections, 3–4 inside cards and dialogs. */
   level?: 1 | 2 | 3 | 4
   /** The heading's size; by default it follows `level` (2xl on a phone and 3xl from md, then xl, md, sm). */
@@ -41,27 +46,31 @@ const SIZE_BY_LEVEL: Record<1 | 2 | 3 | 4, HeadingProps["size"]> = { 1: { base: 
  * with the description under it, lined up with the title. It sets no outer spacing; the container decides that. Kept
  * because that layout is the same everywhere and easy to get wrong.
  */
-export function TitleBar({ title, level = 2, size, start, after, description, end, ...rest }: TitleBarProps) {
+export function TitleBar({ title, level = 2, size, start, after, description, end, keepAfterInline, ...rest }: TitleBarProps) {
   return (
-    <Flex align="flex-start" gap="1" {...rest}>
+    <HStack align="flex-start" gap="1" {...rest}>
       {start}
       <Stack gap="1" flex="1" minW="0">
-        <Flex align="flex-start" gap="3">
-          <HStack gap="2" wrap="wrap" flex="1" minW="0">
+        <HStack align="flex-start" gap="3">
+          <HStack gap="2" wrap={keepAfterInline ? "nowrap" : "wrap"} flex="1" minW="0">
             <Heading as={`h${level}`} size={size ?? SIZE_BY_LEVEL[level]}>
               {title}
             </Heading>
-            {after}
+            {after != null && (
+              <HStack gap="2" flexShrink={0}>
+                {after}
+              </HStack>
+            )}
           </HStack>
           {end != null && (
             <HStack gap="2" flexShrink={0}>
               {end}
             </HStack>
           )}
-        </Flex>
+        </HStack>
         {description != null && <Text color="fg.muted">{description}</Text>}
       </Stack>
-    </Flex>
+    </HStack>
   )
 }
 

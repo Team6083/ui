@@ -15,6 +15,9 @@ section, a card or a dialog. Its slots are named by place, not by content:
   with it.
 - `end` never wraps; on a phone the app keeps it short, e.g. icon-only
   buttons below `sm`.
+- When the title's line runs out of room, `after` moves under the title as
+  one group. `keepAfterInline` keeps it beside the title and wraps the title
+  instead, for a status that reads with the title.
 - It sets no margin; space it from its container.
 
 To migrate:

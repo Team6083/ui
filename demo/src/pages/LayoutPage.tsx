@@ -75,7 +75,7 @@ export function LayoutPage() {
 
       <Example
         title="TitleBar"
-        description="A heading with what belongs beside it, wherever it sits: the page's one h1, a section, a card. level sets the heading (1–4) and its size. start goes before the title (a back button, an avatar), after right behind it (a status, a count, a refresh button), end on the right (the actions), and the description under the title, lined up with it. end never wraps, so on a phone the app keeps it short: here the buttons drop their text below sm. It sets no margin: the container spaces it."
+        description="A heading with what belongs beside it, wherever it sits: the page's one h1, a section, a card. level sets the heading (1–4) and its size. start goes before the title (a back button, an avatar), after right behind it (a status, a count, a refresh button), end on the right (the actions), and the description under the title, lined up with it. end never wraps, so on a phone the app keeps it short: here the buttons drop their text below sm. When the line runs out of room, after moves under the title; keepAfterInline keeps it beside the title and wraps the title instead, for a status that reads with it. It sets no margin: the container spaces it."
         code={`
 // The page's one heading
 <TitleBar
@@ -135,6 +135,15 @@ export function LayoutPage() {
     after={<Badge colorPalette="green">Present</Badge>}
   />
 </Card.Header>
+
+// A long title in a narrow card: after moves under it by default;
+// keepAfterInline keeps the status beside it and wraps the title instead
+<TitleBar
+  level={3}
+  keepAfterInline
+  title="Laser-cut acrylic panels for the robot's side covers"
+  after={<Badge colorPalette="orange">Collecting</Badge>}
+/>
 `}
       >
         <Stack gap="8">
@@ -208,6 +217,25 @@ export function LayoutPage() {
               <Text color="fg.muted">Signed in since 09:12.</Text>
             </Card.Body>
           </Card.Root>
+          <HStack align="flex-start" gap="4" wrap="wrap">
+            {[false, true].map((keepAfterInline) => (
+              <Card.Root key={String(keepAfterInline)} size="sm" w="2xs">
+                <Card.Header>
+                  <TitleBar
+                    level={3}
+                    keepAfterInline={keepAfterInline}
+                    title="Laser-cut acrylic panels for the robot's side covers"
+                    after={<Badge colorPalette="orange">Collecting</Badge>}
+                  />
+                </Card.Header>
+                <Card.Body>
+                  <Text color="fg.muted" textStyle="sm">
+                    {keepAfterInline ? "keepAfterInline" : "Default"}
+                  </Text>
+                </Card.Body>
+              </Card.Root>
+            ))}
+          </HStack>
         </Stack>
       </Example>
 

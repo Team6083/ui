@@ -64,6 +64,9 @@ the rules are for what each app builds on top of them.
   for a live list (who is signed in now); small tools (refresh, search) sit
   there too. Its actions go in `end` (幫其他使用者簽到 on a section, 建立團隊
   on the page), next to the content they change, never in the navigation.
+- A long title pushes its `after` under it. When the `after` is a status that
+  reads with the title (a card's 收集中), set `keepAfterInline` so it stays
+  beside the title and the title wraps instead.
 - `TitleBar` sets no margin. A page is a `Stack` (`gap="6"` under the page's
   title, `gap="3"` between a section's title and its content).
 - An empty list shows `EmptyState`: an icon, a short title (現在沒人) and what to
