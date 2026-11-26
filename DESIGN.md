@@ -16,7 +16,10 @@ the rules are for what each app builds on top of them.
   `width="wide"` (8xl) and wraps its other pages in `PageColumn`.
 - Navigation is ghost buttons with an icon and a word or two, never a row of
   blue text links. The current page is highlighted. Keep it to about five
-  pages; admin pages share one entry.
+  entries; admin pages share one: a nav group (`{ label: "管理", icon, items: [...] }`)
+  that opens a menu of Users, Teams and the rest, and stays highlighted on any
+  of them. A group is for admin-style sets of pages, one level, not for
+  nesting the navigation in general; a landing page with tabs is not the way.
 - The organization name comes from configuration (`ORG_NAME`, `config.json`),
   never from the code.
 - No language picker in the header. The locale follows the browser; an app

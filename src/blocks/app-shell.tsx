@@ -20,8 +20,8 @@ import {
   Text,
   type ContainerProps,
 } from "@chakra-ui/react"
-import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react"
-import { LuChevronRight, LuLanguages, LuLogIn, LuLogOut, LuMenu, LuTriangleAlert } from "react-icons/lu"
+import { cloneElement, isValidElement, useId, type ReactElement, type ReactNode } from "react"
+import { LuChevronDown, LuChevronRight, LuLanguages, LuLogIn, LuLogOut, LuMenu, LuTriangleAlert } from "react-icons/lu"
 
 import { ColorModeButton } from "../chakra/color-mode.js"
 import { useUiMessages } from "../i18n.js"
@@ -37,14 +37,32 @@ export type RenderLink = (href: string, children: ReactNode) => ReactElement
 
 const plainLink: RenderLink = (href, children) => <a href={href}>{children}</a>
 
-export interface NavItem {
+/** A nav item that links to one page. */
+export interface NavLink {
   href: string
   label: ReactNode
   /** A react-icons icon, shown before the label. */
   icon?: ReactNode
   /** The page the user is on; shown highlighted and marked aria-current. */
   active?: boolean
+  items?: never
 }
+
+/**
+ * A nav item that gathers sub-pages: a dropdown on desktop, a heading with its
+ * pages indented beneath it in the phone drawer. For admin-style sets of pages
+ * that share one entry, not for general nesting: its items are links, one level.
+ * It shows highlighted when any of its items is active. A group with no
+ * items is not shown, so apps can filter its items by permission.
+ */
+export interface NavGroup {
+  label: ReactNode
+  icon?: ReactNode
+  items: NavLink[]
+  href?: never
+}
+
+export type NavItem = NavLink | NavGroup
 
 /** Other Container props (padding, margins) go to the content area, `<main>`. */
 export interface AppShellProps extends Omit<ContainerProps, "title"> {
@@ -53,7 +71,7 @@ export interface AppShellProps extends Omit<ContainerProps, "title"> {
   /** The organization's display name, from configuration (never hard-coded). */
   orgName?: ReactNode
   homeHref?: string
-  /** About five pages, each a word or two; they fold into a drawer on phones. */
+  /** About five entries, each a word or two; they fold into a drawer on phones. A NavGroup holds sub-pages. */
   nav?: NavItem[]
   renderLink?: RenderLink
   /** An <AccountMenu>, or a sign-in button when signed out. */
@@ -76,7 +94,7 @@ export interface AppShellProps extends Omit<ContainerProps, "title"> {
   children: ReactNode
 }
 
-function NavButton({ item, renderLink, onClick }: { item: NavItem; renderLink: RenderLink; onClick?: () => void }) {
+function linkElement(item: NavLink, renderLink: RenderLink) {
   const link = renderLink(
     item.href,
     <>
@@ -84,10 +102,59 @@ function NavButton({ item, renderLink, onClick }: { item: NavItem; renderLink: R
       {item.label}
     </>,
   )
+  return isValidElement(link) ? cloneElement(link as ReactElement<{ "aria-current"?: string }>, { "aria-current": item.active ? "page" : undefined }) : link
+}
+
+function NavButton({ item, renderLink, onClick }: { item: NavLink; renderLink: RenderLink; onClick?: () => void }) {
   return (
     <Button size="sm" variant={item.active ? "subtle" : "ghost"} justifyContent="flex-start" asChild onClick={onClick}>
-      {isValidElement(link) ? cloneElement(link as ReactElement<{ "aria-current"?: string }>, { "aria-current": item.active ? "page" : undefined }) : link}
+      {linkElement(item, renderLink)}
     </Button>
+  )
+}
+
+function NavMenu({ group, renderLink }: { group: NavGroup; renderLink: RenderLink }) {
+  if (group.items.length === 0) return null
+  const active = group.items.some((i) => i.active)
+  return (
+    <Menu.Root positioning={{ placement: "bottom-start" }}>
+      <Menu.Trigger asChild>
+        <Button size="sm" variant={active ? "subtle" : "ghost"}>
+          {group.icon}
+          {group.label}
+          <LuChevronDown />
+        </Button>
+      </Menu.Trigger>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content minW="40">
+            {group.items.map((item) => (
+              <Menu.Item key={item.href} value={item.href} asChild _currentPage={{ bg: "bg.muted", fontWeight: "medium" }}>
+                {linkElement(item, renderLink)}
+              </Menu.Item>
+            ))}
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
+  )
+}
+
+function DrawerGroup({ group, renderLink, onClick }: { group: NavGroup; renderLink: RenderLink; onClick: () => void }) {
+  const labelId = useId()
+  if (group.items.length === 0) return null
+  return (
+    <Stack gap="2">
+      <Text id={labelId} textStyle="sm" fontWeight="medium" color="fg.muted" display="flex" alignItems="center" gap="2" px="3">
+        {group.icon}
+        {group.label}
+      </Text>
+      <Stack gap="2" ps="4" role="group" aria-labelledby={labelId}>
+        {group.items.map((item) => (
+          <NavButton key={item.href} item={item} renderLink={renderLink} onClick={onClick} />
+        ))}
+      </Stack>
+    </Stack>
   )
 }
 
@@ -141,9 +208,13 @@ export function AppShell({
           <HStack gap="2" flexShrink={0}>
             {nav.length > 0 && (
               <HStack as="nav" gap="1" hideBelow="md">
-                {nav.map((item) => (
-                  <NavButton key={item.href} item={item} renderLink={renderLink} />
-                ))}
+                {nav.map((item, i) =>
+                  item.items ? (
+                    <NavMenu key={i} group={item} renderLink={renderLink} />
+                  ) : (
+                    <NavButton key={item.href} item={item} renderLink={renderLink} />
+                  ),
+                )}
               </HStack>
             )}
             {actions}
@@ -169,9 +240,13 @@ export function AppShell({
                           <Drawer.Body>
                             <Separator mb="4" />
                             <Stack as="nav" gap="2">
-                              {nav.map((item) => (
-                                <NavButton key={item.href} item={item} renderLink={renderLink} onClick={() => drawer.setOpen(false)} />
-                              ))}
+                              {nav.map((item, i) =>
+                                item.items ? (
+                                  <DrawerGroup key={i} group={item} renderLink={renderLink} onClick={() => drawer.setOpen(false)} />
+                                ) : (
+                                  <NavButton key={item.href} item={item} renderLink={renderLink} onClick={() => drawer.setOpen(false)} />
+                                ),
+                              )}
                             </Stack>
                           </Drawer.Body>
                           <Drawer.Footer justifyContent="space-between">
