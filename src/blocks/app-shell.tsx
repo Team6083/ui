@@ -129,7 +129,7 @@ function NavMenu({ group, renderLink }: { group: NavGroup; renderLink: RenderLin
         <Menu.Positioner>
           <Menu.Content minW="40">
             {group.items.map((item) => (
-              <Menu.Item key={item.href} value={item.href} asChild>
+              <Menu.Item key={item.href} value={item.href} asChild _currentPage={{ bg: "bg.muted", fontWeight: "medium" }}>
                 {linkElement(item, renderLink)}
               </Menu.Item>
             ))}

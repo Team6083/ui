@@ -5,7 +5,7 @@
 `AppShell`'s `nav` accepts a group: `{ label, icon?, items: [...] }`, where
 `items` are the same links as top-level items. On desktop the group is a ghost
 button with a chevron that opens a menu of its pages, highlighted while any of
-them is active, the active one marked `aria-current="page"`. In the phone
+them is active; the active one is shaded and marked `aria-current="page"`. In the phone
 drawer it is a heading with its pages indented beneath it; picking one closes
 the drawer. Links still go through `renderLink`. A group is for admin-style
 sets of pages that share one entry, one level deep. `NavItem` is now
