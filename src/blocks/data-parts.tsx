@@ -45,12 +45,15 @@ export function FilterBar({ search, activeCount = 0, onClear, children, actions,
   // The button's left edge (in the page) and width when the popover opened. The button grows
   // with the badge, and on a phone moves as the search box shrinks; the open popover keeps to
   // this instead, so it doesn't slide sideways. Its vertical place is live, so it still
-  // follows scrolling, flips and its own size. Cleared on close: the next open measures again.
-  const openedAt = useRef<{ left: number; width: number } | null>(null)
+  // follows scrolling, flips and its own size. Measured again when the window's width changes
+  // (a resize, a phone turning) and on the next open. A container scrolled sideways isn't
+  // followed while open.
+  const openedAt = useRef<{ left: number; width: number; viewport: number } | null>(null)
   const anchorRect: NonNullable<PopoverRootProps["positioning"]>["getAnchorRect"] = (el) => {
     if (!el) return null
     const r = el.getBoundingClientRect()
-    openedAt.current ??= { left: r.left + window.scrollX, width: r.width }
+    const viewport = document.documentElement.clientWidth
+    if (openedAt.current?.viewport !== viewport) openedAt.current = { left: r.left + window.scrollX, width: r.width, viewport }
     return { x: openedAt.current.left - window.scrollX, y: r.top, width: openedAt.current.width, height: r.height }
   }
   return (
