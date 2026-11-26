@@ -1,6 +1,6 @@
 "use client"
 
-import { ButtonGroup, Button, Checkbox, Flex, HStack, IconButton, Menu, NativeSelect, Pagination, Portal, Stack, Table, Text, type TableRootProps } from "@chakra-ui/react"
+import { ButtonGroup, Button, Checkbox, Flex, HStack, IconButton, Menu, NativeSelect, Pagination, Portal, Stack, Table, Text, useChakraContext, type TableRootProps } from "@chakra-ui/react"
 import { Fragment, useEffect, useRef, type ReactNode } from "react"
 import { LuArrowDown, LuArrowUp, LuArrowUpDown, LuChevronLeft, LuChevronRight, LuEllipsis } from "react-icons/lu"
 
@@ -181,6 +181,8 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const m = useUiMessages().data
   const locale = useUiLocale()
+  // Style props (margins, width…) go on the whole block; the rest (size, variant, aria-label…) on the table.
+  const [blockStyle, tableProps] = useChakraContext().splitCssProps(rest)
 
   // Sort, then page, then group. With groupBy the groups keep their first-seen
   // order and rows sort within each, so the page still slices what the sort shows.
@@ -354,12 +356,12 @@ export function DataTable<T>({
   )
 
   return (
-    <Stack gap="3">
+    <Stack gap="3" css={blockStyle}>
     {sortSelect}
-    <Table.ScrollArea borderWidth={{ base: "0", md: "1px" }} rounded="l3">
-      <Table.Root size="sm" display={{ base: "block", md: "table" }} {...rest}>
+    <Table.ScrollArea>
+      <Table.Root size="sm" display={{ base: "block", md: "table" }} {...tableProps}>
         <Table.Header display={{ base: "none", md: "table-header-group" }}>
-          <Table.Row bg="bg.subtle">
+          <Table.Row>
             {selection && (
               <Table.ColumnHeader w="10">
                 {selectable.length > 0 && checkbox(allState(selectable.map(getRowId)), m.selectAll, (on) => toggle(selectable.map(getRowId), on))}

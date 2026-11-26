@@ -88,6 +88,9 @@ rules are the reference here.
   the record's name as the `primary` column, detail that can go when space runs
   out as `secondary`. On a phone the same rows become cards; never let a phone
   scroll a table sideways to reach a column.
+- A `DataTable` draws no frame: its `FilterBar`, the table and its pager sit
+  straight on the page as one block. To set the list apart (a list beside
+  other cards), put that whole block in a `Card.Root`, not the table alone.
 - Make a table sortable (`sort`, with a `sortValue` on the columns people
   order by) when it is a long list people scan by name or date. Short lists
   and lists with a meaningful fixed order (a queue, a ranking) stay as they are.

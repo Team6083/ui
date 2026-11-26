@@ -52,6 +52,15 @@ describe("DataTable", () => {
     expect(screen.getAllByRole("cell").find((c) => c.textContent === "Servo")).toHaveAttribute("data-label", "")
   })
 
+  it("puts style props on the whole block and the rest on the table", () => {
+    renderWithUi(<DataTable rows={items} columns={columns} getRowId={(r) => r.id} mt="7" aria-label="Parts" />)
+    const table = screen.getByRole("table", { name: "Parts" })
+    const block = table.closest(".chakra-stack")!
+    expect(getComputedStyle(block).marginTop).not.toBe("")
+    expect(getComputedStyle(block).marginTop).not.toBe("0px")
+    expect(["", "0px"]).toContain(getComputedStyle(table).marginTop)
+  })
+
   it("shows the empty state instead of an empty table", () => {
     renderWithUi(<DataTable rows={[]} columns={columns} getRowId={(r) => r.id} empty={<p>No items</p>} />)
     expect(screen.getByText("No items")).toBeInTheDocument()
