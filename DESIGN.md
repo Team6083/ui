@@ -85,6 +85,12 @@ rules are the reference here.
   the record's name as the `primary` column, detail that can go when space runs
   out as `secondary`. On a phone the same rows become cards; never let a phone
   scroll a table sideways to reach a column.
+- Make a table sortable (`sort`, with a `sortValue` on the columns people
+  order by) when it is a long list people scan by name or date. Short lists
+  and lists with a meaningful fixed order (a queue, a ranking) stay as they are.
+- Paginate (`pagination`) when a list can grow past roughly 50 rows; below that,
+  show everything. One pager under the table, never "load more". When the
+  server pages, pass `count` and the current page's rows.
 - A table with more than about six columns needs `AppShell width="wide"`. If
   it still does not fit, drop `secondary` columns before shrinking text.
 - A row's actions go into its ⋯ menu (`rowActions`), destructive ones in red.

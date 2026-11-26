@@ -72,7 +72,16 @@ export {
 } from "./blocks/page-parts.js"
 
 // Data pages: tables people pick from and act on
-export { DataTable, type DataColumn, type DataTableProps, type DataTableSelection, type RowAction } from "./blocks/data-table.js"
+export {
+  DataTable,
+  type DataColumn,
+  type DataPagination,
+  type DataSort,
+  type DataTableProps,
+  type DataTableSelection,
+  type RowAction,
+  type SortDirection,
+} from "./blocks/data-table.js"
 export {
   FactList,
   FilterBar,

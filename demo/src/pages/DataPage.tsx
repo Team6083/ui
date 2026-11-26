@@ -1,5 +1,5 @@
 import { Badge, Button, createListCollection, HStack, Portal, Select, Stack, Switch, Text } from "@chakra-ui/react"
-import { DataTable, EmptyState, FactList, FilterBar, MemberAvatar, TitleBar, SelectionBar, toaster, Totals, type DataColumn } from "@team6083/ui"
+import { DataTable, EmptyState, FactList, FilterBar, MemberAvatar, TitleBar, SelectionBar, toaster, Totals, type DataColumn, type DataSort } from "@team6083/ui"
 import { useMemo, useState } from "react"
 import { LuCheck, LuEye, LuSearchX, LuShoppingCart, LuX } from "react-icons/lu"
 
@@ -12,11 +12,12 @@ const statuses = createListCollection({
 })
 
 const COLUMNS: DataColumn<Item>[] = [
-  { key: "name", header: "Item", priority: "primary", cell: (item) => item.name },
+  { key: "name", header: "Item", priority: "primary", sortValue: (item) => item.name, cell: (item) => item.name },
   {
     key: "requester",
     header: "Requested by",
     priority: "secondary",
+    sortValue: (item) => item.requester,
     cell: (item) => (
       <HStack gap="2">
         <MemberAvatar name={item.requester} image={AVATARS[item.requester]} size="2xs" />
@@ -25,9 +26,9 @@ const COLUMNS: DataColumn<Item>[] = [
     ),
   },
   { key: "status", header: "Status", cell: (item) => <Badge colorPalette={STATUS_COLOR[item.status]}>{STATUS_LABEL[item.status]}</Badge> },
-  { key: "quantity", header: "Qty", numeric: true, cell: (item) => item.quantity },
-  { key: "unitPrice", header: "Unit price", numeric: true, cell: (item) => formatMoney(item.unitPrice) },
-  { key: "total", header: "Total", numeric: true, cell: (item) => formatMoney(item.quantity * item.unitPrice) },
+  { key: "quantity", header: "Qty", numeric: true, sortValue: (item) => item.quantity, cell: (item) => item.quantity },
+  { key: "unitPrice", header: "Unit price", numeric: true, sortValue: (item) => item.unitPrice, cell: (item) => formatMoney(item.unitPrice) },
+  { key: "total", header: "Total", numeric: true, sortValue: (item) => item.quantity * item.unitPrice, cell: (item) => formatMoney(item.quantity * item.unitPrice) },
 ]
 
 export function DataPage() {
@@ -35,6 +36,9 @@ export function DataPage() {
   const [status, setStatus] = useState<string[]>([])
   const [grouped, setGrouped] = useState(true)
   const [selected, setSelected] = useState<string[]>([])
+  const [sort, setSort] = useState<DataSort["by"]>(null)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(4)
 
   const rows = useMemo(
     () =>
@@ -62,7 +66,7 @@ export function DataPage() {
 
       <Example
         title="FilterBar, DataTable and SelectionBar"
-        description="Search and one 篩選 button instead of a row of selects; rows grouped under headings; pick rows by row, group or all, then act on them in the bar that appears at the bottom. Each row's own actions sit in its ⋯ menu."
+        description="Search and one 篩選 button instead of a row of selects; rows grouped under headings; pick rows by row, group or all, then act on them in the bar that appears at the bottom. Each row's own actions sit in its ⋯ menu. Click a header to sort (ascending, descending, off; on a phone use the sort select above the cards), and use the pager under the table; picks stay when you change page, and the header checkbox picks the current page. Sorting and paging are controlled, so the app can keep them in the URL or send them to a server."
         code={`
 <FilterBar
   search={{ value: search, onChange: setSearch }}
@@ -77,6 +81,8 @@ export function DataPage() {
   columns={columns}
   getRowId={(item) => item.id}
   groupBy={(item) => item.vendor}
+  sort={{ by: sort, onChange: setSort }}
+  pagination={{ page, pageSize, onPageChange: setPage, onPageSizeChange: setPageSize, pageSizes: [4, 8] }}
   selection={{ selected, onChange: setSelected, canSelect: (item) => item.status === "approved" }}
   rowActions={(item) => [
     { value: "view", label: "View", icon: <LuEye />, onSelect: () => open(item) },
@@ -136,6 +142,8 @@ export function DataPage() {
             getRowId={(item) => item.id}
             groupBy={grouped ? (item) => item.vendor : undefined}
             groupLabel={(vendor, items) => `${vendor} · ${items.length}`}
+            sort={{ by: sort, onChange: setSort }}
+            pagination={{ page, pageSize, onPageChange: setPage, onPageSizeChange: setPageSize, pageSizes: [4, 8] }}
             selection={{ selected, onChange: setSelected, canSelect: (item) => item.status === "approved" }}
             rowActions={(item) => [
               { value: "view", label: "View", icon: <LuEye />, onSelect: () => toaster.create({ title: item.name }) },
