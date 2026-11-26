@@ -73,6 +73,7 @@ export function DataPage() {
   search={{ value: search, onChange: setSearch }}
   activeCount={status.length}
   onClear={() => setStatus([])}
+  positioning={{ placement: "right-start", flip: ["bottom-end"] }} // beside the button; under it on a phone
 >
   <Select.Root …>{/* filter fields */}</Select.Root>
 </FilterBar>
@@ -102,6 +103,7 @@ export function DataPage() {
             search={{ value: search, onChange: setSearch, placeholder: "Search items" }}
             activeCount={status.length}
             onClear={() => setStatus([])}
+            positioning={{ placement: "right-start", flip: ["bottom-end"] }}
             actions={
               <Switch.Root size="sm" checked={grouped} onCheckedChange={(e) => setGrouped(e.checked)}>
                 <Switch.HiddenInput />
