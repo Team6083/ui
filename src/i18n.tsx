@@ -25,6 +25,20 @@ export interface UiMessages {
     filter: string
     clearFilters: string
     search: string
+    sortBy: string
+    defaultOrder: string
+    sortAscending: string
+    sortDescending: string
+    /** {from}, {to} and {total}: the rows on this page and all of them. */
+    range: string
+    /** {page} and {pages}: the compact pager on a phone. */
+    pageOf: string
+    pagination: string
+    previousPage: string
+    nextPage: string
+    /** {page} is the page number the button goes to. */
+    goToPage: string
+    rowsPerPage: string
   }
 }
 
@@ -74,6 +88,17 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
       filter: "Filter",
       clearFilters: "Clear filters",
       search: "Search",
+      sortBy: "Sort by",
+      defaultOrder: "Default order",
+      sortAscending: "Sort ascending",
+      sortDescending: "Sort descending",
+      range: "{from}–{to} / {total}",
+      pageOf: "{page} / {pages}",
+      pagination: "Pages",
+      previousPage: "Previous page",
+      nextPage: "Next page",
+      goToPage: "Page {page}",
+      rowsPerPage: "Rows per page",
     },
   },
   "zh-TW": {
@@ -121,6 +146,17 @@ export const uiMessages: Record<UiLocale, UiMessages> = {
       filter: "篩選",
       clearFilters: "清除篩選",
       search: "搜尋",
+      sortBy: "排序",
+      defaultOrder: "預設順序",
+      sortAscending: "由小到大排序",
+      sortDescending: "由大到小排序",
+      range: "{from}–{to} / {total}",
+      pageOf: "{page} / {pages}",
+      pagination: "分頁",
+      previousPage: "上一頁",
+      nextPage: "下一頁",
+      goToPage: "第 {page} 頁",
+      rowsPerPage: "每頁列數",
     },
   },
 }
